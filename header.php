@@ -81,6 +81,7 @@
                   aria-expanded="false"
                   aria-label="Panier"
                   title="Panier"
+                  data-bs-auto-close="outside"
                 >
                   <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
                     <use href="<?php echo esc_url( get_theme_file_uri('assets/icons/icon-basket.svg#icon-basket') ); ?>"></use>
@@ -92,13 +93,7 @@
                 </button>
 
                 <div class="dropdown-menu dropdown-menu-end basket-dropdown p-3 pt-5 position-relative border shadow rounded-4">
-                  <button
-                    class="btn pt-2 border-0 bg-transparent position-absolute top-0 end-0 me-2 fs-2"
-                    type="button"
-                    aria-label="Fermer le panier"
-                    data-bs-toggle="dropdown"
-                  >×</button>
-
+                  
                   <?php woocommerce_mini_cart(); ?>
 
                   <div class="d-grid gap-2 mt-3">

@@ -128,6 +128,16 @@ Tags:
     right: -2vw !important;
     transform: none !important;
     z-index: 1050;
+    max-height: calc(100vh - 140px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;      /* Firefox */
+    -ms-overflow-style: none;   /* IE/Edge */
+}
+.basket-dropdown::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 .basket-thumb{
     width: 48px;
