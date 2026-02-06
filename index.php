@@ -1,5 +1,5 @@
 <?php get_header(); ?>
 
-<?php echo 'TEST INDEX'; ?>
+<?php echo 'INDEX'; ?>
 
 <?php get_footer(); ?>

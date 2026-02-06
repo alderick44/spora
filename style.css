@@ -43,7 +43,7 @@ Tags:
     --bs-btn-active-bg : var(--color-red-light);
     --bs-btn-active-border-color: var(--color-red-dark);
 }
-.logo{;
+.logo{
     display: block;
     transition: transform 0.2s ease, width 0.2s ease;
 }
@@ -201,18 +201,18 @@ Tags:
         transform: translate3d(var(--hero-pan-vector-transition)) scale(var(--hero-pan-intro-scale-transition));
     }
 }
-/* .carousel-item {
+.carousel-item {
   img{
     height: 70vh;
     object-fit: contain;
   }
 }
-.ensemble__image{
+.bundles .bundles-img{
     height: 25vh;
     width: 35vh;
 }
 @media (max-width: 1400px){
-    .ensemble__image{
+    .bundles .bundles-img{
         height: 35vh;
         width: 45vh;
     }
@@ -221,4 +221,4 @@ Tags:
             height: 55vh;
         }
     }
-} */
+}
