@@ -18,4 +18,11 @@
     
     }
 
+    add_action('after_setup_theme', function() {
+    add_theme_support('post-thumbnails');
+
+    add_image_size( 'mini_cart_thumbnail', 64,64, true);
+
+    });
+
 ?>
