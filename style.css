@@ -1,0 +1,209 @@
+/*
+Theme Name: Spora
+Theme URI: https://wordpress.org/themes/twentytwentyfive/
+Author: the WordPress team
+Author URI: https://wordpress.org
+Description: 
+Requires at least: 6.7
+Tested up to: 6.9
+Requires PHP: 7.2
+Version: 1.4
+License: GNU General Public License v2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: twentytwentyfive
+Tags:
+*/
+
+:root{
+    --color-red: #9A2C19;
+    --color-red-dark: #701a0b;
+    --color-red-light: #EE7C68;
+    --bs-dark: #130031;
+    --bs-dark-rgb: 19, 0, 49;
+    --bs-dark-bg-subtle: #1F3651;
+    --bs-dark-bg-subtle-rgb: 31, 54, 81;
+    --bs-light-bg-subtle: #ffe5e1;
+    --bs-light : #F7F7FF; /*Texte pâle*/
+    --bs-secondary : #faf0e3;
+    --bs-secondary-rgb : 250, 240, 227; /*background main*/
+    --bs-link-color : #faf5ef;
+    --bs-link-color-rgb : 194, 55, 31;
+    --bs-link-hover-color: #701a0b;
+    --bs-link-hover-color-rgb: 112, 26, 11;
+    --bs-body-bg: #F7F7FF; /*Footer, cards, carousel,*/
+}
+.hero-viewport{
+    overflow: hidden;
+}
+.btn-primary{
+    --bs-btn-bg : var(--color-red);
+    --bs-btn-border-color: var(--color-red);
+    --bs-btn-hover-bg: var(--color-red-dark);
+    --bs-btn-hover-border-color: var(--color-red-dark);
+    --bs-btn-active-bg : var(--color-red-light);
+    --bs-btn-active-border-color: var(--color-red-dark);
+}
+.logo{;
+    display: block;
+    transition: transform 0.2s ease, width 0.2s ease;
+}
+.logo:hover{
+    transform: translateY(-2px) scale(1.12);
+}
+.header.is-compact .logo{
+    width: 35% !important;
+}
+.header{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+    background: rgba(61, 108, 161, 0.12);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    transition: padding 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+.header::before{
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(7, 15, 24, 0.35);
+    pointer-events: none;
+}
+.header > *{
+    position: relative;
+    z-index: 1;
+}
+.header .nav-link{
+    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.35);
+}
+.header-nav__lists{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.25rem;
+}
+@media (max-width: 768px){
+    .header.is-compact .header-nav__lists{
+        display: none !important;
+    }
+    .header:not(.is-compact) .header-nav__lists{
+        display: flex !important;
+    }
+}
+.header.is-compact .header-nav__utility{
+    display: none !important;
+}
+.header.is-compact .header-nav{
+    gap: 1rem !important;
+}
+.header.is-compact{
+    padding-top: 0.2rem !important;
+    padding-bottom: 0.2rem !important;
+    background: rgba(31, 54, 81, 0.88);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+}
+.nav-link.active{
+    --bs-nav-underline-link-active-color: var(--color-red-light);
+}
+.nav-link{
+    --bs-nav-link-color: var(--bs-light);
+}
+.nav-link .nav-icon{
+    width: 1.5rem;
+    height: 1.5rem;
+    flex: 0 0 auto;
+}
+.basket-dropdown-wrap{
+    position: relative;
+}
+.basket-dropdown{
+    min-width: 18rem;
+    position: absolute !important;
+    top: calc(150% + 1.5rem) !important;
+    right: -2vw !important;
+    transform: none !important;
+    z-index: 1050;
+}
+.basket-thumb{
+    width: 48px;
+    height: 48px;
+}
+.basket-badge{
+    position: absolute;
+    top: -0.35rem;
+    right: -0.35rem;
+    font-size: 0.6rem;
+    line-height: 1;
+    padding: 0.2rem 0.35rem;
+}
+.nav-link:focus, .nav-link:hover{
+    --bs-nav-link-hover-color: var(--color-red-light);
+}
+/* CSS minimal */
+.banner__text{
+    text-shadow: 0 0 5px #000000, 0 0 10px #000000, 0 0 25px #000000;
+}
+.hero-pan{
+    --hero-pan-intro: 2s;
+    --hero-pan-loop: 60s;
+
+    --hero-pan-intro-scale-transition: 1.5; /* Scale at the end of intro and beginning of loop */
+    --hero-pan-vector-transition: 10%, 20%, 0;
+
+    animation:
+        hero-pan-intro var(--hero-pan-intro) ease-out 1,
+        hero-pan-loop var(--hero-pan-loop) ease-in-out var(--hero-pan-intro) infinite;
+    transform-origin: center;
+}
+@keyframes hero-pan-intro{  /* Ajusté pour écran moyen */
+    0%{
+        transform: translate3d(-55%, -25%, 0) scale(2.5);
+    }
+    35%{
+        transform: translate3d(-35%, -15%, 0) scale(2);
+    }
+    100%{
+        transform: translate3d(var(--hero-pan-vector-transition)) scale(var(--hero-pan-intro-scale-transition));
+    }
+}
+@keyframes hero-pan-loop{
+    0%{
+        transform: translate3d(var(--hero-pan-vector-transition)) scale(var(--hero-pan-intro-scale-transition));
+    }
+    50%{
+        
+        transform: translate3d(0%, 0%, 0) scale(1);
+    }
+    75%{
+        transform: translate3d(15%, 20%, 0) scale(2.15);
+    }
+    100%{
+        transform: translate3d(var(--hero-pan-vector-transition)) scale(var(--hero-pan-intro-scale-transition));
+    }
+}
+/* .carousel-item {
+  img{
+    height: 70vh;
+    object-fit: contain;
+  }
+}
+.ensemble__image{
+    height: 25vh;
+    width: 35vh;
+}
+@media (max-width: 1400px){
+    .ensemble__image{
+        height: 35vh;
+        width: 45vh;
+    }
+    .carousel-item {
+        img{
+            height: 55vh;
+        }
+    }
+} */

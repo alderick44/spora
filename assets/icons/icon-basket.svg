@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+  <symbol id="icon-basket" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M6 9a6 6 0 0 1 12 0h-2a4 4 0 0 0-8 0H6z"/>
+    <path d="M4 10.5h16l-1.6 7.7a2 2 0 0 1-2 1.6H7.6a2 2 0 0 1-2-1.6L4 10.5z"/>
+  </symbol>
+</svg>
