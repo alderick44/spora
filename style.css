@@ -147,6 +147,8 @@ Tags:
 .woocommerce-mini-cart li {
     list-style: none;
 }
+.basket-dropdown .woocommerce-mini-cart.cart_list { padding-left: 0 }
+
 /* CSS minimal */
 .banner__text{
     text-shadow: 0 0 5px #000000, 0 0 10px #000000, 0 0 25px #000000;

@@ -73,7 +73,51 @@
                 </ul>
               </nav>
 
-              <?php woocommerce_mini_cart(); ?>
+              <div class="dropdown basket-dropdown-wrap">
+                <button
+                  class="nav-link px-2 d-flex align-items-center position-relative"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                  aria-label="Panier"
+                  title="Panier"
+                >
+                  <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="<?php echo esc_url( get_theme_file_uri('assets/icons/icon-basket.svg#icon-basket') ); ?>"></use>
+                  </svg>
+
+                  <span class="basket-badge badge rounded-pill bg-danger">
+                    <?php echo WC()->cart ? (int) WC()->cart->get_cart_contents_count() : 0; ?>
+                  </span>
+                </button>
+
+                <div class="dropdown-menu dropdown-menu-end basket-dropdown p-3 pt-5 position-relative border shadow rounded-4">
+                  <button
+                    class="btn pt-2 border-0 bg-transparent position-absolute top-0 end-0 me-2 fs-2"
+                    type="button"
+                    aria-label="Fermer le panier"
+                    data-bs-toggle="dropdown"
+                  >×</button>
+
+                  <?php woocommerce_mini_cart(); ?>
+
+                  <div class="d-grid gap-2 mt-3">
+                    <div>
+                      <label class="form-label mb-1" for="postal-code">Code postal</label>
+                      <input class="form-control" type="text" id="postal-code" name="postal-code" placeholder="H2X 1Y4" />
+                      <div class="small text-muted mt-1">Estimer la livraison</div>
+                    </div>
+
+                    <a class="btn btn-primary" href="<?php echo esc_url( wc_get_checkout_url() ); ?>">
+                      Passer à la caisse
+                    </a>
+                    <a class="button wc-forward btn btn-primary" href="<?php echo esc_url( wc_get_cart_url() ); ?>">
+                      <?php esc_html_e( 'View cart', 'woocommerce' ); ?>
+                    </a>
+                  </div>
+                </div>
+              </div>
+
 
             </div>
           </div>
