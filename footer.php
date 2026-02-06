@@ -18,7 +18,7 @@
             <div class="d-flex flex-column gap-4">
               <a href="index.html">Facebook</a>
               <a href="index.html">Instagram</a>
-              <a href="index.html">Twitter</a>
+              <!-- <a href="index.html">Twitter</a> -->
             </div>
           </div>
           <div class="col-6 col-sm-4 col-md-3">
@@ -70,6 +70,5 @@
       integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
       crossorigin="anonymous"
     ></script>
-    <script src="scripts/index.js"></script>
 </body>
 </html>

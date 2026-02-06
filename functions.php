@@ -6,12 +6,14 @@ function spora_enqueue_styles() {
     wp_enqueue_style(
         'spora-normalize',
         get_theme_file_uri( 'normalize.css' ),
+        [],
         wp_get_theme()->get( 'Version' )
     );
 
     wp_enqueue_style(
         'spora-style',
         get_theme_file_uri( 'style.css' ),
+        [ 'spora-normalize', 'woocommerce-layout'],
         wp_get_theme()->get( 'Version' )
     );
 }
@@ -28,6 +30,17 @@ add_action( 'wp_enqueue_scripts', function() {
     }
 
     wp_enqueue_script( 'wc-cart-fragments' );
+    if ( function_exists( 'is_shop' ) && function_exists( 'is_product_taxonomy' ) ) {
+        if ( is_shop() || is_product_taxonomy() ) {
+            wp_enqueue_script(
+                'spora-shop-ensembles',
+                get_theme_file_uri( 'assets/js/shop-ensembles.js' ),
+                [],
+                wp_get_theme()->get( 'Version' ),
+                true
+            );
+        }
+    }
     wp_enqueue_script(
         'spora-mini-cart-qty',
         get_theme_file_uri( 'assets/js/mini-cart-qty.js' ),
