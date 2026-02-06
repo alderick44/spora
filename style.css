@@ -144,6 +144,9 @@ Tags:
 .nav-link:focus, .nav-link:hover{
     --bs-nav-link-hover-color: var(--color-red-light);
 }
+.woocommerce-mini-cart li {
+    list-style: none;
+}
 /* CSS minimal */
 .banner__text{
     text-shadow: 0 0 5px #000000, 0 0 10px #000000, 0 0 25px #000000;
