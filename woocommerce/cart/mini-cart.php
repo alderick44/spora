@@ -66,7 +66,23 @@ do_action( 'woocommerce_before_mini_cart' );
                   </a>
                 <?php endif; ?>
               </div>
-              <div class="small text-muted">Qté <?php echo (int) $cart_item['quantity']; ?></div>
+              <div class="small text-muted d-flex align-items-center gap-1">
+                Qté <span class="mini-cart-qty-value"><?php echo (int) $cart_item['quantity']; ?></span>
+                <button
+                  type="button"
+                  class="btn btn-link p-0 text-decoration-none mini-cart-qty-btn"
+                  aria-label="Augmenter la quantité"
+                  data-action="plus"
+                  data-cart_item_key="<?php echo esc_attr( $cart_item_key ); ?>"
+                >▲</button>
+                <button
+                  type="button"
+                  class="btn btn-link p-0 text-decoration-none mini-cart-qty-btn"
+                  aria-label="Diminuer la quantité"
+                  data-action="minus"
+                  data-cart_item_key="<?php echo esc_attr( $cart_item_key ); ?>"
+                >▼</button>
+              </div>
               <?php echo wc_get_formatted_cart_item_data( $cart_item ); ?>
             </div>
             <div class="d-flex flex-column align-items-end gap-1">
