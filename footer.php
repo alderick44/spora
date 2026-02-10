@@ -37,7 +37,7 @@
         <div class="d-flex flex-column text-center pt-5 mt-5">
           <div>
             <img
-              src="<?php echo get_template_directory_uri();?>/assets/img/logo-transparent.png"
+              src="<?php echo get_template_directory_uri();?>/assets/icons/logo-spora.svg"
               class="w-25"
               alt="logo sporacultus"
             />

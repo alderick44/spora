@@ -23,7 +23,7 @@
             <a href="/">
               <img
                 class="w-75 logo"
-                src="<?php echo esc_url( get_theme_file_uri('assets/img/logo-transparent.png') ); ?>"
+                src="<?php echo esc_url( get_theme_file_uri('assets/icons/logo-spora.svg') ); ?>"
                 alt="logo sporacultus"
               />
             </a>
