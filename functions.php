@@ -1,6 +1,17 @@
 <?php
 
 add_action( 'wp_enqueue_scripts', 'spora_enqueue_styles' );
+add_action('wp_enqueue_scripts', 'spora_enqueue_scripts');
+
+function spora_enqueue_scripts() {
+    wp_enqueue_script(
+        'spora-header-compact',
+        get_theme_file_uri( 'assets/js/header-compact.js' ),
+        [],
+        wp_get_theme()->get( 'Version' ),
+        true
+    );
+}
 
 function spora_enqueue_styles() {
     wp_enqueue_style(
@@ -63,6 +74,7 @@ add_filter( 'woocommerce_add_to_cart_fragments', function( $fragments ) {
     $fragments['.basket-badge'] = ob_get_clean();
     return $fragments;
 } );
+
 
 add_action( 'wp_ajax_spora_update_mini_cart_qty', 'spora_update_mini_cart_qty' );
 add_action( 'wp_ajax_nopriv_spora_update_mini_cart_qty', 'spora_update_mini_cart_qty' );
