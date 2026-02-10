@@ -3,6 +3,9 @@
 add_action( 'wp_enqueue_scripts', 'spora_enqueue_styles' );
 add_action('wp_enqueue_scripts', 'spora_enqueue_scripts');
 
+add_filter('woocommerce_enqueue_styles', '__return_false');
+
+
 function spora_enqueue_scripts() {
     wp_enqueue_script(
         'spora-header-compact',
@@ -24,7 +27,7 @@ function spora_enqueue_styles() {
     wp_enqueue_style(
         'spora-style',
         get_theme_file_uri( 'style.css' ),
-        [ 'spora-normalize', 'woocommerce-layout'],
+        [ 'spora-normalize'],
         wp_get_theme()->get( 'Version' )
     );
 }
@@ -33,12 +36,14 @@ add_action( 'after_setup_theme', function() {
     add_theme_support( 'woocommerce' );
     add_theme_support( 'post-thumbnails' );
     add_image_size( 'mini_cart_thumbnail', 64, 64, true );
+    add_image_size('product', 900, 600, true);
 } );
 
 add_action( 'wp_enqueue_scripts', function() {
     if ( ! class_exists( 'WooCommerce' ) ) {
         return;
     }
+
 
     wp_enqueue_script( 'wc-cart-fragments' );
     if ( function_exists( 'is_shop' ) && function_exists( 'is_product_taxonomy' ) ) {
@@ -103,4 +108,13 @@ function spora_update_mini_cart_qty() {
 
     WC_AJAX::get_refreshed_fragments();
 }
+
+add_filter('woocommerce_loop_add_to_cart_args', function( $args, $product ) {
+    $extra = ' btn btn-primary';
+    $args['class'] = isset($args['class']) ? $args['class'] . $extra : trim($extra);
+    return $args;
+}, 10, 2);
+
+
+
 ?>
