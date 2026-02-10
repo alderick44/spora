@@ -178,6 +178,14 @@ body.home .header{
         hero-pan-loop var(--hero-pan-loop) ease-in-out var(--hero-pan-intro) infinite;
     transform-origin: center;
 }
+.card .card-title a{
+    text-decoration: none;
+    color: var(--bs-headings-color);
+}
+.card .card-img-top{
+    height: auto;
+    width: 100%;
+}
 @keyframes hero-pan-intro{  /* Ajusté pour écran moyen */
     0%{
         transform: translate3d(-55%, -25%, 0) scale(2.5);

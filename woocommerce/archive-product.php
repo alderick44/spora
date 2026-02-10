@@ -117,7 +117,7 @@ do_action( 'woocommerce_before_main_content' );
 				 * @hooked woocommerce_result_count - 20
 				 * @hooked woocommerce_catalog_ordering - 30
 				 */
-				do_action( 'woocommerce_before_shop_loop' );
+				// do_action( 'woocommerce_before_shop_loop' );
 
 				if ( wc_get_loop_prop( 'total' ) ) {
 					echo '<div class="row justify-content-center">';
@@ -143,8 +143,8 @@ do_action( 'woocommerce_before_main_content' );
 						$product_link = get_permalink();
 						?>
 						<div class="card border-0 col-6 col-md-4 col-lg-3 bg-light">
-							<a href="<?php echo esc_url( $product_link ); ?>">
-								<?php echo $product->get_image( 'woocommerce_thumbnail', [ 'class' => 'card-img-top' ] ); ?>
+							<a href="<?php echo esc_url( $product_link ); ?>" class="product-title">
+								<?php echo $product->get_image( 'product', [ 'class' => 'card-img-top' ] ); ?>
 							</a>
 							<div class="card-body">
 								<h4 class="card-title mb-3">
