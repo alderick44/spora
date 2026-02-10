@@ -199,20 +199,35 @@ do_action( 'woocommerce_before_main_content' );
                                     Pensé pour les jardiniers curieux, cet ensemble favorise à la fois la production de champignons comestibles et l’enrichissement naturel du sol.</p>
                                 </div>
                                 <div class="d-xxl-none d-inline col-12">
-                                    <form action="<?php echo esc_url( wc_get_page_permalink( 'shop' ) ); ?>" method="post" class="d-inline" data-bundle-add-to-cart data-product-id="30">
-                                        <input type="hidden" name="add-to-cart" value="30" />
-                                        <button type="submit" class="mb-5 btn btn-primary btn-panier">Ajouter au panier</button>
-                                    </form>
+									<button class="mb-5 btn btn-primary btn-panier ">
+										<?php
+										global $product;
+										$prev = $product;
+										$product = wc_get_product(126);
+										if ($product) {
+										wc_get_template('loop/add-to-cart.php');
+										}
+										$product = $prev;
+										?>
+									</button>
                                 </div>
-                                
                                 <div class="col-6 pe-1 ps-0">
                                     <img class="w-100 object-fit-contain bundles-img" src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/hwfp-crop.png' ); ?>" alt="Granules de bois dure">
                                 </div>
                                 <div class="col-6 pe-xxl-5 pe-0 ps-0">
-                                    <form action="<?php echo esc_url( wc_get_page_permalink( 'shop' ) ); ?>" method="post" class="d-none d-xxl-inline" data-bundle-add-to-cart data-product-id="30">
-                                        <input type="hidden" name="add-to-cart" value="30" />
-                                        <button type="submit" class="mb-5 btn btn-primary btn-panier">Ajouter au panier</button>
-                                    </form>
+									<button class="mb-5 btn btn-primary btn-panier d-none d-xxl-inline">
+										<?php
+										global $product;
+
+										$prev = $product;
+										$product = wc_get_product(126);
+
+										if ($product) {
+										wc_get_template('loop/add-to-cart.php');
+										}
+										$product = $prev;
+										?>
+									</button>
                                     <img class="w-100 object-fit-contain bundles-img" src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/mycelium-en-vrac.png' ); ?>" alt="Sac de mycelium en vrac">
                                 </div>
                             </div>
@@ -231,17 +246,30 @@ do_action( 'woocommerce_before_main_content' );
                                     Il comprend tout le matériel nécessaire : culture liquide, mycélium sur grain, substrat et guide d’utilisation. Idéal pour comprendre chaque étape du cycle, de l’inoculation jusqu’à la fructification.</p>
                                 </div>
                                 <div class="col-12">
-                                    <form action="<?php echo esc_url( wc_get_page_permalink( 'shop' ) ); ?>" method="post" class="d-xxl-none d-inline" data-bundle-add-to-cart data-product-id="88">
-                                        <input type="hidden" name="add-to-cart" value="88" />
-                                        <button type="submit" class="mb-5 btn btn-primary btn-panier">Ajouter au panier</button>
-                                    </form>
+									<button class="mb-5 btn btn-primary btn-panier d-xxl-none d-inline">
+										<?php
+										global $product;
+										$prev = $product;
+										$product = wc_get_product(126);
+										if ($product) {
+										wc_get_template('loop/add-to-cart.php');
+										}
+										$product = $prev;
+										?>
+									</button>
                                 </div>
-                                
                                 <div class="col-6 ps-xxl-5 ps-0 pe-0 text-xxl-end">
-                                    <form action="<?php echo esc_url( wc_get_page_permalink( 'shop' ) ); ?>" method="post" class="d-none d-xxl-inline" data-bundle-add-to-cart data-product-id="88">
-                                        <input type="hidden" name="add-to-cart" value="88" />
-                                        <button type="submit" class="mb-5 btn btn-primary btn-panier">Ajouter au panier</button>
-                                    </form>
+									<button class="mb-5 btn btn-primary btn-panier d-none d-xxl-inline">
+										<?php
+										global $product;
+										$prev = $product;
+										$product = wc_get_product(126);
+										if ($product) {
+										wc_get_template('loop/add-to-cart.php');
+										}
+										$product = $prev;
+										?>
+									</button>
                                     <img class="w-100 object-fit-contain bundles-img" src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/GSM_Hotte.JPG' ); ?>" alt="Mycelium sur grain dans une hotte à flux laminaire">
                                 </div>
                                 <div class="col-6 ps-1 pe-0 text-xxl-end">

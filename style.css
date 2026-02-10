@@ -43,6 +43,18 @@ Tags:
     --bs-btn-active-bg : var(--color-red-light);
     --bs-btn-active-border-color: var(--color-red-dark);
 }
+.btn-secondary{
+    /* --bs-btn-bg : var(--bs-dark);
+    --bs-btn-border-color: var(--color-red-light);
+    --bs-btn-hover-bg: var(--color-red-dark);
+    --bs-btn-hover-border-color: var(--color-red-dark);
+    --bs-btn-active-bg : var(--color-red-dark);
+    --bs-btn-active-border-color: var(--color-red-dark); */
+}
+.btn a {
+    color: var(--bs-light);
+    text-decoration: none;
+}
 .logo{
     display: block;
     transition: transform 0.2s ease, width 0.2s ease;
