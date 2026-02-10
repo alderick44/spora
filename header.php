@@ -12,7 +12,7 @@
 />
 <?php wp_head(); ?>
 </head>
-<body <?php body_class(); ?>>
+<body <?php body_class();?>>
     <div class="d-md-none p-5 bg-dark"></div>
     <div class="d-md-none p-5 bg-dark"></div>
     <div class="bg-dark py-5"></div>
@@ -35,19 +35,19 @@
                   class="nav nav-underline justify-content-end flex-wrap gap-3 mb-1 small header-nav__utility"
                 >
                   <li class="nav-item">
-                    <a class="nav-link px-2" href="a-propos/index.html"
+                    <a class="nav-link px-2" href="/a-propos/"
                       >À propos</a
                     >
                   </li>
                   <li class="nav-item">
                     <a
                       class="nav-link px-2"
-                      href="guides-et-conseils/index.html"
+                      href="/guides-et-conseils"
                       >Guides et conseils</a
                     >
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link px-2" href="nous-joindre/index.html"
+                    <a class="nav-link px-2" href="/nous-joindre/"
                       >Nous joindre</a
                     >
                   </li>
@@ -56,17 +56,17 @@
                   class="nav nav-underline justify-content-end flex-wrap gap-3 fs-5 fw-semibold header-nav__main"
                 >
                   <li class="nav-item">
-                    <a class="nav-link px-2" href="producteurs/index.html"
+                    <a class="nav-link px-2" href="/producteurs/"
                       >Pour les producteurs</a
                     >
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link px-2" href="/shop"
+                    <a class="nav-link px-2" href="/shop/"
                       >Boutique</a
                     >
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link px-2" href="nos-champignons/index.html"
+                    <a class="nav-link px-2" href="/nos-champignons/"
                       >Nos champignons</a
                     >
                   </li>
