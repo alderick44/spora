@@ -13,9 +13,9 @@
 <?php wp_head(); ?>
 </head>
 <body <?php body_class();?>>
-    <div class="d-md-none p-5 bg-dark"></div>
-    <div class="d-md-none p-5 bg-dark"></div>
-    <div class="bg-dark py-5"></div>
+    <div class="d-md-none p-5 bg-dark-subtle"></div>
+    <div class="d-md-none p-5 bg-dark-subtle"></div>
+    <div class="bg-dark-subtle py-5"></div>
     <header class="header py-md-3 py-3 z-3">
       <div class="container">
         <div class="row justify-content-between align-items-center">

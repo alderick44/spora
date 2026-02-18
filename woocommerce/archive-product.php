@@ -30,7 +30,7 @@ do_action( 'woocommerce_before_main_content' );
 
 ?>
 
-<main class="bg-secondary">
+<main class="bg-secondary py-5">
 	<div class="container">
 		<section class="row flex-column justify-content-center align-items-center pt-2 pb-2 pe-0 ps-0">
 			<div class="col-12">
@@ -180,7 +180,7 @@ do_action( 'woocommerce_before_main_content' );
 			?>
 		</section>
 
-		<section class="bundles py-5 my-5">
+		<section class="bundles py-5 mt-5">
                     <div class="text-center pt-5 my-5">
                         <h4>Nos ensembles</h4>
                         <h5>Combinez et économisez</h5>
@@ -295,6 +295,7 @@ do_action( 'woocommerce_after_main_content' );
  *
  * @hooked woocommerce_get_sidebar - 10
  */
-do_action( 'woocommerce_sidebar' );
+// do_action( 'woocommerce_sidebar' );
+
 
 get_footer( 'shop' );
