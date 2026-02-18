@@ -18,7 +18,7 @@ Tags:
     --color-red: #9A2C19;
     --color-red-dark: #701a0b;
     --color-red-light: #EE7C68;
-    --bs-dark: #19013f;
+    --bs-dark: #1f0843;
     --bs-dark-rgb: 19, 0, 49;
     --bs-dark-bg-subtle: #1F3651;
     --bs-dark-bg-subtle-rgb: 31, 54, 81;
@@ -73,7 +73,7 @@ Tags:
     z-index: 1000;
     padding-top: 1rem !important;
     padding-bottom: 1rem !important;
-    background: var(--bs-dark);
+    background: var(--bs-dark-bg-subtle);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
@@ -173,6 +173,9 @@ body.home .header{
     list-style: none;
 }
 .basket-dropdown .woocommerce-mini-cart.cart_list { padding-left: 0 }
+
+.card a.added_to_cart.wc-forward { display: none !important; } /* Hides injected WC btn */
+
 
 /* CSS minimal */
 .banner__text{
