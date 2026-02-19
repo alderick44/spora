@@ -3,6 +3,7 @@
 add_action( 'wp_enqueue_scripts', 'spora_enqueue_styles' );
 add_action('wp_enqueue_scripts', 'spora_enqueue_scripts');
 
+
 add_filter('woocommerce_enqueue_styles', function ($styles) {
     if (is_shop()) {
         return false;
