@@ -181,106 +181,107 @@ do_action( 'woocommerce_before_main_content' );
 		</section>
 
 		<section class="bundles py-5 mt-5">
-                    <div class="text-center pt-5 my-5">
-                        <h4>Nos ensembles</h4>
-                        <h5>Combinez et économisez</h5>
-                    </div>
-                    <div class="row justify-content-between">
-                        <div id="ensemble-gauche" class="col-xxl-6 col-12 pe-xxl-5 py-3 m-xxl-0 text-center text-xxl-start">
-                            <div class="row">
-                                <div class="col-12">
-                                    <h5 class="p-3">Le jardinier</h5>
-                                </div>
-                                <div class="col-7 mx-auto mx-xxl-0">
-                                    <img class="w-100 object-fit-contain bundles-img" src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/mycelium-en-vrac-fructification.jpg' ); ?>" alt="Fructification de pleurote au sol à partir de copeaux de bois">
-                                </div>
-                                <div class="col-12">
-                                    <p class="py-5" id="texte-gauche">Le jardinier regroupe tout le nécessaire pour lancer une culture de champignons directement au jardin. Il comprend du mycélium en vrac, des granules de bois francs, du son de blé et les instructions de préparation.
-                                    Pensé pour les jardiniers curieux, cet ensemble favorise à la fois la production de champignons comestibles et l’enrichissement naturel du sol.</p>
-                                </div>
-                                <div class="d-xxl-none d-inline col-12">
-									<button class="mb-5 btn btn-primary btn-panier ">
-										<?php
-										global $product;
-										$prev = $product;
-										$product = wc_get_product(126);
-										if ($product) {
-										wc_get_template('loop/add-to-cart.php');
-										}
-										$product = $prev;
-										?>
-									</button>
-                                </div>
-                                <div class="col-6 pe-1 ps-0">
-                                    <img class="w-100 object-fit-contain bundles-img" src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/hwfp-crop.png' ); ?>" alt="Granules de bois dure">
-                                </div>
-                                <div class="col-6 pe-xxl-5 pe-0 ps-0">
-									<button class="mb-5 btn btn-primary btn-panier d-none d-xxl-inline">
-										<?php
-										global $product;
+			<div class="text-center pt-5 my-5">
+				<h4>Nos ensembles</h4>
+				<h5>Combinez et économisez</h5>
+			</div>
+			<div class="row justify-content-between">
+				<div id="ensemble-gauche" class="col-xxl-6 col-12 pe-xxl-5 py-3 m-xxl-0 text-center text-xxl-start">
+					<div class="row">
+						<div class="col-12">
+							<h5 class="p-3">Le jardinier</h5>
+						</div>
+						<div class="col-7 mx-auto mx-xxl-0">
+							<img class="w-100 object-fit-contain bundles-img" src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/mycelium-en-vrac-fructification.jpg' ); ?>" alt="Fructification de pleurote au sol à partir de copeaux de bois">
+						</div>
+						<div class="col-12">
+							<p class="py-4 my-0" id="texte-gauche">Le jardinier regroupe tout le nécessaire pour lancer une culture de champignons directement au jardin. Il comprend du mycélium en vrac, des granules de bois francs, du son de blé et les instructions de préparation.
+							Pensé pour les jardiniers curieux, cet ensemble favorise à la fois la production de champignons comestibles et l’enrichissement naturel du sol.</p>
+						</div>
+						<div class="d-xxl-none d-inline col-12"> <!-- Mobile btn -->
+							<button class="mb-2 btn btn-primary btn-panier ">
+								<?php
+								global $product;
+								$prev = $product;
+								$product = wc_get_product(126);
+								if ($product) {
+								wc_get_template('loop/add-to-cart.php');
+								}
+								$product = $prev;
+								?>
+							</button>
+						</div>
+						<div class="col-5 col-sm-6 mx-auto pe-1 ps-0">
+							<img class="w-100 object-fit-contain bundles-img" src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/hwfp-crop.png' ); ?>" alt="Granules de bois dure">
+						</div>
+						<div class="col-5 col-sm-6 mx-auto pe-xxl-5 pe-0 ps-0">
+							<button class="mb-5 btn btn-primary btn-panier d-none d-xxl-inline">
+								<?php
+								global $product;
 
-										$prev = $product;
-										$product = wc_get_product(126);
+								$prev = $product;
+								$product = wc_get_product(126);
 
-										if ($product) {
-										wc_get_template('loop/add-to-cart.php');
-										}
-										$product = $prev;
-										?>
-									</button>
-                                    <img class="w-100 object-fit-contain bundles-img" src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/mycelium-en-vrac.png' ); ?>" alt="Sac de mycelium en vrac">
-                                </div>
-                            </div>
-                        </div>
-                        <div  id="ensemble-droite" class="col-xxl-6 col-12 ps-xxl-5 py-3 text-center text-xxl-start">
-                            <div class="row">
-                                <div class="col-12">
-                                    <h5 class="p-3 text-xxl-end">L’apprenti myciculteur</h5>
-                                </div>
-                                <div class="col-7 ms-xxl-auto mx-auto me-xxl-0">
-                                    <img class="w-100 object-fit-contain bundles-img" src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/pleurote-exterieur-automne.JPG' ); ?>" alt="Bloc de fructification à l'extérieur">
-                                </div>
-                                <div class="col-12">
-                                    <p class="py-5 text-xxl-end" id="texte-droite">L’apprenti myciculteur est un ensemble d’initiation complet pour apprendre les bases de la myciculture à la maison.
+								if ($product) {
+								wc_get_template('loop/add-to-cart.php');
+								}
+								$product = $prev;
+								?>
+							</button>
+							<img class="w-100 object-fit-contain bundles-img" src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/mycelium-en-vrac.png' ); ?>" alt="Sac de mycelium en vrac">
+						</div>
+					</div>
+				</div>
+				<div class="border border-2 border-dark-subtle d-block d-xxl-none my-4 mx-auto col-11"></div>
+				<div  id="ensemble-droite" class="col-xxl-6 col-12 ps-xxl-5 py-3 text-center text-xxl-start">
+					<div class="row">
+						<div class="col-12">
+							<h5 class="p-3 text-xxl-end">L’apprenti myciculteur</h5>
+						</div>
+						<div class="col-7 ms-xxl-auto mx-auto me-xxl-0">
+							<img class="w-100 object-fit-contain bundles-img" src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/pleurote-exterieur-automne.JPG' ); ?>" alt="Bloc de fructification à l'extérieur">
+						</div>
+						<div class="col-12">
+							<p class="py-4 my-0 d-flex align-items-center text-xxl-end" id="texte-droite">L’apprenti myciculteur est un ensemble d’initiation complet pour apprendre les bases de la myciculture à la maison.
 
-                                    Il comprend tout le matériel nécessaire : culture liquide, mycélium sur grain, substrat et guide d’utilisation. Idéal pour comprendre chaque étape du cycle, de l’inoculation jusqu’à la fructification.</p>
-                                </div>
-                                <div class="col-12">
-									<button class="mb-5 btn btn-primary btn-panier d-xxl-none d-inline">
-										<?php
-										global $product;
-										$prev = $product;
-										$product = wc_get_product(126);
-										if ($product) {
-										wc_get_template('loop/add-to-cart.php');
-										}
-										$product = $prev;
-										?>
-									</button>
-                                </div>
-                                <div class="col-6 ps-xxl-5 ps-0 pe-0 text-xxl-end">
-									<button class="mb-5 btn btn-primary btn-panier d-none d-xxl-inline">
-										<?php
-										global $product;
-										$prev = $product;
-										$product = wc_get_product(126);
-										if ($product) {
-										wc_get_template('loop/add-to-cart.php');
-										}
-										$product = $prev;
-										?>
-									</button>
-                                    <img class="w-100 object-fit-contain bundles-img" src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/GSM_Hotte.JPG' ); ?>" alt="Mycelium sur grain dans une hotte à flux laminaire">
-                                </div>
-                                <div class="col-6 ps-1 pe-0 text-xxl-end">
-                                    <img class="w-100 object-fit-contain bundles-img" src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/GSL-pack.JPG' ); ?>" alt="Pack de 5 sacs mycelium sur grain">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-		</div>
-	</main>
+							Il comprend tout le matériel nécessaire : culture liquide, mycélium sur grain, substrat et guide d’utilisation. Idéal pour comprendre chaque étape du cycle, de l’inoculation jusqu’à la fructification.</p>
+						</div>
+						<div class="col-12"> <!-- Mobile btn -->
+							<button class="mb-2 btn btn-primary btn-panier d-xxl-none d-inline">
+								<?php
+								global $product;
+								$prev = $product;
+								$product = wc_get_product(126);
+								if ($product) {
+								wc_get_template('loop/add-to-cart.php');
+								}
+								$product = $prev;
+								?>
+							</button>
+						</div>
+						<div class="col-5 col-sm-6 mx-auto ps-xxl-5 ps-0 pe-0 text-xxl-end">
+							<button class="mb-5 mb-sm-5 btn btn-primary btn-panier d-none d-xxl-inline">
+								<?php
+								global $product;
+								$prev = $product;
+								$product = wc_get_product(126);
+								if ($product) {
+								wc_get_template('loop/add-to-cart.php');
+								}
+								$product = $prev;
+								?>
+							</button>
+							<img class="w-100 object-fit-contain bundles-img" src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/cls.png' ); ?>" alt="Mycelium sur grain dans une hotte à flux laminaire">
+						</div>
+						<div class="col-5 col-sm-6 mx-auto ps-1 pe-0 text-xxl-end">
+							<img class="w-100 object-fit-contain bundles-img" src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/GSL-pack.JPG' ); ?>" alt="Pack de 5 sacs mycelium sur grain">
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+	</div>
+</main>
 <?php
 
 /**
