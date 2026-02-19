@@ -34,9 +34,24 @@ get_header( 'shop' ); ?>
 		<?php while ( have_posts() ) : ?>
 			<?php the_post(); ?>
 
-			<?php wc_get_template_part( 'content', 'single-product' ); ?>
+			<h1 class="text-center p-5"><?php echo the_title()?></h1>
+			<div class="d-flex gap-3 justify-content-center">
+					<div class="w-50 p-5 py-0">
+						<img src="<?php echo the_post_thumbnail_url('product')?>" class="rounded-3">
+					</div>
+				<div class="w-50 pe-5">
+					<?php echo the_content()?>
+				</div>
+			</div>
+
+			<div class="d-flex justify-content-center pb-5">
+				<?php woocommerce_template_single_add_to_cart(); ?>
+			</div>
 
 		<?php endwhile; // end of the loop. ?>
+	<div class="text-center pb-5">
+		<a class="btn btn-primary" href="/shop">Retourner vers la boutique<a>
+	</div>
 
 	<?php
 		/**
