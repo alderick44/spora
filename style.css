@@ -63,7 +63,10 @@ Tags:
     transform: translateY(-2px) scale(1.12);
 }
 .header.is-compact .logo{
-    width: 50% !important;
+    width: 30% !important;
+}
+.header.is-compact .header-nav__main a {
+    font-size: small;
 }
 .header{
     position: fixed;
