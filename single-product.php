@@ -35,8 +35,8 @@ get_header( 'shop' ); ?>
 			<?php the_post(); ?>
 
 			<h1 class="text-center p-5"><?php echo the_title()?></h1>
-			<div class="d-flex gap-3 justify-content-center mb-4">
-					<div class="w-50">
+			<div class="row mb-4 g-1">
+					<div class="col-12 col-md-7">
 
 						<?php
 						global $product;
@@ -52,7 +52,7 @@ get_header( 'shop' ); ?>
 							</div>
 							<div class="carousel-inner">
 								<?php foreach ( $image_ids as $index => $id ) : ?>
-									<div class="carousel-item px-5 <?= $index === 0 ? 'active' : '' ?>">
+									<div class="carousel-item px-2 px-md-5 <?= $index === 0 ? 'active' : '' ?>">
 										<?= wp_get_attachment_image( $id, 'large', false, ['class' => 'd-block w-100 object-fit-cover rounded-3'] ) ?>
 									</div>
 								<?php endforeach; ?>
@@ -73,9 +73,9 @@ get_header( 'shop' ); ?>
 
 						<?php } ?>
 					</div>
-				<div class="w-50 pe-5">
-					<?php echo the_content()?>
-				</div>
+					<div class="col-12 col-md-5 pt-3 pt-md-0 px-2 pe-md-5 text-center text-md-start">
+						<?php echo the_content()?>
+					</div>
 			</div>
 
 			<div class="d-flex justify-content-center pb-5">
