@@ -35,9 +35,43 @@ get_header( 'shop' ); ?>
 			<?php the_post(); ?>
 
 			<h1 class="text-center p-5"><?php echo the_title()?></h1>
-			<div class="d-flex gap-3 justify-content-center">
-					<div class="w-50 p-5 py-0">
+			<div class="d-flex gap-3 justify-content-center mb-4">
+					<div class="w-50">
+
+						<?php
+						global $product;
+						if ($product->get_gallery_image_ids()){ 
+						$image_ids = array_merge( [$product->get_image_id()], $product->get_gallery_image_ids() );
+						?>
+
+						<div id="product-carousel" class="carousel slide" data-bs-ride="carousel">
+							<div class="carousel-indicators">
+								<?php foreach ( $image_ids as $index => $id ) : ?>
+									<button type="button" data-bs-target="#product-carousel" data-bs-slide-to="<?= $index ?>" <?= $index === 0 ? 'class="active"' : '' ?>></button>
+								<?php endforeach; ?>
+							</div>
+							<div class="carousel-inner">
+								<?php foreach ( $image_ids as $index => $id ) : ?>
+									<div class="carousel-item px-5 <?= $index === 0 ? 'active' : '' ?>">
+										<?= wp_get_attachment_image( $id, 'large', false, ['class' => 'd-block w-100 object-fit-cover rounded-3'] ) ?>
+									</div>
+								<?php endforeach; ?>
+							</div>
+							<button class="carousel-control-prev" type="button" data-bs-target="#product-carousel" data-bs-slide="prev">
+								<span class="carousel-control-prev-icon"></span>
+							</button>
+							<button class="carousel-control-next" type="button" data-bs-target="#product-carousel" data-bs-slide="next">
+								<span class="carousel-control-next-icon"></span>
+							</button>
+						</div>
+
+						<?php } else { ?>
+						
+						<div class="px-5">
 						<img src="<?php echo the_post_thumbnail_url('product')?>" class="rounded-3">
+						</div>
+
+						<?php } ?>
 					</div>
 				<div class="w-50 pe-5">
 					<?php echo the_content()?>
