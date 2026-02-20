@@ -198,7 +198,7 @@ do_action( 'woocommerce_before_main_content' );
 							<p class="py-4 my-0" id="texte-gauche">Le jardinier regroupe tout le nécessaire pour lancer une culture de champignons directement au jardin. Il comprend du mycélium en vrac, des granules de bois francs, du son de blé et les instructions de préparation.
 							Pensé pour les jardiniers curieux, cet ensemble favorise à la fois la production de champignons comestibles et l’enrichissement naturel du sol.</p>
 						</div>
-						<div class="d-xxl-none d-inline col-12"> <!-- Mobile btn -->
+						<div class="d-xxl-none d-inline col-12"> <!-- Mobile btn : Bundle #1 --> 
 							<button class="mb-2 btn btn-primary btn-panier ">
 								<?php
 								global $product;
@@ -214,7 +214,7 @@ do_action( 'woocommerce_before_main_content' );
 						<div class="col-5 col-sm-6 mx-auto pe-1 ps-0">
 							<img class="w-100 object-fit-contain bundles-img" src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/hwfp-crop.png' ); ?>" alt="Granules de bois dure">
 						</div>
-						<div class="col-5 col-sm-6 mx-auto pe-xxl-5 pe-0 ps-0">
+						<div class="col-5 col-sm-6 mx-auto pe-xxl-5 pe-0 ps-0"> <!-- Bundle #1 --> 
 							<button class="mb-5 btn btn-primary btn-panier d-none d-xxl-inline">
 								<?php
 								global $product;
@@ -246,12 +246,12 @@ do_action( 'woocommerce_before_main_content' );
 
 							Il comprend tout le matériel nécessaire : culture liquide, mycélium sur grain, substrat et guide d’utilisation. Idéal pour comprendre chaque étape du cycle, de l’inoculation jusqu’à la fructification.</p>
 						</div>
-						<div class="col-12"> <!-- Mobile btn -->
+						<div class="col-12"> <!-- Mobile btn : Bundle #2 --> 
 							<button class="mb-2 btn btn-primary btn-panier d-xxl-none d-inline">
 								<?php
 								global $product;
 								$prev = $product;
-								$product = wc_get_product(126);
+								$product = wc_get_product(143);
 								if ($product) {
 								wc_get_template('loop/add-to-cart.php');
 								}
@@ -259,12 +259,12 @@ do_action( 'woocommerce_before_main_content' );
 								?>
 							</button>
 						</div>
-						<div class="col-5 col-sm-6 mx-auto ps-xxl-5 ps-0 pe-0 text-xxl-end">
+						<div class="col-5 col-sm-6 mx-auto ps-xxl-5 ps-0 pe-0 text-xxl-end"> <!-- Bundle #2 -->
 							<button class="mb-5 mb-sm-5 btn btn-primary btn-panier d-none d-xxl-inline">
 								<?php
 								global $product;
 								$prev = $product;
-								$product = wc_get_product(126);
+								$product = wc_get_product(143);
 								if ($product) {
 								wc_get_template('loop/add-to-cart.php');
 								}
