@@ -14,7 +14,8 @@ add_filter('woocommerce_enqueue_styles', function ($styles) {
 function spora_enqueue_scripts() {
     wp_enqueue_script(
         'spora-header-compact',
-        get_theme_file_uri( 'assets/js/header-compact.js' ),
+        // get_theme_file_uri( 'assets/js/header-compact.js' ),
+        get_theme_file_uri('assets/js/nav-compact.js'),
         [],
         wp_get_theme()->get( 'Version' ),
         true

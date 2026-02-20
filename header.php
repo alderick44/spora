@@ -119,3 +119,4 @@
         </div>
       </div>
     </header>
+<div id="compact-sentinel" aria-hidden="true"></div>

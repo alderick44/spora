@@ -18,6 +18,7 @@
           </div>
         </div>
       </section>
+      <!-- <div id="compact-sentinel" aria-hidden="true"></div> -->
       <div class="container pb-5">
         <section class="pt-5 mt-5">
           <p>
