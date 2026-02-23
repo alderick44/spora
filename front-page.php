@@ -5,15 +5,15 @@
           <img
             class="w-100 h-100 object-fit-cover object-position-center hero-pan"
             src="<?php echo get_template_directory_uri();?>/assets/img/banner-mushroom-autumn.jpg"
-            alt="Pleurote qui pousse dans les feuilles"
+            alt="Champignons qui poussent sur des blocs de production"
           />
           <div
-            class="position-absolute top-50 start-50 translate-middle z-1 w-100"
+            class="position-absolute top-50 start-50 translate-middle z-1"
           >
             <div class="container">
-              <h1 class="text-start text-light banner__text m-0 p-3">
+              <!-- <h1 class="text-start text-light banner__text m-0 p-3">
                 Découvrir Sporacultus
-              </h1>
+              </h1> -->
             </div>
           </div>
         </div>
