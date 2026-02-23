@@ -1,7 +1,7 @@
 /*
 Theme Name: Spora
 Theme URI: https://wordpress.org/themes/twentytwentyfive/
-Author: the WordPress team
+Author: ALdérick Gauthier
 Author URI: https://wordpress.org
 Description: 
 Requires at least: 6.7
@@ -58,6 +58,7 @@ Tags:
 .logo{
     display: block;
     transition: transform 0.2s ease, width 0.2s ease;
+    max-height: 10vh;
 }
 .logo:hover{
     transform: translateY(-2px) scale(1.12);
@@ -185,8 +186,8 @@ body.home .header{
     text-shadow: 0 0 5px #000000, 0 0 10px #000000, 0 0 25px #000000;
 }
 .hero-pan{
-    --hero-pan-intro: 2s;
-    --hero-pan-loop: 60s;
+    --hero-pan-intro: 1s;
+    --hero-pan-loop: 75s;
 
     --hero-pan-intro-scale-transition: 1.5; /* Scale at the end of intro and beginning of loop */
     --hero-pan-vector-transition: 10%, 20%, 0;
@@ -205,7 +206,7 @@ body.home .header{
     width: 100%;
 }
 @keyframes hero-pan-intro{  /* Ajusté pour écran moyen */
-    0%{
+    /* 0%{
         transform: translate3d(-55%, -25%, 0) scale(2.5);
     }
     35%{
@@ -213,7 +214,17 @@ body.home .header{
     }
     100%{
         transform: translate3d(var(--hero-pan-vector-transition)) scale(var(--hero-pan-intro-scale-transition));
+    } */
+
+    0%{
+        transform: translate3d(2%, 2%, 0) scale(1.7);
     }
+    35%{
+        transform: translate3d(5%, 5%, 0) scale(1.7);
+    }
+    100%{
+        transform: translate3d(var(--hero-pan-vector-transition)) scale(var(--hero-pan-intro-scale-transition));
+    } 
 }
 @keyframes hero-pan-loop{
     0%{

@@ -1,3 +1,4 @@
+//Update for a more robust solution (Check portfolio for reference)
 const navSwitch = document.querySelector(".header");
 const sentinel = document.querySelector("#compact-sentinel");
 
