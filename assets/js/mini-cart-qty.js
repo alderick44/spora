@@ -1,3 +1,4 @@
+//Make a proper script  for better UX and a more robust solution
 document.addEventListener('click', function (e) {
   const btn = e.target.closest('.mini-cart-qty-btn');
   if (!btn) return;
