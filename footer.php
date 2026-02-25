@@ -4,7 +4,7 @@
         <div class="row justify-content-evenly">
           <div class="col-6 col-sm-4 col-md-3 pb-5">
             <h4 class="pb-3">Email</h4>
-            <a href="index.html">info@sporacultus.ca</a>
+            <a href="mailto:info@sporacultus.ca?subject=Demande%20d'information">info@sporacultus.ca</a>
           </div>
           <div class="col-6 col-sm-4 col-md-3 pb-5">
             <h4 class="pb-3">Pages</h4>
@@ -16,7 +16,7 @@
           <div class="col-6 col-sm-4 col-md-3">
             <h4 class="pb-3">Suivez-nous</h4>
             <div class="d-flex flex-column gap-4">
-              <a href="index.html">Facebook</a>
+              <a href="https://www.facebook.com/profile.php?id=100077639986711" target="blank_">Facebook</a>
               <a href="index.html">Instagram</a>
               <!-- <a href="index.html">Twitter</a> -->
             </div>
@@ -24,7 +24,7 @@
           <div class="col-6 col-sm-4 col-md-3">
             <h4 class="pb-3">Produits</h4>
             <div class="d-flex flex-column gap-4">
-              <a href="mycelium-en-vrac.html">Mycélium en vrac</a>
+              <a href="/product/mycelium-en-vrac/">Mycélium en vrac</a>
             </div>
           </div>
           <div class="col-6 col-sm-4 col-md-3">
