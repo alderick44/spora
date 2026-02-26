@@ -64,7 +64,7 @@ Tags:
     transform: translateY(-2px) scale(1.12);
 }
 .header.is-compact .logo{
-    width: 30% !important;
+    width: 60% !important;
 }
 .header.is-compact .header-nav__main a {
     font-size: small;
@@ -308,4 +308,9 @@ body.home .header{
     }
 
     }
+
+
+    .header-nav__main a.nav-link { 
+        font-size: small;
+     }
 }
