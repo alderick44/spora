@@ -35,6 +35,7 @@ Tags:
 .hero-viewport{
     overflow: hidden;
 }
+
 .btn-primary{
     --bs-btn-bg : var(--color-red);
     --bs-btn-border-color: var(--color-red);
@@ -58,13 +59,13 @@ Tags:
 .logo{
     display: block;
     transition: transform 0.2s ease, width 0.2s ease;
-    max-height: 10vh;
+    max-height: 15vh;
 }
 .logo:hover{
     transform: translateY(-2px) scale(1.12);
 }
 .header.is-compact .logo{
-    width: 60% !important;
+    width: 45% !important;
 }
 .header.is-compact .header-nav__main a {
     font-size: small;
@@ -108,10 +109,14 @@ body.home .header{
 }
 @media (max-width: 768px){
     .header.is-compact .header-nav__lists{
-        display: none !important;
+        /* display: none !important; */
+        overflow: hidden;
+        height: 0px;
+
     }
     .header:not(.is-compact) .header-nav__lists{
         display: flex !important;
+        height: 100%;
     }
 }
 .header.is-compact .header-nav__utility{
@@ -180,11 +185,30 @@ body.home .header{
 
 .card a.added_to_cart.wc-forward { display: none !important; } /* Hides injected WC btn */
 
+.menu-toggle {
+  position: relative;
+}
+
+.menu-toggle__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--bs-body-bg);
+}
+
+.menu-toggle__icon--close {
+  display: none;
+}
+
+.menu-toggle[aria-expanded="true"] .menu-toggle__icon--burger {
+  display: none;
+}
+
+.menu-toggle[aria-expanded="true"] .menu-toggle__icon--close {
+  display: inline-flex;
+}
 
 /* CSS minimal */
-.banner__text{
-    text-shadow: 0 0 5px #000000, 0 0 10px #000000, 0 0 25px #000000;
-}
 .hero-pan{
     --hero-pan-intro: 1s;
     --hero-pan-loop: 75s;

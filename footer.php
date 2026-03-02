@@ -9,15 +9,15 @@
           <div class="col-6 col-sm-4 col-md-3 pb-5">
             <h4 class="pb-3">Pages</h4>
             <div class="d-flex flex-column gap-4">
-              <a href="index.html">Accueil</a>
-              <a href="boutique.html">Boutique</a>
+              <a href="/">Accueil</a>
+              <a href="/shop">Boutique</a>
             </div>
           </div>
           <div class="col-6 col-sm-4 col-md-3">
             <h4 class="pb-3">Suivez-nous</h4>
             <div class="d-flex flex-column gap-4">
               <a href="https://www.facebook.com/profile.php?id=100077639986711" target="blank_">Facebook</a>
-              <a href="index.html">Instagram</a>
+              <!-- <a href="">Instagram</a> -->
               <!-- <a href="index.html">Twitter</a> -->
             </div>
           </div>

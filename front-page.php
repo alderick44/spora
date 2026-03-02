@@ -8,7 +8,7 @@
             alt="Pleurote qui pousse dans les feuilles"/>
           <div class="position-absolute top-50 start-50 translate-middle z-1 w-100 mt-5 pt-5">
             <div class="container mt-5">
-              <a class="text-start text-light banner__text m-0 p-3 mt-5 btn btn-primary" href="/shop">
+              <a class="text-start text-light m-0 p-3 mt-5 btn btn-primary" href="/shop">
                 Visitez notre boutique!
               </a>
             </div>

@@ -15,14 +15,14 @@
 <body <?php body_class();?>>
     <!-- <div class="d-md-none p-5 bg-dark-subtle"></div>
     <div class="d-md-none p-5 bg-dark-subtle"></div>  -->
-    <div class="bg-dark-subtle py-5"></div>
+    <!-- <div class="bg-dark-subtle py-5"></div> -->
     <header class="header py-md-3 py-3 z-3">
       <div class="container">
         <div class="row justify-content-between align-items-center">
-          <div class="col-md-2 col-4 d-none d-md-block">
+          <div class="col-md-2 col-4 d-none d-md-flex">
             <a href="/">
               <img
-                class="w-75 logo d-none d-md-block"
+                class="w-100 logo"
                 src="<?php echo esc_url( get_theme_file_uri('assets/icons/logo-spora.svg') ); ?>"
                 alt="logo sporacultus"
               />
@@ -37,7 +37,7 @@
               />
             </a>
           </div>
-          <div class="col-6 dropdown basket-dropdown-wrap d-flex justify-content-end d-sm-none gap-4">
+          <div class="col-6 dropdown basket-dropdown-wrap d-flex justify-content-end d-md-none gap-4">
             <button
               class="nav-link px-2 d-flex align-items-center position-relative"
               type="button"
@@ -80,64 +80,76 @@
             <!-- Bouton menu mobile -->
             <button
               id="mobile-menu-toggle"
-              class="btn btn-link px-2 d-flex align-items-center"
+              class="btn px-2 d-flex align-items-center menu-toggle"
               type="button"
               aria-controls="headerMenu"
               aria-expanded="false"
               aria-label="Ouvrir le menu"
               title="Menu"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              </svg>
+
+              <span class="menu-toggle__icon menu-toggle__icon--burger" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none">
+                  <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </span>
+
+              <span class="menu-toggle__icon menu-toggle__icon--close" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none">
+                  <path d="M6 6l12 12M18 6l-12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </span>
             </button>
           </div>
 
-
           <div class="col-md-10 col-12">
             <div class="header-nav d-flex align-items-center justify-content-between justify-content-md-end gap-3">
-              <nav class="header-nav__lists" id="headerMenu">
-                <ul class="nav nav-underline flex-wrap gap-3 mb-1 small header-nav__utility d-none d-md-flex">
-                  <li class="nav-item">
-                    <a class="nav-link px-2" href="/a-propos/"
-                      >À propos</a
-                    >
-                  </li>
-                  <li class="nav-item">
-                    <a
-                      class="nav-link px-2"
-                      href="/guides-et-conseils"
-                      >Guides et conseils</a
-                    >
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link px-2" href="/nous-joindre/"
-                      >Nous joindre</a
-                    >
-                  </li>
-                </ul>
-                <ul class="nav nav-underline flex-wrap gap-3 fs-5 fw-semibold header-nav__main justify-content-start d-grid d-md-flex">
-                  <li class="nav-item">
-                    <a class="nav-link px-2 pt-3 pt-sm-0" href="/producteurs/"
-                      >Pour les producteurs
-                    </a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link px-2" href="/shop/"
-                      >Boutique</a
-                    >
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link px-2" href="/nos-champignons/"
-                      >Nos champignons</a
-                    >
-                  </li>
-                </ul>
+              <nav class="header-nav__lists d-flex flex-row flex-md-column align-items-center align-items-md-end" id="headerMenu">
+                  <ul class="nav nav-underline flex-wrap gap-3 mb-1 small header-nav__utility d-none d-md-flex">
+                    <li class="nav-item">
+                      <a class="nav-link px-2" href="/a-propos/"
+                        >À propos</a
+                      >
+                    </li>
+                    <li class="nav-item">
+                      <a
+                        class="nav-link px-2"
+                        href="/guides-et-conseils"
+                        >Guides et conseils</a
+                      >
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link px-2" href="/nous-joindre/"
+                        >Nous joindre</a
+                      >
+                    </li>
+                  </ul>
+                  <ul class="nav nav-underline flex-wrap gap-3 fs-5 fw-semibold header-nav__main justify-content-start d-grid d-md-flex">
+                    <li class="nav-item">
+                      <a class="nav-link px-2 pt-3 pt-sm-1" href="/producteurs/"
+                        >Pour les producteurs
+                      </a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link px-2 pt-sm-1" href="/shop/"
+                        >Boutique</a
+                      >
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link px-2 pt-sm-1" href="/nos-champignons/"
+                        >Nos champignons</a
+                      >
+                    </li>
+                  </ul>
+                <!-- <a class="w-25 ms-auto me-3 mt-3 mb-auto" href="mailto:info@sporacultus.ca?subject=Demande%20d'information"> -->
+                <a class="w-25 ms-auto me-3 mt-3 mb-auto d-block d-md-none " href="/nous-joindre">
+                  <svg class="nav-icon w-25 text-light ms-auto d-block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="<?php echo esc_url( get_theme_file_uri('assets/icons/icon-mail.svg#icon-mail') ); ?>"></use>
+                  </svg>
+                </a>
               </nav>
 
-
-
-              <div class="dropdown basket-dropdown-wrap d-none d-sm-block">
+              <div class="dropdown basket-dropdown-wrap d-none d-md-block">
                 <button
                   class="nav-link px-2 d-flex align-items-center position-relative"
                   type="button"
@@ -166,7 +178,7 @@
                       <input class="form-control" type="text" id="postal-code" name="postal-code" placeholder="H2X 1Y4" />
                       <div class="small text-muted mt-1">Estimer la livraison</div>
                     </div>
-
+                    
                     <a class="btn btn-primary" href="<?php echo esc_url( wc_get_checkout_url() ); ?>">
                       Passer à la caisse
                     </a>
@@ -176,7 +188,6 @@
                   </div>
                 </div>
               </div>
-
 
             </div>
           </div>
