@@ -3,7 +3,7 @@
 * Template Name: Coming Soon
 */
 get_header(); ?>
-<main class="bg-secondary py-5">
+<main class="bg-secondary py-5 my-5">
   <div class="container d-flex align-items-center flex-column text-center my-5 gap-5">
     <div>
       <h1><?php echo the_title();?></h1>

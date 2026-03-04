@@ -70,14 +70,14 @@ do_action( 'woocommerce_before_mini_cart' );
                 Qté <span class="mini-cart-qty-value"><?php echo (int) $cart_item['quantity']; ?></span>
                 <button
                   type="button"
-                  class="btn btn-link p-0 text-decoration-none mini-cart-qty-btn"
+                  class="btn btn-link d-none p-0 text-decoration-none mini-cart-qty-btn"
                   aria-label="Augmenter la quantité"
                   data-action="plus"
                   data-cart_item_key="<?php echo esc_attr( $cart_item_key ); ?>"
                 >▲</button>
                 <button
                   type="button"
-                  class="btn btn-link p-0 text-decoration-none mini-cart-qty-btn"
+                  class="btn btn-link d-none p-0 text-decoration-none mini-cart-qty-btn"
                   aria-label="Diminuer la quantité"
                   data-action="minus"
                   data-cart_item_key="<?php echo esc_attr( $cart_item_key ); ?>"

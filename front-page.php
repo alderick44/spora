@@ -34,7 +34,7 @@
                 <img
                   src="<?php echo get_template_directory_uri(); ?>/assets/img/mycelium-en-vrac.png"
                   alt="Sac de mycelium en vrac"
-                  class="img-fluid"/>
+                  class="img-fluid rounded-2"/>
               </div>
               <div class="col-12 col-lg-6">
                 <div class="d-flex flex-column justify-content-between h-100 p-3 p-lg-0">
@@ -65,13 +65,13 @@
             class="row align-items-center justify-content-between px-lg-5 mx-lg-5 pb-5">
             <div class="col-md-5 col-12">
               <img
-                class="img-fluid"
+                class="img-fluid rounded-2"
                 src="<?php echo get_template_directory_uri(); ?>/assets/img/GSM_Hotte.JPG"
                 alt="Mycelium sur grain dans une hotte à flux laminaire"/>
             </div>
             <div class="col-md-5 col-12 text-md-end py-3">
               <img
-                class="img-fluid d-none d-md-block"
+                class="img-fluid d-none d-md-block rounded-2"
                 src="<?php echo get_template_directory_uri(); ?>/assets/img/GSL-pack-crop.jpg"
                 alt="Pack de 5 sacs de mycelium sur grain"/>
             </div>
@@ -84,7 +84,7 @@
             </div>
             <div class="col-10 col-lg-8 pt-md-5 mx-auto">
               <img
-                class="img-fluid"
+                class="img-fluid rounded-2"
                 src="<?php echo get_template_directory_uri(); ?>/assets/img/jardin.JPG"
                 alt="Rang d'épinard dans un jardin"/>
             </div>
