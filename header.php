@@ -76,7 +76,6 @@
               </div>
             </div>
 
-
             <!-- Bouton menu mobile -->
             <button
               id="mobile-menu-toggle"
@@ -124,7 +123,7 @@
                       >
                     </li>
                   </ul>
-                  <ul class="nav nav-underline flex-wrap gap-3 fs-5 fw-semibold header-nav__main justify-content-start d-grid d-md-flex">
+                  <ul class="nav nav-underline flex-wrap gap-3 fs-5 fw-semibold header-nav__main justify-content-start d-grid d-md-flex pt-md-0 pt-3">
                     <li class="nav-item">
                       <a class="nav-link px-2 pt-3 pt-sm-1" href="/producteurs/"
                         >Pour les producteurs
@@ -173,11 +172,11 @@
                   <?php woocommerce_mini_cart(); ?>
 
                   <div class="d-grid gap-2 mt-3">
-                    <div>
+                    <!-- <div>
                       <label class="form-label mb-1" for="postal-code">Code postal</label>
                       <input class="form-control" type="text" id="postal-code" name="postal-code" placeholder="H2X 1Y4" />
                       <div class="small text-muted mt-1">Estimer la livraison</div>
-                    </div>
+                    </div> -->
                     
                     <a class="btn btn-primary" href="<?php echo esc_url( wc_get_checkout_url() ); ?>">
                       Passer à la caisse
