@@ -35,7 +35,9 @@ Tags:
 .hero-viewport{
     overflow: hidden;
 }
-
+body:not(.home) main .container{
+    padding-top: 12vh;
+}
 .btn-primary{
     --bs-btn-bg : var(--color-red);
     --bs-btn-border-color: var(--color-red);
@@ -292,8 +294,6 @@ body.home .header{
     .hero-viewport{
         height: 45vh;
     }
-
-
     .hero-pan{
         --hero-pan-intro: 1s;
         --hero-pan-loop: 70s;
