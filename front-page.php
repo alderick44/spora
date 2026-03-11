@@ -17,6 +17,7 @@
       </section>
       <div class="container pb-5">
         <section class="pt-5 mt-5">
+          <h1 class=text-center>Sporacultus, culture de champignons</h1>
           <p>
             Sporacultus est un projet dédié à la culture de champignons
             comestibles et à la valorisation des ressources naturelles locales.
