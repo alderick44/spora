@@ -33,55 +33,55 @@ get_header( 'shop' ); ?>
 
 		<?php while ( have_posts() ) : ?>
 			<?php the_post(); ?>
-
-			<h1 class="text-center p-5"><?php echo the_title()?></h1>
-			<div class="row mb-4 g-1">
-					<div class="col-12 col-md-7">
-
-						<?php
-						global $product;
-						if ($product->get_gallery_image_ids()){ 
-						$image_ids = array_merge( [$product->get_image_id()], $product->get_gallery_image_ids() );
-						?>
-
-						<div id="product-carousel" class="carousel slide" data-bs-ride="carousel">
-							<div class="carousel-indicators">
-								<?php foreach ( $image_ids as $index => $id ) : ?>
-									<button type="button" data-bs-target="#product-carousel" data-bs-slide-to="<?= $index ?>" <?= $index === 0 ? 'class="active"' : '' ?>></button>
-								<?php endforeach; ?>
-							</div>
-							<div class="carousel-inner">
-								<?php foreach ( $image_ids as $index => $id ) : ?>
-									<div class="carousel-item px-2 px-md-5 <?= $index === 0 ? 'active' : '' ?>">
-										<?= wp_get_attachment_image( $id, 'large', false, ['class' => 'd-block w-100 object-fit-cover rounded-3'] ) ?>
+			<main>
+				<div class="container">
+					<h1 class="text-center p-5"><?php echo the_title()?></h1>
+					<div class="row mb-4 g-1">
+							<div class="col-12 col-md-7">
+								<?php
+								global $product;
+								if ($product->get_gallery_image_ids()){ 
+								$image_ids = array_merge( [$product->get_image_id()], $product->get_gallery_image_ids() );
+								?>
+								<div id="product-carousel" class="carousel slide" data-bs-ride="carousel">
+									<div class="carousel-indicators">
+										<?php foreach ( $image_ids as $index => $id ) : ?>
+											<button type="button" data-bs-target="#product-carousel" data-bs-slide-to="<?= $index ?>" <?= $index === 0 ? 'class="active"' : '' ?>></button>
+										<?php endforeach; ?>
 									</div>
-								<?php endforeach; ?>
+									<div class="carousel-inner">
+										<?php foreach ( $image_ids as $index => $id ) : ?>
+											<div class="carousel-item px-2 px-md-5 <?= $index === 0 ? 'active' : '' ?>">
+												<?= wp_get_attachment_image( $id, 'large', false, ['class' => 'd-block w-100 object-fit-cover rounded-3'] ) ?>
+											</div>
+										<?php endforeach; ?>
+									</div>
+									<button class="carousel-control-prev" type="button" data-bs-target="#product-carousel" data-bs-slide="prev">
+										<span class="carousel-control-prev-icon"></span>
+									</button>
+									<button class="carousel-control-next" type="button" data-bs-target="#product-carousel" data-bs-slide="next">
+										<span class="carousel-control-next-icon"></span>
+									</button>
+								</div>
+
+								<?php } else { ?>
+								
+								<div class="px-5">
+								<img src="<?php echo the_post_thumbnail_url('product')?>" class="rounded-3">
+								</div>
+
+								<?php } ?>
 							</div>
-							<button class="carousel-control-prev" type="button" data-bs-target="#product-carousel" data-bs-slide="prev">
-								<span class="carousel-control-prev-icon"></span>
-							</button>
-							<button class="carousel-control-next" type="button" data-bs-target="#product-carousel" data-bs-slide="next">
-								<span class="carousel-control-next-icon"></span>
-							</button>
-						</div>
-
-						<?php } else { ?>
-						
-						<div class="px-5">
-						<img src="<?php echo the_post_thumbnail_url('product')?>" class="rounded-3">
-						</div>
-
-						<?php } ?>
+							<div class="col-12 col-md-5 pt-3 pt-md-0 px-2 pe-md-5 text-center text-md-start">
+								<?php echo the_content()?>
+							</div>
 					</div>
-					<div class="col-12 col-md-5 pt-3 pt-md-0 px-2 pe-md-5 text-center text-md-start">
-						<?php echo the_content()?>
+
+					<div class="d-flex justify-content-center pb-5">
+						<?php woocommerce_template_single_add_to_cart(); ?>
 					</div>
-			</div>
-
-			<div class="d-flex justify-content-center pb-5">
-				<?php woocommerce_template_single_add_to_cart(); ?>
-			</div>
-
+				</div>
+			</main>
 		<?php endwhile; // end of the loop. ?>
 	<div class="text-center pb-5">
 		<a class="btn btn-primary" href="/shop">Retourner vers la boutique<a>
@@ -104,6 +104,7 @@ get_header( 'shop' ); ?>
 		 */
 		// do_action( 'woocommerce_sidebar' );
 	?>
+
 
 <?php
 get_footer( 'shop' );
