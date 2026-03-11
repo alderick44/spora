@@ -35,7 +35,6 @@ Tags:
 .hero-viewport{
     overflow: hidden;
 }
-
 .btn-primary{
     --bs-btn-bg : var(--color-red);
     --bs-btn-border-color: var(--color-red);
@@ -71,7 +70,7 @@ Tags:
     font-size: small;
 }
 .header{
-    position: fixed;
+    position: sticky;
     top: 0;
     left: 0;
     width: 100%;
@@ -86,6 +85,7 @@ Tags:
 }
 body.home .header{
     background: rgba(61, 108, 161, 0.12);
+    position: fixed;
 }
 .header::before{
     content: "";
@@ -292,8 +292,6 @@ body.home .header{
     .hero-viewport{
         height: 45vh;
     }
-
-
     .hero-pan{
         --hero-pan-intro: 1s;
         --hero-pan-loop: 70s;
