@@ -59,11 +59,24 @@
 
 
   document.addEventListener('click', function (e) {
+    const closeBtn = e.target.closest('.mini-cart-close');
+    if (closeBtn) {
+      const wrap = closeBtn.closest('.basket-dropdown-wrap');
+      const toggleBtn = wrap && wrap.querySelector('button[data-bs-toggle="dropdown"]');
+      if (!toggleBtn) return;
+
+      if (window.bootstrap && window.bootstrap.Dropdown) {
+        window.bootstrap.Dropdown.getOrCreateInstance(toggleBtn).hide();
+      } else if (toggleBtn.getAttribute('aria-expanded') === 'true') {
+        toggleBtn.click();
+      }
+      return;
+    }
+
     if (e.target.closest('.single_add_to_cart_button')) {
       setTimeout(openMiniCart, 0);
     }
   });
 })();
-
 
 

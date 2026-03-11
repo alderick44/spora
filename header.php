@@ -50,22 +50,30 @@
               <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
                 <use href="<?php echo esc_url( get_theme_file_uri('assets/icons/icon-basket.svg#icon-basket') ); ?>"></use>
               </svg>
-
+ 
               <span class="basket-badge badge rounded-pill bg-danger">
                 <?php echo WC()->cart ? (int) WC()->cart->get_cart_contents_count() : 0; ?>
               </span>
             </button>
 
-            <div class="dropdown-menu dropdown-menu-end basket-dropdown p-3 pt-5 position-relative border shadow rounded-4">
-              
+            <div class="dropdown-menu dropdown-menu-end basket-dropdown p-3 pt-1 position-relative border shadow rounded-4">
+              <div class="w-100 text-end">
+                <button
+                  type="button"
+                  class="btn border-0 bg-transparent text-danger pb-3 fs-1 pe-1 lh-1 mini-cart-close"
+                  aria-label="Fermer le panier"
+                >
+                  &times;
+                </button>
+              </div>
               <?php woocommerce_mini_cart(); ?>
 
               <div class="d-grid gap-2 mt-3">
-                <div>
+                <!-- <div>
                   <label class="form-label mb-1" for="postal-code">Code postal</label>
                   <input class="form-control" type="text" id="postal-code" name="postal-code" placeholder="H2X 1Y4" />
                   <div class="small text-muted mt-1">Estimer la livraison</div>
-                </div>
+                </div> -->
 
                 <a class="btn btn-primary" href="<?php echo esc_url( wc_get_checkout_url() ); ?>">
                   Passer à la caisse
@@ -167,8 +175,18 @@
                   </span>
                 </button>
 
-                <div class="dropdown-menu dropdown-menu-end basket-dropdown p-3 pt-5 position-relative border shadow rounded-4">
+                <div class="dropdown-menu dropdown-menu-end basket-dropdown p-3 pt-1 position-relative border shadow rounded-4">
                   
+                  <div class="w-100 text-end">
+                    <button
+                      type="button"
+                      class="btn border-0 bg-transparent text-danger pb-3 pt-0 lh-1 fs-1 pe-1 mini-cart-close"
+                      aria-label="Fermer le panier"
+                    >
+                      &times;
+                    </button>
+                  </div>
+
                   <?php woocommerce_mini_cart(); ?>
 
                   <div class="d-grid gap-2 mt-3">
