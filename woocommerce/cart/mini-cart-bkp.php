@@ -205,7 +205,7 @@ do_action( 'woocommerce_before_mini_cart' ); ?>
                   >
                     <img
                       class="basket-thumb rounded-2 object-fit-cover flex-shrink-0"
-                      src="assets/img/mycelium-en-vrac.png"
+                      src="assets/img/mycelium-en-vrac.webp"
                       alt="Mycélium en vrac"
                     />
                     <div class="flex-grow-1">
@@ -225,7 +225,7 @@ do_action( 'woocommerce_before_mini_cart' ); ?>
                   <div class="d-flex align-items-start gap-3 py-2">
                     <img
                       class="basket-thumb rounded-2 object-fit-cover flex-shrink-0"
-                      src="assets/img/GSL-pack.JPG"
+                      src="assets/img/GSL-pack.webp"
                       alt="Ensemble débutant"
                     />
                     <div class="flex-grow-1">

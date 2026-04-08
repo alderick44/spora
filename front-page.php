@@ -4,7 +4,7 @@
         <div class="position-relative">
           <img
             class="w-100 h-100 object-fit-cover object-position-center hero-pan"
-            src="<?php echo get_template_directory_uri();?>/assets/img/banner-mushroom-autumn.jpg"
+            src="<?php echo get_template_directory_uri();?>/assets/img/banner-mushroom-autumn.webp"
             alt="Pleurote qui pousse dans les feuilles"/>
           <div class="position-absolute top-50 start-50 translate-middle z-1 w-100 mt-5 pt-5">
             <div class="container mt-5">
@@ -33,7 +33,7 @@
             <div class="row py-5">
               <div class="col-12 col-lg-6">
                 <img
-                  src="<?php echo get_template_directory_uri(); ?>/assets/img/mycelium-en-vrac.png"
+                  src="<?php echo get_template_directory_uri(); ?>/assets/img/mycelium-en-vrac.webp"
                   alt="Sac de mycelium en vrac"
                   class="img-fluid rounded-2"/>
               </div>
@@ -67,13 +67,13 @@
             <div class="col-md-5 col-12">
               <img
                 class="img-fluid rounded-2"
-                src="<?php echo get_template_directory_uri(); ?>/assets/img/GSM_Hotte.JPG"
+                src="<?php echo get_template_directory_uri(); ?>/assets/img/GSM_Hotte.webp"
                 alt="Mycelium sur grain dans une hotte à flux laminaire"/>
             </div>
             <div class="col-md-5 col-12 text-md-end py-3">
               <img
                 class="img-fluid d-none d-md-block rounded-2"
-                src="<?php echo get_template_directory_uri(); ?>/assets/img/GSL-pack-crop.jpg"
+                src="<?php echo get_template_directory_uri(); ?>/assets/img/GSL-pack-crop.webp"
                 alt="Pack de 5 sacs de mycelium sur grain"/>
             </div>
             <div class="col-12 py-4 text-center">
@@ -86,7 +86,7 @@
             <div class="col-10 col-lg-8 pt-md-5 mx-auto">
               <img
                 class="img-fluid rounded-2"
-                src="<?php echo get_template_directory_uri(); ?>/assets/img/jardin.JPG"
+                src="<?php echo get_template_directory_uri(); ?>/assets/img/jardin.webp"
                 alt="Rang d'épinard dans un jardin"/>
             </div>
           </div>
