@@ -73,7 +73,7 @@ body:not(.home) main .container{
     font-size: small;
 }
 .header{
-    position: fixed;
+    position: sticky;
     top: 0;
     left: 0;
     width: 100%;
@@ -88,6 +88,7 @@ body:not(.home) main .container{
 }
 body.home .header{
     background: rgba(61, 108, 161, 0.12);
+    position: fixed;
 }
 .header::before{
     content: "";
