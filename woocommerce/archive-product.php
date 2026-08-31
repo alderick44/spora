@@ -26,7 +26,7 @@ get_header( 'shop' );
  * @hooked woocommerce_breadcrumb - 20
  * @hooked WC_Structured_Data::generate_website_data() - 30
  */
-do_action( 'woocommerce_before_main_content' );
+// do_action( 'woocommerce_before_main_content' );
 
 ?>
 
@@ -192,7 +192,7 @@ do_action( 'woocommerce_before_main_content' );
 							<h5 class="p-3">Le jardinier</h5>
 						</div>
 						<div class="col-7 mx-auto mx-xxl-0">
-							<img class="w-100 object-fit-contain bundles-img rounded-2" src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/mycelium-en-vrac-fructification.jpg' ); ?>" alt="Fructification de pleurote au sol à partir de copeaux de bois">
+							<img class="w-100 object-fit-contain bundles-img rounded-2" src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/mycelium-en-vrac-fructification.webp' ); ?>" alt="Fructification de pleurote au sol à partir de copeaux de bois">
 						</div>
 						<div class="col-12">
 							<p class="py-4 my-0" id="texte-gauche">Le jardinier regroupe tout le nécessaire pour lancer une culture de champignons directement au jardin. Il comprend du mycélium en vrac, des granules de bois francs, du son de blé et les instructions de préparation.
@@ -212,7 +212,7 @@ do_action( 'woocommerce_before_main_content' );
 							</button>
 						</div>
 						<div class="col-5 col-sm-6 mx-auto pe-1 ps-0">
-							<img class="w-100 object-fit-contain bundles-img rounded-2" src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/hwfp-crop.png' ); ?>" alt="Granules de bois dure">
+							<img class="w-100 object-fit-contain bundles-img rounded-2" src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/hwfp-crop.webp' ); ?>" alt="Granules de bois dure">
 						</div>
 						<div class="col-5 col-sm-6 mx-auto pe-xxl-5 pe-0 ps-0"> <!-- Bundle #1 --> 
 							<button class="mb-5 btn btn-primary btn-panier d-none d-xxl-inline">
@@ -228,7 +228,7 @@ do_action( 'woocommerce_before_main_content' );
 								$product = $prev;
 								?>
 							</button>
-							<img class="w-100 object-fit-contain bundles-img rounded-2" src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/mycelium-en-vrac.png' ); ?>" alt="Sac de mycelium en vrac">
+							<img class="w-100 object-fit-contain bundles-img rounded-2" src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/mycelium-en-vrac.webp' ); ?>" alt="Sac de mycelium en vrac">
 						</div>
 					</div>
 				</div>
@@ -271,10 +271,10 @@ do_action( 'woocommerce_before_main_content' );
 								$product = $prev;
 								?>
 							</button>
-							<img class="w-100 object-fit-contain bundles-img rounded-2" src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/cls.png' ); ?>" alt="Mycelium sur grain dans une hotte à flux laminaire">
+							<img class="w-100 object-fit-contain bundles-img rounded-2" src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/cls.webp' ); ?>" alt="Mycelium sur grain dans une hotte à flux laminaire">
 						</div>
 						<div class="col-5 col-sm-6 mx-auto ps-1 pe-0 text-xxl-end">
-							<img class="w-100 object-fit-contain bundles-img rounded-2" src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/GSL-pack.JPG' ); ?>" alt="Pack de 5 sacs mycelium sur grain">
+							<img class="w-100 object-fit-contain bundles-img rounded-2" src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/GSL-pack.webp' ); ?>" alt="Pack de 5 sacs mycelium sur grain">
 						</div>
 					</div>
 				</div>
