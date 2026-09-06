@@ -41,9 +41,48 @@ function spora_enqueue_styles() {
 add_action( 'after_setup_theme', function() {
     add_theme_support( 'woocommerce' );
     add_theme_support( 'post-thumbnails' );
+    add_theme_support( 'title-tag' );
     add_image_size( 'mini_cart_thumbnail', 64, 64, true );
     add_image_size('product', 900, 600, true);
 } );
+
+// Le titre du site dans Réglages > Général ("spora") n'a jamais été configuré ;
+// on force donc un nom de marque propre dans le <title>, sans toucher à la DB.
+add_filter( 'document_title_parts', function( $parts ) {
+    if ( is_front_page() ) {
+        // Sur l'accueil, WP utilise sinon le nom du site ("spora") comme titre ET comme suffixe.
+        return [ 'title' => 'Sporacultus – Champignons de culture en extérieur, Québec' ];
+    }
+    $parts['site'] = 'Sporacultus';
+    return $parts;
+} );
+
+// Meta description dynamique par page (le thème n'avait aucune balise meta description).
+add_action( 'wp_head', 'spora_meta_description', 1 );
+function spora_meta_description() {
+    $description = '';
+
+    if ( is_front_page() ) {
+        $description = "Sporacultus cultive et vend des kits, mycélium et substrats pour la culture de champignons en extérieur au Québec — une approche écologique, simple et accessible à tous.";
+    } elseif ( function_exists( 'is_shop' ) && is_shop() ) {
+        $description = "La boutique Sporacultus : kits de culture, mycélium et substrats pour cultiver vos champignons chez vous, en extérieur.";
+    } elseif ( is_singular( 'product' ) ) {
+        global $post;
+        $excerpt = has_excerpt( $post ) ? get_the_excerpt( $post ) : wp_strip_all_tags( $post->post_content );
+        $description = wp_trim_words( $excerpt, 30, '…' );
+    } elseif ( is_singular( 'page' ) ) {
+        global $post;
+        $excerpt = has_excerpt( $post ) ? get_the_excerpt( $post ) : wp_strip_all_tags( $post->post_content );
+        // Les pages pas encore rédigées ("Contenu à venir.") sont trop courtes pour faire une bonne meta description.
+        if ( mb_strlen( $excerpt ) >= 40 ) {
+            $description = wp_trim_words( $excerpt, 30, '…' );
+        }
+    }
+
+    if ( $description ) {
+        printf( '<meta name="description" content="%s" />' . "\n", esc_attr( $description ) );
+    }
+}
 
 add_action( 'wp_enqueue_scripts', function() {
     if ( ! class_exists( 'WooCommerce' ) ) {
