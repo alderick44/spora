@@ -219,9 +219,8 @@ body.home .header{
     --hero-pan-intro-scale-transition: 1.5; /* Scale at the end of intro and beginning of loop */
     --hero-pan-vector-transition: 10%, 20%, 0;
 
-    animation:
-        hero-pan-intro var(--hero-pan-intro) ease-out 1,
-        hero-pan-loop var(--hero-pan-loop) ease-in-out var(--hero-pan-intro) infinite;
+    /* Animation désactivée (préférence du client) */
+    animation: none;
     transform-origin: center;
 }
 .card .card-title a{
