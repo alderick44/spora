@@ -7,7 +7,7 @@ get_header(); ?>
   <div class="container">
     <h1><?php the_title(); ?></h1>
 
-    <p>Le projet a pris racine quand je jardinais et que j'ai essayé de cultiver le pleurote en huître : j'ai été fasciné par la vitesse de son développement sur différents substrats. De fil en aiguille, j'ai développé une passion pour les processus de culture de champignons — le strophaire, le pleurote en huître, le pleurote rose, l'hydne hérisson...</p>
+    <p>Le projet a pris racine quand je jardinais et que j'ai essayé de cultiver le pleurote en huître. J'ai été fasciné par la vitesse de son développement sur différents substrats. De fil en aiguille, j'ai développé une passion pour les processus de culture de champignons, le strophaire, le pleurote en huître, le pleurote rose, l'hydne hérisson...</p>
 
     <p>Je crois que la culture de champignons en extérieur peut être extrêmement écologique, simple et accessible à tous.</p>
 
