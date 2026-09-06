@@ -110,7 +110,7 @@
 
           <div class="col-md-10 col-12">
             <div class="header-nav d-flex align-items-center justify-content-between justify-content-md-end gap-3">
-              <nav class="header-nav__lists d-flex flex-column align-items-center align-items-md-end" id="headerMenu">
+              <nav class="header-nav__lists d-flex flex-column align-items-start align-items-md-end" id="headerMenu">
                   <ul class="nav nav-underline flex-wrap gap-3 mb-1 small header-nav__utility d-flex">
                     <li class="nav-item">
                       <a class="nav-link px-2" href="/a-propos/"
@@ -124,9 +124,11 @@
                         >Guides et conseils</a
                       >
                     </li>
-                    <li class="nav-item">
-                      <a class="nav-link px-2" href="/nous-joindre/"
-                        >Nous joindre</a
+                    <li class="nav-item ms-auto">
+                      <a class="nav-link px-2 d-flex align-items-center" href="/nous-joindre/" aria-label="Nous joindre" title="Nous joindre"
+                        ><svg class="nav-icon d-md-none" viewBox="0 0 24 24" fill="#F7F7FF" aria-hidden="true"
+                          ><path d="M4 7.5A1.5 1.5 0 0 1 5.5 6h13A1.5 1.5 0 0 1 20 7.5V8l-8 5.5L4 8v-.5z"/><path d="M4 10.2V17.5A1.5 1.5 0 0 0 5.5 19h13a1.5 1.5 0 0 0 1.5-1.5v-7.3l-7.1 4.9a1.5 1.5 0 0 1-1.8 0L4 10.2z"/></svg
+                        ><span class="d-none d-md-inline">Nous joindre</span></a
                       >
                     </li>
                   </ul>
@@ -147,12 +149,6 @@
                       >
                     </li>
                   </ul>
-                <!-- <a class="w-25 ms-auto me-3 mt-3 mb-auto" href="mailto:info@sporacultus.ca?subject=Demande%20d'information"> -->
-                <a class="w-25 ms-auto me-3 mt-3 mb-auto d-block d-md-none " href="/nous-joindre">
-                  <svg class="nav-icon w-25 text-light ms-auto d-block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
-                    <use href="<?php echo esc_url( get_theme_file_uri('assets/icons/icon-mail.svg#icon-mail') ); ?>"></use>
-                  </svg>
-                </a>
               </nav>
 
               <div class="dropdown basket-dropdown-wrap d-none d-md-block">
