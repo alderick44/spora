@@ -126,7 +126,7 @@
                     </li>
                     <li class="nav-item ms-auto">
                       <a class="nav-link px-2 d-flex align-items-center" href="/nous-joindre/" aria-label="Nous joindre" title="Nous joindre"
-                        ><svg class="nav-icon d-md-none" viewBox="0 0 24 24" fill="#F7F7FF" aria-hidden="true"
+                        ><svg class="nav-icon d-md-none" viewBox="0 0 24 24" fill="currentColor" style="color: var(--bs-nav-link-color);" aria-hidden="true"
                           ><path d="M4 7.5A1.5 1.5 0 0 1 5.5 6h13A1.5 1.5 0 0 1 20 7.5V8l-8 5.5L4 8v-.5z"/><path d="M4 10.2V17.5A1.5 1.5 0 0 0 5.5 19h13a1.5 1.5 0 0 0 1.5-1.5v-7.3l-7.1 4.9a1.5 1.5 0 0 1-1.8 0L4 10.2z"/></svg
                         ><span class="d-none d-md-inline">Nous joindre</span></a
                       >
