@@ -7,7 +7,7 @@ Description:
 Requires at least: 6.7
 Tested up to: 6.9
 Requires PHP: 7.2
-Version: 1.4
+Version: 1.5
 License: GNU General Public License v2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: twentytwentyfive
@@ -120,6 +120,16 @@ body.home .header{
     .header:not(.is-compact) .header-nav__lists{
         display: flex !important;
         height: 100%;
+    }
+    .header-nav__utility{
+        padding-top: 1.5rem;
+        opacity: 0.75;
+    }
+    .header-nav__main{
+        margin-top: 0.5rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.15);
+        gap: 0.75rem !important;
     }
 }
 .header.is-compact .header-nav__utility{
