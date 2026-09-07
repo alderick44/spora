@@ -106,7 +106,7 @@ get_header( 'shop' );
 		</section>
 
 		<section class="py-5 my-5">
-			<h1 class="text-center">Tout nos produits</h1>
+			<h1 class="text-center">Tous nos produits</h1>
 
 			<?php
 			if ( woocommerce_product_loop() ) {

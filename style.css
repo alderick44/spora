@@ -243,13 +243,49 @@ body.home .header{
     animation: none;
     transform-origin: center;
 }
+/* Prix sur la fiche produit (la CSS de WooCommerce est desactivee) */
+.single-product .price{
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+.single-product .price del{
+    opacity: 0.6;
+    font-weight: 400;
+    font-size: 1.15rem;
+    margin-right: 0.5rem;
+}
+.single-product .price ins{
+    text-decoration: none;
+    color: var(--color-red);
+}
 .card .card-title a{
     text-decoration: none;
     color: var(--bs-headings-color);
 }
 .card .card-img-top{
-    height: auto;
     width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border-radius: 0.5rem;
+}
+/* Grille boutique : cartes de hauteur egale, boutons alignes en bas */
+.card .card-body{
+    display: flex;
+    flex-direction: column;
+}
+.card .card-body .card-text{
+    display: -webkit-box;
+    -webkit-line-clamp: 5;
+    line-clamp: 5;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-bottom: 1rem !important;
+}
+.card .card-body .btn{
+    margin-top: auto;
+    align-self: start;
 }
 @keyframes hero-pan-intro{  /* Ajusté pour écran moyen */
     /* 0%{
