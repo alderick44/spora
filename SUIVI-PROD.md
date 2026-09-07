@@ -6,12 +6,6 @@ la main dans wp-admin. Ce fichier est le seul endroit où c'est noté.
 
 ## À faire
 
-- [ ] **Traductions WooCommerce** — installer le paquet `fr_CA` du plugin.
-      Sans ça, la boutique affiche « Add to cart », « Read more »,
-      « Available on backorder » en anglais.
-      → *Tableau de bord → Mises à jour → « Mettre à jour les traductions »*
-      (fait en local le 2026-09-06, **pas encore en prod**)
-
 - [ ] **« Bloc de fructification » n'a aucun prix** — le produit est publié
       et visible dans la boutique, mais impossible à acheter : le bouton
       affiche « Continuer la lecture » au lieu d'« Ajouter au panier ».
@@ -35,6 +29,20 @@ désactivé dans `.vscode/sftp.json` (non versionné) : l'upload SFTP est une
 action manuelle et délibérée, faite par Aldérick uniquement.
 
 Commits en attente d'upload : voir `git log origin/dev..dev`.
+
+## Pièges connus de l'environnement local
+
+- **`wp-content/languages/` n'a jamais été copié depuis la prod.** Seul
+  `uploads/` l'a été. Résultat : le local affiche l'interface WooCommerce en
+  anglais (« Add to cart », « Read more ») alors que **la prod est bien en
+  français**. Ne pas confondre avec un vrai défaut du site — toujours
+  vérifier sur `sporacultus.ca` avant de conclure.
+  Pour aligner le local : `wp language plugin install woocommerce fr_CA`
+  (déjà fait le 2026-09-06).
+
+- Règle générale : le local est une **copie partielle et figée** de la prod.
+  Une anomalie vue uniquement en local doit être confirmée sur le vrai site
+  avant d'être traitée comme un bug.
 
 ## Fait
 
