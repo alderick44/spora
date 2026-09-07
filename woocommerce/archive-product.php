@@ -34,7 +34,7 @@ get_header( 'shop' );
 	<div class="container">
 		<section class="row flex-column justify-content-center align-items-center pt-2 pb-2 pe-0 ps-0">
 			<div class="col-12">
-				<h1 class="text-center py-3">Bienvenu sur notre boutique!</h1>
+				<h1 class="text-center py-3">Bienvenue sur notre boutique!</h1>
 			</div>
 			<div class="col-12">
 				<h4 class="text-center pb-3">Promotions en cours et produits vedettes.</h4>

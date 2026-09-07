@@ -53,6 +53,11 @@ add_filter( 'document_title_parts', function( $parts ) {
         // Sur l'accueil, WP utilise sinon le nom du site ("spora") comme titre ET comme suffixe.
         return [ 'title' => 'Sporacultus – Champignons de culture en extérieur, Québec' ];
     }
+    // La page boutique s'appelle "Shop" en base : titre anglais et sans mot-clé
+    // sur la page la plus commerciale du site. Google le remplaçait par le H1.
+    if ( function_exists( 'is_shop' ) && is_shop() ) {
+        $parts['title'] = 'Boutique — Mycélium, substrats et kits de culture';
+    }
     $parts['site'] = 'Sporacultus';
     return $parts;
 } );
