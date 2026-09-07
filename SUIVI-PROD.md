@@ -13,6 +13,13 @@ la main dans wp-admin. Ce fichier est le seul endroit où c'est noté.
       → *Pages → Guides et conseils → Attributs de page → Modèle*
       (fait en local le 2026-09-06, **pas encore en prod**)
 
+- [ ] **Creer la page « Comment les apprêter »** — nouvelle page WordPress,
+      slug `comment-les-appreter`, modele « Guide — Comment les apprêter ».
+      C'est le premier article de la section Guides. Chaque nouvel article
+      demandera la meme manip : une page + son modele.
+      → *Pages → Ajouter → Attributs de page → Modèle*
+      (fait en local le 2026-09-06, **pas encore en prod**)
+
 - [ ] **« Bloc de fructification » n'a aucun prix** — le produit est publié
       et visible dans la boutique, mais impossible à acheter : le bouton
       affiche « Continuer la lecture » au lieu d'« Ajouter au panier ».
