@@ -73,6 +73,7 @@ get_header( 'shop' ); ?>
 								<?php } ?>
 							</div>
 							<div class="col-12 col-md-5 pt-3 pt-md-0 px-2 pe-md-5 text-center text-md-start">
+								<?php woocommerce_template_single_price(); ?>
 								<?php echo the_content()?>
 							</div>
 					</div>
@@ -84,7 +85,7 @@ get_header( 'shop' ); ?>
 			</main>
 		<?php endwhile; // end of the loop. ?>
 	<div class="text-center pb-5">
-		<a class="btn btn-primary" href="/shop">Retourner vers la boutique<a>
+		<a class="btn btn-primary" href="/shop">Retourner vers la boutique</a>
 	</div>
 
 	<?php
