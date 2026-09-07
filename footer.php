@@ -11,6 +11,9 @@
             <div class="d-flex flex-column gap-4">
               <a href="/">Accueil</a>
               <a href="/shop">Boutique</a>
+              <a href="/guides-et-conseils/">Guides et conseils</a>
+              <a href="/a-propos/">À propos</a>
+              <a href="/nous-joindre/">Nous joindre</a>
             </div>
           </div>
           <div class="col-6 col-sm-4 col-md-3">
