@@ -6,6 +6,13 @@ la main dans wp-admin. Ce fichier est le seul endroit où c'est noté.
 
 ## À faire
 
+- [ ] **Page « Guides et conseils » : changer le template** — comme pour
+      À propos, la page pointe encore sur « Coming Soon » en prod. Il faut
+      la basculer sur « Guides et conseils » pour que
+      `page-guides-et-conseils.php` prenne le relais.
+      → *Pages → Guides et conseils → Attributs de page → Modèle*
+      (fait en local le 2026-09-06, **pas encore en prod**)
+
 - [ ] **« Bloc de fructification » n'a aucun prix** — le produit est publié
       et visible dans la boutique, mais impossible à acheter : le bouton
       affiche « Continuer la lecture » au lieu d'« Ajouter au panier ».
