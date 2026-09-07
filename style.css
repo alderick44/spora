@@ -104,6 +104,9 @@ body.home .header{
 .header .nav-link{
     text-shadow: 0 1px 6px rgba(0, 0, 0, 0.35);
 }
+.header .nav-link svg{
+    filter: drop-shadow(0 1px 6px rgba(0, 0, 0, 0.35));
+}
 .header-nav__lists{
     display: flex;
     flex-direction: column;
@@ -123,7 +126,6 @@ body.home .header{
     }
     .header-nav__utility{
         padding-top: 1.5rem;
-        opacity: 0.75;
     }
     .header-nav__main{
         margin-top: 0.5rem;
