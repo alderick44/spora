@@ -110,7 +110,7 @@
 
           <div class="col-md-10 col-12">
             <div class="header-nav d-flex align-items-center justify-content-between justify-content-md-end gap-3">
-              <nav class="header-nav__lists d-flex flex-column align-items-start align-items-md-end w-100 w-md-auto" id="headerMenu">
+              <nav class="header-nav__lists d-flex flex-column align-items-start align-items-md-end w-100" id="headerMenu">
                   <ul class="nav nav-underline flex-wrap gap-3 mb-1 small header-nav__utility d-flex w-100">
                     <li class="nav-item">
                       <a class="nav-link px-2" href="/a-propos/"
