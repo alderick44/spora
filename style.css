@@ -7,7 +7,7 @@ Description:
 Requires at least: 6.7
 Tested up to: 6.9
 Requires PHP: 7.2
-Version: 1.6
+Version: 1.7
 License: GNU General Public License v2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: twentytwentyfive
@@ -484,4 +484,31 @@ body.home .header{
 .guide-card__date{
     font-size: 0.78rem;
     color: rgba(31, 54, 81, 0.6);
+}
+
+/* Categorie affichee sur un article (single.php), meme traitement que sur
+   la carte correspondante dans l'index. */
+.guide-meta{
+    font-size: 0.75rem;
+    color: var(--color-red);
+    letter-spacing: 0.04em;
+}
+/* Contenu redige dans l'editeur WordPress : on lui donne le meme rythme
+   que les guides ecrits en dur dans le theme. */
+.guide-contenu p{
+    margin-bottom: 1rem;
+}
+.guide-contenu h2{
+    font-size: 1.25rem;
+    margin-top: 2rem;
+}
+.guide-contenu h3{
+    font-size: 1.1rem;
+    margin-top: 1.5rem;
+}
+.guide-contenu img{
+    max-width: 100%;
+    height: auto;
+    border-radius: 12px;
+    margin: 1.5rem 0;
 }
