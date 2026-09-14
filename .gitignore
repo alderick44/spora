@@ -1,3 +1,9 @@
 .vscode/
 node_modules/
 .DS_Store
+
+# Notes de travail et outils Claude Code, gardes en local seulement
+.claude/
+CLAUDE.md
+SUIVI-PROD.md
+PLAN-AMELIORATION-SITE.md
