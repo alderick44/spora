@@ -4,7 +4,8 @@ defined( 'ABSPATH' ) || exit;
 do_action( 'woocommerce_before_mini_cart' );
 ?>
 
-<div class="widget_shopping_cart_content">
+<?php // Le nonce est ici et non dans l'en-tête : ce bloc est rafraîchi par AJAX, donc jamais servi depuis le cache de page. L'enveloppe .widget_shopping_cart_content est dans header.php, comme le veut WooCommerce. ?>
+<div class="mini-cart-body" data-qty-nonce="<?php echo esc_attr( wp_create_nonce( 'spora_mini_cart_qty' ) ); ?>">
   <?php if ( WC()->cart && ! WC()->cart->is_empty() ) : ?>
     <ul class="woocommerce-mini-cart cart_list product_list_widget <?php echo esc_attr( $args['list_class'] ); ?>">
       <?php
@@ -66,22 +67,38 @@ do_action( 'woocommerce_before_mini_cart' );
                   </a>
                 <?php endif; ?>
               </div>
+              <?php
+              $qty     = (int) $cart_item['quantity'];
+              $max_qty = $_product->get_max_purchase_quantity(); // -1 = pas de limite
+              ?>
               <div class="small text-muted d-flex align-items-center gap-1">
-                Qté <span class="mini-cart-qty-value"><?php echo (int) $cart_item['quantity']; ?></span>
+                <span aria-hidden="true">Qté</span>
                 <button
                   type="button"
-                  class="btn btn-link d-none p-0 text-decoration-none mini-cart-qty-btn"
-                  aria-label="Augmenter la quantité"
-                  data-action="plus"
-                  data-cart_item_key="<?php echo esc_attr( $cart_item_key ); ?>"
-                >▲</button>
-                <button
-                  type="button"
-                  class="btn btn-link d-none p-0 text-decoration-none mini-cart-qty-btn"
+                  class="btn btn-link p-0 text-decoration-none mini-cart-qty-btn"
                   aria-label="Diminuer la quantité"
                   data-action="minus"
                   data-cart_item_key="<?php echo esc_attr( $cart_item_key ); ?>"
-                >▼</button>
+                >&#x25C0;&#xFE0E;</button>
+                <input
+                  type="number"
+                  class="mini-cart-qty-input"
+                  aria-label="Quantité"
+                  value="<?php echo $qty; ?>"
+                  min="0"
+                  <?php if ( $max_qty > 0 ) : ?>max="<?php echo (int) $max_qty; ?>"<?php endif; ?>
+                  step="1"
+                  inputmode="numeric"
+                  data-cart_item_key="<?php echo esc_attr( $cart_item_key ); ?>"
+                >
+                <button
+                  type="button"
+                  class="btn btn-link p-0 text-decoration-none mini-cart-qty-btn"
+                  aria-label="Augmenter la quantité"
+                  data-action="plus"
+                  data-cart_item_key="<?php echo esc_attr( $cart_item_key ); ?>"
+                  <?php disabled( $max_qty > 0 && $qty >= $max_qty ); ?>
+                >&#x25B6;&#xFE0E;</button>
               </div>
               <?php echo wc_get_formatted_cart_item_data( $cart_item ); ?>
             </div>
@@ -101,6 +118,24 @@ do_action( 'woocommerce_before_mini_cart' );
       <span>Sous-total</span>
       <strong><?php echo wp_kses_post( WC()->cart->get_cart_subtotal() ); ?></strong>
     </div>
+
+    <?php // Dans le gabarit et non dans header.php, pour disparaître avec le dernier article ?>
+    <div class="d-grid gap-2 mt-3">
+      <!-- <div>
+        <label class="form-label mb-1" for="postal-code">Code postal</label>
+        <input class="form-control" type="text" id="postal-code" name="postal-code" placeholder="H2X 1Y4" />
+        <div class="small text-muted mt-1">Estimer la livraison</div>
+      </div> -->
+
+      <a class="btn btn-primary" href="<?php echo esc_url( wc_get_checkout_url() ); ?>">
+        Passer à la caisse
+      </a>
+      <a class="button wc-forward btn btn-primary" href="<?php echo esc_url( wc_get_cart_url() ); ?>">
+        <?php esc_html_e( 'View cart', 'woocommerce' ); ?>
+      </a>
+    </div>
+  <?php else : ?>
+    <p class="mini-cart-empty text-muted text-center my-3">Votre panier est vide.</p>
   <?php endif; ?>
 </div>
 
