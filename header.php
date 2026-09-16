@@ -65,22 +65,7 @@
                   &times;
                 </button>
               </div>
-              <?php woocommerce_mini_cart(); ?>
-
-              <div class="d-grid gap-2 mt-3">
-                <!-- <div>
-                  <label class="form-label mb-1" for="postal-code">Code postal</label>
-                  <input class="form-control" type="text" id="postal-code" name="postal-code" placeholder="H2X 1Y4" />
-                  <div class="small text-muted mt-1">Estimer la livraison</div>
-                </div> -->
-
-                <a class="btn btn-primary" href="<?php echo esc_url( wc_get_checkout_url() ); ?>">
-                  Passer à la caisse
-                </a>
-                <a class="button wc-forward btn btn-primary" href="<?php echo esc_url( wc_get_cart_url() ); ?>">
-                  <?php esc_html_e( 'View cart', 'woocommerce' ); ?>
-                </a>
-              </div>
+              <div class="widget_shopping_cart_content"><?php woocommerce_mini_cart(); ?></div>
             </div>
 
             <!-- Bouton menu mobile -->
@@ -182,22 +167,7 @@
                     </button>
                   </div>
 
-                  <?php woocommerce_mini_cart(); ?>
-
-                  <div class="d-grid gap-2 mt-3">
-                    <!-- <div>
-                      <label class="form-label mb-1" for="postal-code">Code postal</label>
-                      <input class="form-control" type="text" id="postal-code" name="postal-code" placeholder="H2X 1Y4" />
-                      <div class="small text-muted mt-1">Estimer la livraison</div>
-                    </div> -->
-                    
-                    <a class="btn btn-primary" href="<?php echo esc_url( wc_get_checkout_url() ); ?>">
-                      Passer à la caisse
-                    </a>
-                    <a class="button wc-forward btn btn-primary" href="<?php echo esc_url( wc_get_cart_url() ); ?>">
-                      <?php esc_html_e( 'View cart', 'woocommerce' ); ?>
-                    </a>
-                  </div>
+                  <div class="widget_shopping_cart_content"><?php woocommerce_mini_cart(); ?></div>
                 </div>
               </div>
 

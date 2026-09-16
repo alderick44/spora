@@ -135,6 +135,10 @@ add_action( 'wp_ajax_spora_update_mini_cart_qty', 'spora_update_mini_cart_qty' )
 add_action( 'wp_ajax_nopriv_spora_update_mini_cart_qty', 'spora_update_mini_cart_qty' );
 
 function spora_update_mini_cart_qty() {
+    if ( ! check_ajax_referer( 'spora_mini_cart_qty', 'nonce', false ) ) {
+        wp_send_json_error( [ 'message' => 'Invalid nonce' ], 403 );
+    }
+
     if ( ! class_exists( 'WooCommerce' ) || ! WC()->cart ) {
         wp_send_json_error( [ 'message' => 'Cart not available' ] );
     }
@@ -142,19 +146,36 @@ function spora_update_mini_cart_qty() {
     $cart_item_key = isset( $_POST['cart_item_key'] ) ? sanitize_text_field( wp_unslash( $_POST['cart_item_key'] ) ) : '';
     $action        = isset( $_POST['action_type'] ) ? sanitize_text_field( wp_unslash( $_POST['action_type'] ) ) : '';
 
-    if ( ! $cart_item_key || ! isset( WC()->cart->cart_contents[ $cart_item_key ] ) ) {
+    if ( ! in_array( $action, [ 'plus', 'minus', 'set' ], true ) ) {
+        wp_send_json_error( [ 'message' => 'Invalid action' ] );
+    }
+
+    $cart_item = WC()->cart->get_cart_item( $cart_item_key );
+    if ( ! $cart_item_key || ! $cart_item ) {
         wp_send_json_error( [ 'message' => 'Invalid cart item' ] );
     }
 
-    $current_qty = (int) WC()->cart->cart_contents[ $cart_item_key ]['quantity'];
-    $new_qty     = $action === 'plus' ? $current_qty + 1 : $current_qty - 1;
+    $current_qty = (int) $cart_item['quantity'];
+    $max_qty     = $cart_item['data']->get_max_purchase_quantity(); // -1 = pas de limite
+
+    if ( $action === 'set' ) {
+        // Quantité tapée à la main : on la ramène au stock disponible plutôt que de la refuser
+        $new_qty = isset( $_POST['quantity'] ) ? max( 0, absint( $_POST['quantity'] ) ) : $current_qty;
+        if ( $max_qty > 0 ) {
+            $new_qty = min( $new_qty, $max_qty );
+        }
+    } else {
+        $new_qty = $action === 'plus' ? $current_qty + 1 : $current_qty - 1;
+        if ( $max_qty > 0 && $new_qty > $max_qty ) {
+            wp_send_json_error( [ 'message' => 'Max quantity reached' ] );
+        }
+    }
 
     if ( $new_qty <= 0 ) {
         WC()->cart->remove_cart_item( $cart_item_key );
     } else {
         WC()->cart->set_quantity( $cart_item_key, $new_qty, true );
     }
-
 
     WC_AJAX::get_refreshed_fragments();
 }
