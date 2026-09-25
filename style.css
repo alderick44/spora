@@ -563,3 +563,17 @@ body.home .header{
     border-radius: 12px;
     margin: 1.5rem 0;
 }
+
+/* Formulaire « Vous ne trouvez pas votre champignon ? » */
+.demande-champignon{
+    max-width: 560px;
+    margin-inline: auto;
+    background: var(--bs-light-bg-subtle);
+}
+.demande-champignon-piege{
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
