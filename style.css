@@ -434,6 +434,25 @@ body.home .header{
         font-size: 0.8rem;
     }
 }
+
+/* Sélecteur de langue FR/EN, côte à côte, au même gabarit que les autres
+   liens de la nav utilitaire (À propos, Guides et conseils). La langue
+   affichée est en évidence, l'autre reste cliquable pour basculer. */
+.header-lang-switcher {
+    display: flex;
+    align-items: center;
+    gap: 0.15rem;
+}
+.header-lang-switcher .nav-link {
+    opacity: 0.55;
+}
+.header-lang-switcher .nav-link.is-active {
+    opacity: 1;
+    font-weight: 600;
+}
+.header-lang-switcher__sep {
+    opacity: 0.4;
+}
 /* ============================================================
    Cartes de guides — trois habillages interchangeables.
    L'habillage se choisit dans page-guides-et-conseils.php
