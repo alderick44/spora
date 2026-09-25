@@ -1,13 +1,13 @@
 <?php
 // "Tresors" enfouis dans la terre du logo explose : on creuse pour les deterrer.
-// x = position en fraction de la largeur du logo ; species = couleur du champignon
+// x = position en fraction de la largeur du MONDE explorable (pas juste du logo, le
+// monde continue horizontalement au-dela de la boite) ; species = couleur du champignon
 // (0 gris, 1 rose, 2 hydne, 3 huitre, 4 shiitake, voir SPECIES dans logo-explosion.js).
-// TEST : contenu provisoire avec les images de l'ancien prototype.
 $spora_treasures = [
-    [ 'x' => 0.12, 'species' => 3, 'title' => 'Pleurote huître', 'text' => 'Le classique facile, parfait pour débuter.', 'img' => get_theme_file_uri( 'assets/img/produits/pleurote-huitre.jpg' ), 'url' => '/shop/' ],
-    [ 'x' => 0.4, 'species' => 2, 'title' => 'Hydne hérisson', 'text' => 'Texture de crabe, goût délicat.', 'img' => get_theme_file_uri( 'assets/img/produits/hydne-herisson.jpg' ), 'url' => '/shop/' ],
-    [ 'x' => 0.68, 'species' => 1, 'title' => 'Pleurote rose', 'text' => 'Pousse vite et aime la chaleur.', 'img' => get_theme_file_uri( 'assets/img/produits/pleurote-rose.jpg' ), 'url' => '/shop/' ],
-    [ 'x' => 0.92, 'species' => 4, 'title' => 'Le saviez-vous ?', 'text' => 'Le pleurote rose fructifie entre 20 et 30 °C.' ],
+    [ 'x' => 0.12, 'species' => 3, 'title' => 'Pleurote huître', 'text' => 'Le plus facile à cultiver : il pousse même dans la paille ou le carton.', 'img' => get_theme_file_uri( 'assets/img/produits/pleurote-huitre.jpg' ), 'url' => '/shop/' ],
+    [ 'x' => 0.4, 'species' => 0, 'title' => 'Mycélium en vrac', 'text' => 'Du grain colonisé à étendre dans vos copeaux ou vos feuilles.', 'img' => get_theme_file_uri( 'assets/img/produits/grain-colonising.jpg' ), 'url' => '/product/mycelium-en-vrac' ],
+    [ 'x' => 0.68, 'species' => 2, 'title' => 'Hydne hérisson', 'text' => 'Texture de crabe, goût délicat. Il pousse sur le bois franc.', 'img' => get_theme_file_uri( 'assets/img/produits/hydne-herisson.jpg' ), 'url' => '/shop/' ],
+    [ 'x' => 0.92, 'species' => 1, 'title' => 'Le saviez-vous ?', 'text' => 'Le mycélium décompose le bois mort et le rend au sol : c\'est lui qui nourrit la forêt.' ],
 ];
 ?>
 <?php get_header(); ?>
@@ -32,7 +32,55 @@ $spora_treasures = [
               <path d="M3 4v5h5"/>
             </svg>
           </button>
+          <div id="logo-explosion-tools" class="logo-explosion-tools d-none" role="group" aria-label="Outils">
+            <button type="button" class="logo-explosion-tool is-active" data-tool="shovel" aria-pressed="true" aria-label="Pelle" title="Pelle">
+              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 3l2 2"/>
+                <path d="M20 4l-9 9"/>
+                <path d="M13 11l-6 6a3 3 0 0 1-4-4l6-6z"/>
+              </svg>
+            </button>
+            <button type="button" class="logo-explosion-tool" data-tool="mycelium" aria-pressed="false" aria-label="Mycélium en vrac" title="Mycélium en vrac">
+              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 3h6l-1 3h-4z"/>
+                <path d="M10 6c-4 1-5 4-5 8 0 4 3 7 7 7s7-3 7-7c0-4-1-7-5-8"/>
+                <circle cx="10" cy="14" r=".6" fill="currentColor"/>
+                <circle cx="14" cy="13" r=".6" fill="currentColor"/>
+                <circle cx="12" cy="17" r=".6" fill="currentColor"/>
+              </svg>
+            </button>
+            <button type="button" class="logo-explosion-tool" data-tool="tree" aria-pressed="false" aria-label="Planter un arbre" title="Planter un arbre">
+              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 3l5 7h-3l4 6h-4v5h-4v-5H6l4-6H7z"/>
+              </svg>
+            </button>
+          </div>
+          <div id="logo-explosion-speed-wrap" class="logo-explosion-speed d-none">
+            <label for="logo-explosion-speed">Vitesse <span id="logo-explosion-speed-val">1×</span></label>
+            <input type="range" id="logo-explosion-speed" min="1" max="30" step="1" value="1" aria-label="Vitesse de simulation">
+          </div>
+          <button type="button" id="logo-explosion-scroll-left" class="logo-explosion-scroll logo-explosion-scroll-left d-none" aria-label="Défiler le monde vers la gauche">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M15 18l-6-6 6-6"/>
+            </svg>
+          </button>
+          <button type="button" id="logo-explosion-scroll-right" class="logo-explosion-scroll logo-explosion-scroll-right d-none" aria-label="Défiler le monde vers la droite">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </button>
+          <button type="button" id="logo-explosion-scroll-up" class="logo-explosion-scroll logo-explosion-scroll-up d-none" aria-label="Défiler le monde vers le haut">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 15l6-6 6 6"/>
+            </svg>
+          </button>
+          <button type="button" id="logo-explosion-scroll-down" class="logo-explosion-scroll logo-explosion-scroll-down d-none" aria-label="Défiler le monde vers le bas (creuser plus profond)">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 9l6 6 6-6"/>
+            </svg>
+          </button>
         </div>
+        <p id="logo-explosion-caption" class="logo-explosion-caption d-none" aria-live="polite"></p>
       </section>
       <section class="hero-viewport z-0">
         <div class="position-relative">
