@@ -186,6 +186,133 @@ add_filter('woocommerce_loop_add_to_cart_args', function( $args, $product ) {
     return $args;
 }, 10, 2);
 
+// ============================================================
+// Détection de langue à la première visite (français par défaut).
+// ============================================================
 
+// Un robot reçoit toujours l'adresse qu'il demande : jamais de redirection ni de cookie pour lui.
+function spora_is_bot() {
+    $ua = isset( $_SERVER['HTTP_USER_AGENT'] ) ? strtolower( $_SERVER['HTTP_USER_AGENT'] ) : '';
+    if ( $ua === '' ) {
+        return true;
+    }
+    foreach ( [ 'bot', 'spider', 'crawl', 'slurp', 'facebookexternalhit', 'headless' ] as $signature ) {
+        if ( strpos( $ua, $signature ) !== false ) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// Règle d'Alderick : du français n'importe où dans l'en-tête Accept-Language -> français.
+// Seulement de l'anglais -> anglais. Ni l'un ni l'autre -> français.
+function spora_detect_lang_from_accept_header() {
+    $header = isset( $_SERVER['HTTP_ACCEPT_LANGUAGE'] ) ? $_SERVER['HTTP_ACCEPT_LANGUAGE'] : '';
+    if ( ! $header ) {
+        return 'fr';
+    }
+    $has_en = false;
+    foreach ( explode( ',', $header ) as $part ) {
+        $lang = strtolower( trim( explode( ';', $part )[0] ) );
+        if ( strpos( $lang, 'fr' ) === 0 ) {
+            return 'fr';
+        }
+        if ( strpos( $lang, 'en' ) === 0 ) {
+            $has_en = true;
+        }
+    }
+    return $has_en ? 'en' : 'fr';
+}
+
+// Code de langue TranslatePress pour l'anglais (ex. 'en_US'), déduit des réglages plutôt que codé en dur.
+function spora_get_english_trp_code() {
+    $settings = get_option( 'trp_settings' );
+    if ( ! empty( $settings['publish-languages'] ) && ! empty( $settings['default-language'] ) ) {
+        foreach ( $settings['publish-languages'] as $code ) {
+            if ( $code !== $settings['default-language'] ) {
+                return $code;
+            }
+        }
+    }
+    return 'en_US';
+}
+
+// Code de langue TranslatePress pour le français (langue par défaut).
+function spora_get_french_trp_code() {
+    $settings = get_option( 'trp_settings' );
+    return ! empty( $settings['default-language'] ) ? $settings['default-language'] : 'fr_CA';
+}
+
+// true si la page courante est affichée en anglais.
+function spora_is_english() {
+    global $TRP_LANGUAGE;
+    return $TRP_LANGUAGE === spora_get_english_trp_code();
+}
+
+// Décide la langue voulue quand l'URL ne porte aucun préfixe de langue (nos pages françaises, sans /en/).
+// N'agit qu'à la première visite : une fois le cookie posé (détection ou choix manuel), on ne redétecte plus.
+// Note technique : TranslatePress 3.3.6 utilise son nouveau sélecteur "V2", dont la logique de décision
+// de langue est privée et ne passe pas par un filtre WordPress classique (contrairement à l'ancien
+// sélecteur, qui exposait 'trp_needed_language'). On se branche donc sur 'after_setup_theme' (le hook
+// 'plugins_loaded' a déjà été déclenché avant que functions.php ne soit chargé — s'y accrocher depuis
+// un thème ne sert à rien, le callback ne serait jamais appelé), une fois que TranslatePress (un plugin,
+// donc chargé et initialisé avant le thème) a déjà résolu la langue à partir de l'URL.
+add_action( 'after_setup_theme', function() {
+    if ( spora_is_bot() || ! class_exists( 'TRP_Translate_Press' ) ) {
+        return;
+    }
+    $trp = TRP_Translate_Press::get_trp_instance();
+    if ( ! $trp ) {
+        return;
+    }
+    $url_converter = $trp->get_component( 'url_converter' );
+    if ( ! $url_converter || $url_converter->get_lang_from_url_string() !== null ) {
+        return; // une adresse avec un préfixe de langue explicite (/en/...) n'est jamais réinterprétée
+    }
+
+    // Un clic sur notre propre sélecteur FR/EN (ou tout lien interne) amène forcément sur une
+    // adresse sans préfixe quand la cible est le français (langue par défaut, sans /fr/). Il ne faut
+    // alors jamais retomber sur le cookie mémorisé : ce serait annuler le clic du visiteur.
+    $referer_host = ! empty( $_SERVER['HTTP_REFERER'] ) ? wp_parse_url( $_SERVER['HTTP_REFERER'], PHP_URL_HOST ) : '';
+    $is_internal_navigation = $referer_host && $referer_host === ( $_SERVER['HTTP_HOST'] ?? '' );
+    if ( $is_internal_navigation ) {
+        return;
+    }
+
+    if ( isset( $_COOKIE['spora_lang'] ) ) {
+        $wanted = $_COOKIE['spora_lang'];
+    } else {
+        $wanted = spora_detect_lang_from_accept_header();
+        if ( ! headers_sent() ) {
+            setcookie( 'spora_lang', $wanted, time() + YEAR_IN_SECONDS, '/', '', is_ssl(), true );
+        }
+    }
+
+    if ( $wanted !== 'en' ) {
+        return; // français = comportement par défaut de TranslatePress, rien à faire
+    }
+
+    $en_code = spora_get_english_trp_code();
+    add_action( 'template_redirect', function() use ( $url_converter, $en_code ) {
+        wp_safe_redirect( $url_converter->get_url_for_language( $en_code, null, '' ), 302 );
+        exit;
+    }, 5 );
+} );
+
+// Le choix courant (détecté ci-dessus, ou choisi à la main via le sélecteur) reste mémorisé
+// pour les visites suivantes, même en changeant de page.
+add_action( 'template_redirect', function() {
+    if ( is_admin() || spora_is_bot() ) {
+        return;
+    }
+    global $TRP_LANGUAGE;
+    if ( empty( $TRP_LANGUAGE ) ) {
+        return;
+    }
+    $current = ( $TRP_LANGUAGE === spora_get_english_trp_code() ) ? 'en' : 'fr';
+    if ( ! headers_sent() && ( ! isset( $_COOKIE['spora_lang'] ) || $_COOKIE['spora_lang'] !== $current ) ) {
+        setcookie( 'spora_lang', $current, time() + YEAR_IN_SECONDS, '/', '', is_ssl(), true );
+    }
+} );
 
 ?>

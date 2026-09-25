@@ -97,6 +97,26 @@
             <div class="header-nav d-flex align-items-center justify-content-between justify-content-md-end gap-3">
               <nav class="header-nav__lists d-flex flex-column align-items-start align-items-md-end w-100" id="headerMenu">
                   <ul class="nav nav-underline flex-wrap gap-3 mb-1 small header-nav__utility d-flex w-100">
+                    <?php
+                    $spora_trp = class_exists( 'TRP_Translate_Press' ) ? TRP_Translate_Press::get_trp_instance() : null;
+                    $spora_url_converter = $spora_trp ? $spora_trp->get_component( 'url_converter' ) : null;
+                    ?>
+                    <?php if ( $spora_url_converter ) : ?>
+                    <li class="nav-item header-lang-switcher">
+                      <a
+                        class="nav-link px-1<?php echo spora_is_english() ? '' : ' is-active'; ?>"
+                        href="<?php echo esc_url( $spora_url_converter->get_url_for_language( spora_get_french_trp_code() ) ); ?>"
+                        data-no-translation
+                        >FR</a
+                      ><span class="header-lang-switcher__sep" aria-hidden="true">/</span
+                      ><a
+                        class="nav-link px-1<?php echo spora_is_english() ? ' is-active' : ''; ?>"
+                        href="<?php echo esc_url( $spora_url_converter->get_url_for_language( spora_get_english_trp_code() ) ); ?>"
+                        data-no-translation
+                        >EN</a
+                      >
+                    </li>
+                    <?php endif; ?>
                     <li class="nav-item">
                       <a class="nav-link px-2" href="/a-propos/"
                         >À propos</a
