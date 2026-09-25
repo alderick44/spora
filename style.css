@@ -37,10 +37,18 @@ Tags:
 }
 .logo-explosion-hero{
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     padding: 4vh 0;
     width: 100%;
+}
+/* Discrete, sous la boite : indique quoi faire puis ce qui se passe, pas un titre. */
+.logo-explosion-caption{
+    margin: 12px 0 0;
+    color: rgba(33, 37, 41, .75);
+    font-size: .875rem;
+    text-align: center;
 }
 body.home .logo-explosion-hero{
     /* Sur l'accueil le header est en position fixed (voir body.home .header) et
@@ -55,6 +63,10 @@ body.home .logo-explosion-hero{
        ont de la place pour se disperser sans se faire couper net par le bord de
        la boite (avant, la boite collait au ratio serre du wordmark). */
     height: clamp(280px, 45vh, 560px);
+    /* Le monde (terre + tresors) deborde horizontalement de la boite ; le canvas se
+       clippe tout seul (taille fixe), mais les overlays HTML des tresors doivent
+       l'etre aussi quand ils sont hors du champ visible actuel. */
+    overflow: hidden;
 }
 .logo-explosion-layer{
     position: absolute;
@@ -85,8 +97,11 @@ body.home .logo-explosion-hero{
        alors a pelleter, pas a faire defiler la page. */
     touch-action: none;
 }
-.logo-explosion-inner.is-shoveling #logo-explosion-canvas{
-    cursor: none; /* la pelle dessinee remplace le curseur */
+.logo-explosion-inner.is-tool-cursor #logo-explosion-canvas{
+    cursor: none; /* la pelle ou le sac dessine remplace le curseur */
+}
+.logo-explosion-inner.is-planting #logo-explosion-canvas{
+    cursor: crosshair; /* aucun outil dessine : indique juste ou le clic va planter */
 }
 .logo-explosion-rebuild{
     /* En haut a droite : zone vide une fois le logo tombe en terre. */
@@ -106,6 +121,92 @@ body.home .logo-explosion-hero{
     opacity: .6;
     transition: opacity .2s, transform .3s;
 }
+/* Barre d'outils (pelle / mycelium), en haut a gauche, en miroir du bouton ↻. */
+.logo-explosion-tools{
+    position: absolute;
+    top: 8px;
+    left: 16px;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.logo-explosion-tool{
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 2px solid transparent;
+    border-radius: 50%;
+    background: rgba(58, 42, 24, .35);
+    color: #fff;
+    opacity: .7;
+    transition: opacity .2s, border-color .2s;
+}
+.logo-explosion-tool:hover,
+.logo-explosion-tool:focus-visible{
+    opacity: 1;
+}
+.logo-explosion-tool.is-active{
+    opacity: 1;
+    border-color: var(--color-red);
+    background: rgba(58, 42, 24, .6);
+}
+/* Reglage de vitesse de simulation : outil de debug/experimentation, pas un controle
+   destine aux visiteurs (pas de style soigne, juste fonctionnel). */
+.logo-explosion-speed{
+    position: absolute;
+    bottom: 8px;
+    left: 16px;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    background: rgba(58, 42, 24, .55);
+    color: #fff;
+    font-size: .75rem;
+}
+.logo-explosion-speed input[type="range"]{
+    width: 100px;
+}
+/* Fleches de defilement du monde, mobile seulement (desktop defile au survol du bord). */
+.logo-explosion-scroll{
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(58, 42, 24, .35);
+    color: #fff;
+    opacity: .85;
+    touch-action: none;
+}
+.logo-explosion-scroll-left{ left: 8px; }
+.logo-explosion-scroll-right{ right: 8px; }
+/* Haut/bas : recentrees horizontalement plutot que verticalement (axe different des
+   fleches gauche/droite). Le bas sert a descendre creuser plus profond. */
+.logo-explosion-scroll-up,
+.logo-explosion-scroll-down{
+    top: auto;
+    left: 50%;
+    transform: translateX(-50%);
+}
+.logo-explosion-scroll-up{ top: 8px; }
+.logo-explosion-scroll-down{ bottom: 8px; }
+@media (min-width: 768px){
+    .logo-explosion-scroll{
+        display: none;
+    }
+}
 /* Tresor enfoui : petite facette doree qui scintille a la surface de la terre. */
 .logo-explosion-glint{
     position: absolute;
@@ -124,6 +225,49 @@ body.home .logo-explosion-hero{
 @keyframes logo-explosion-glint{
     0%, 100% { opacity: .5; transform: rotate(45deg) scale(.7); }
     50% { opacity: 1; transform: rotate(45deg) scale(1.1); }
+}
+/* Repere du tout premier tresor : halo + fleche pales qui invitent a creuser. */
+.logo-explosion-hint{
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .4s;
+}
+.logo-explosion-hint.is-visible{
+    opacity: 1;
+}
+.logo-explosion-hint-halo{
+    position: absolute;
+    left: 50%;
+    top: 18px;
+    width: 30px;
+    height: 30px;
+    margin: -15px 0 0 -15px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,.55) 0%, rgba(255,255,255,0) 70%);
+    animation: logo-explosion-hint-halo 1.6s ease-in-out infinite;
+}
+.logo-explosion-hint-arrow{
+    position: absolute;
+    left: 50%;
+    top: -18px;
+    width: 14px;
+    height: 14px;
+    margin-left: -7px;
+    border-right: 3px solid rgba(255,255,255,.75);
+    border-bottom: 3px solid rgba(255,255,255,.75);
+    transform: rotate(45deg);
+    animation: logo-explosion-hint-arrow 1.2s ease-in-out infinite;
+}
+@keyframes logo-explosion-hint-halo{
+    0%, 100% { transform: scale(.8); opacity: .5; }
+    50% { transform: scale(1.15); opacity: .9; }
+}
+@keyframes logo-explosion-hint-arrow{
+    0%, 100% { transform: rotate(45deg) translate(0, 0); }
+    50% { transform: rotate(45deg) translate(6px, 6px); }
 }
 .logo-explosion-tip{
     position: absolute;
