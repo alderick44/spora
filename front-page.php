@@ -33,9 +33,10 @@
             <div class="row py-5">
               <div class="col-12 col-lg-6">
                 <img
-                  src="<?php echo get_template_directory_uri(); ?>/assets/img/mycelium-en-vrac.webp"
-                  alt="Sac de mycelium en vrac"
+                  src="<?php echo get_template_directory_uri(); ?>/assets/img/pleurote-feuilles-2022.webp"
+                  alt="Pleurotes en huître qui poussent dans un tas de feuilles"
                   class="img-fluid rounded-2"/>
+                <p class="text-muted small mt-2 mb-0">Photo prise en juin 2022</p>
               </div>
               <div class="col-12 col-lg-6">
                 <div class="d-flex flex-column justify-content-between h-100 p-3 p-lg-0">
@@ -57,7 +58,7 @@
                 </div>
               </div>
             </div>
-            <h4>Distribution à partir de mai 2026!</h4>
+            <h4>Distribution à partir de mai 2027!</h4>
           </div>
         </section>
         <section class="pb-5">
