@@ -22,6 +22,16 @@ function spora_enqueue_scripts() {
         wp_get_theme()->get( 'Version' ),
         true
     );
+
+    if ( is_front_page() ) {
+        wp_enqueue_script(
+            'spora-logo-explosion',
+            get_theme_file_uri( 'assets/js/logo-explosion.js' ),
+            [],
+            wp_get_theme()->get( 'Version' ),
+            true
+        );
+    }
 }
 
 function spora_enqueue_styles() {

@@ -1,5 +1,39 @@
+<?php
+// "Tresors" enfouis dans la terre du logo explose : on creuse pour les deterrer.
+// x = position en fraction de la largeur du logo ; species = couleur du champignon
+// (0 gris, 1 rose, 2 hydne, 3 huitre, 4 shiitake, voir SPECIES dans logo-explosion.js).
+// TEST : contenu provisoire avec les images de l'ancien prototype.
+$spora_treasures = [
+    [ 'x' => 0.12, 'species' => 3, 'title' => 'Pleurote huître', 'text' => 'Le classique facile, parfait pour débuter.', 'img' => get_theme_file_uri( 'assets/img/produits/pleurote-huitre.jpg' ), 'url' => '/shop/' ],
+    [ 'x' => 0.4, 'species' => 2, 'title' => 'Hydne hérisson', 'text' => 'Texture de crabe, goût délicat.', 'img' => get_theme_file_uri( 'assets/img/produits/hydne-herisson.jpg' ), 'url' => '/shop/' ],
+    [ 'x' => 0.68, 'species' => 1, 'title' => 'Pleurote rose', 'text' => 'Pousse vite et aime la chaleur.', 'img' => get_theme_file_uri( 'assets/img/produits/pleurote-rose.jpg' ), 'url' => '/shop/' ],
+    [ 'x' => 0.92, 'species' => 4, 'title' => 'Le saviez-vous ?', 'text' => 'Le pleurote rose fructifie entre 20 et 30 °C.' ],
+];
+?>
 <?php get_header(); ?>
     <main class="bg-secondary">
+      <section class="logo-explosion-hero">
+        <div id="logo-explosion" class="logo-explosion-inner">
+          <img
+            id="logo-explosion-fallback"
+            src="<?php echo esc_url( get_theme_file_uri( 'assets/icons/wordmark-sporacultus.png' ) ); ?>"
+            alt="Sporacultus"
+          />
+          <canvas
+            id="logo-explosion-canvas"
+            class="logo-explosion-layer d-none"
+            data-logo-url="<?php echo esc_url( get_theme_file_uri( 'assets/icons/wordmark-sporacultus.png' ) ); ?>"
+            data-treasures="<?php echo esc_attr( wp_json_encode( $spora_treasures ) ); ?>"
+            aria-hidden="true"
+          ></canvas>
+          <button type="button" id="logo-explosion-rebuild" class="logo-explosion-rebuild d-none" aria-label="Reconstruire le logo" title="Reconstruire le logo">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 12a9 9 0 1 0 3-6.7"/>
+              <path d="M3 4v5h5"/>
+            </svg>
+          </button>
+        </div>
+      </section>
       <section class="hero-viewport z-0">
         <div class="position-relative">
           <img
