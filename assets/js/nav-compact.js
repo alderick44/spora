@@ -56,19 +56,32 @@ let lastY = window.scrollY;
         io.observe(sentinel);
   }
 
+  const headerNavList = document.querySelector("#headerMenu");
+
+  function closeMobileMenu() {
+    setCompact(true);
+    mobileMenuOpen = false;
+    menuToggle?.setAttribute("aria-expanded", "false");
+  }
+
   menuToggle?.addEventListener("click", () => {
   if (!mobileMenuOpen) {
     setCompact(false);
     mobileMenuOpen = true;
     menuToggle.setAttribute("aria-expanded", "true");
   } else if (mobileMenuOpen){
-    setCompact(true);
-    mobileMenuOpen = false;
-    menuToggle.setAttribute("aria-expanded", "false");
+    closeMobileMenu();
   }
 
   menuToggle.setAttribute("aria-expanded", String(mobileMenuOpen));
 
+});
+
+document.addEventListener("click", (e) => {
+  if (window.innerWidth > 768) return;
+  if (!mobileMenuOpen) return;
+  if (headerNavList?.contains(e.target) || menuToggle?.contains(e.target)) return;
+  closeMobileMenu();
 });
 
 
