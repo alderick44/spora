@@ -46,15 +46,7 @@
   var COL_W = 6;                          // resolution de la carte de hauteurs du tas
   var EARTH = ['#6b4a30', '#7c5a3a', '#5a3d28', '#8a6239', '#4f3622'];
   var SOIL = ['#5a3d28', '#6b4a30', '#4a3220'];
-  // Terre dure en profondeur (etape 2 du defilement vertical) : plus foncee, plus
-  // uniforme (moins de variation de teinte que EARTH) — pauvre, compacte, pas la terre
-  // riche de surface. Genere a la volee, seulement la ou la pelle creuse sous le niveau
-  // d'origine (voir spawnHardShard) : trop couteux de pre-generer tout le fond du monde.
-  var HARD_EARTH = ['#3a2c1f', '#332619', '#41311f', '#2e2216'];
-  var HARD_HP = 3;                        // coups de pelle pour deloger une facette de terre dure
-  var HARD_SPAWN_EPS = 1.5;               // heights[] en-dessous de ce seuil = colonne a nu, prete a faire apparaitre du dur
   var BEDROCK_MARGIN = 40;                // marge (px) avant le fond du monde ou plus rien n'apparait (roche-mere)
-  var HARD_DIG_STEP = COL_W;              // de combien le trou descend (pitDepth) chaque fois qu'une facette de terre dure cede
   var SPECIES = [
     { cap: '#9a948c', gill: '#d9d2c5' },  // pleurote gris
     { cap: '#e58a9b', gill: '#f6c9d1' },  // pleurote rose
@@ -141,10 +133,10 @@
   // visible. camX/camY sont le decalage (en px monde) affiche a l'ecran ; tout se dessine
   // translate de (-camX, -camY). Horizontal : le monde deborde des deux cotes, camX est
   // centre au depart. Vertical : rien d'utile au-dessus du sol, donc camY part a 0 (vue de
-  // depart identique a avant) et ne descend QUE vers le bas pour reveler de la profondeur
-  // (etape 1 : juste le defilement, la vraie couche profonde creusable viendra apres).
+  // depart identique a avant) et ne descend QUE vers le bas pour reveler de la profondeur,
+  // ou la couche compacte se creuse vraiment (voir compactY / cutCompact plus bas).
   var WORLD_MULT = 3;                     // largeur du monde = WORLD_MULT x largeur de la boite
-  var DEPTH_MULT = 1;                     // profondeur ajoutee sous la boite = DEPTH_MULT x hauteur de la boite
+  var DEPTH_MULT = 2;                     // profondeur ajoutee sous la boite = DEPTH_MULT x hauteur de la boite
   var CAMERA_EDGE = 0.28;                 // fraction de la largeur/hauteur de la boite ou le defilement s'active, depuis chaque bord
   var CAMERA_MAX = 3.2;                   // vitesse max de defilement horizontal (px monde / frame)
   var CAMERA_MAX_Y = 2.4;                 // vitesse max de defilement vertical (px monde / frame)
@@ -172,13 +164,12 @@
 
   var W = 0, H = 0, groundY = 0;
   var shards = [], heights = [], mushrooms = [];
-  var hardFrontier = [];                  // par colonne : la facette de terre dure en cours (ou null)
-  // heights[] garde son plancher a 0 (Math.max dans applyKernel) : ne pas y toucher, tout
-  // le reste du tas (repos, kernel de propagation) en depend. La profondeur d'un trou
-  // creuse dans la roche-mere est trackee a part, colonne par colonne, et s'ajoute a
-  // surfaceAt : ainsi de la terre meuble qui retombe dans le trou peut encore le remplir
-  // partiellement (heights remonte) sans que pitDepth ne bouge.
-  var pitDepth = [];
+  // compactY[c] est le sommet (y monde) de la couche compacte a la colonne c : ne peut que
+  // descendre (la pelle la decompacte, voir cutCompact), jamais remonter au-dessus du
+  // niveau d'origine (groundY). heights[c] reste l'epaisseur de terre MEUBLE posee dessus
+  // (son plancher a 0 ne bouge pas, voir pileAdd) ; la surface reelle d'une colonne est
+  // donc compactY[c] - heights[c] (voir surfaceAt).
+  var compactY = [];
   var mode = 'assembled';                 // 'assembled' | 'exploded' | 'rebuilding'
   var rafId = null, speciesIdx = 0, rebuildT = 0;
   var paused = false, wasRunningBeforeHide = false; // en pause : hors viewport ou onglet cache
@@ -221,8 +212,8 @@
     camY = 0;
     groundY = H - 6;
     heights = new Float32Array(Math.ceil(worldW / COL_W) + 1);
-    hardFrontier = new Array(heights.length).fill(null);
-    pitDepth = new Float32Array(heights.length);
+    compactY = new Float32Array(heights.length);
+    compactY.fill(groundY);
 
     // Profil : couche de base ondulee + bosse centrale sous le logo (au centre du monde).
     var base = H * 0.07, bump = H * 0.08, phase = Math.random() * 10;
@@ -287,26 +278,6 @@
 
   function triArea(tri) {
     return Math.abs((tri[1][0] - tri[0][0]) * (tri[2][1] - tri[0][1]) - (tri[2][0] - tri[0][0]) * (tri[1][1] - tri[0][1])) / 2;
-  }
-
-  // Fait apparaitre un chunk de terre dure a la colonne c (voir bowlWakePile) : contrairement
-  // a la terre de surface (deja toute generee dans setupSoil), la couche profonde est
-  // generee a la demande, seulement la ou la pelle creuse vraiment sous le niveau
-  // d'origine — sinon il faudrait pre-generer un maillage sur toute la profondeur du
-  // monde, bien trop de facettes pour rien (la plupart jamais vues).
-  function spawnHardShard(c) {
-    var x = c * COL_W, y = surfaceAt(x) - 1;
-    var size = COL_W * (1.1 + Math.random() * 0.5);
-    var pts = [[-size * 0.55, size * 0.32], [size * 0.55, size * 0.32], [(Math.random() - 0.5) * size * 0.3, -size * 0.55]];
-    var color = shade(hexToRgb(HARD_EARTH[(Math.random() * HARD_EARTH.length) | 0]), (Math.random() - 0.5) * 0.12);
-    var s = {
-      pts: pts, ox: x, oy: y, x: x, y: y, vx: 0, vy: 0, rot: 0, vr: 0,
-      from: color, to: color, mix: 1, area: triArea(pts),
-      settled: true, col: c, hard: true, hp: HARD_HP
-    };
-    shards.push(s);
-    pileAdd(s);
-    hardFrontier[c] = s;
   }
 
   // Construit au moment du clic (pas au chargement) : la boite et le fallback sont
@@ -383,31 +354,39 @@
     });
   }
 
-  // --- Tas de terre : carte de hauteurs par colonne ----------------------------------
-  // Chaque facette posee y ajoute son aire (etalee sur quelques colonnes) et, quand on
-  // la souleve, retire EXACTEMENT ce qu'elle avait ajoute (memorise dans s.dep/s.col).
-  // Avant, le retrait etait recalcule et tronque a zero alors que l'ajout ne l'etait
-  // pas : chaque coup de souris gonflait le tas, jusqu'a des aiguilles de terre.
+  // --- Tas de terre : carte de hauteurs par colonne, posee sur la couche compacte ----
+  // Chaque facette posee y ajoute son aire (etalee sur quelques colonnes, sauf par-dessus
+  // un pas de la couche compacte, ou tout part dans sa propre colonne) et, quand on la
+  // souleve, retire EXACTEMENT ce qu'elle avait ajoute a chaque colonne (memorise dans
+  // s.kdep/s.kcol) : jamais recalcule, jamais tronque, sinon chaque coup de pelle gonfle
+  // le tas jusqu'a des aiguilles de terre.
   var KERNEL = [0.08, 0.17, 0.25, 0.25, 0.17, 0.08];
-  var REPOSE = COL_W * 0.7;               // denivele max entre colonnes voisines (~35 deg)
-  var LOGO_BULK = 1.3;                    // la terre du logo "foisonne" un peu en retombant
+  var REPOSE = COL_W * 0.7;               // denivele max entre colonnes voisines (~35 deg), et pas de compact max traverse par le kernel
+  var LOOSE_DRAW_SCALE = 1.2;             // agrandissement a l'affichage de la terre meuble posee (bouche les jours)
+  var LOGO_BULK = 1.3;                  // la terre du logo "foisonne" un peu en retombant
 
   function surfaceAt(x) {
     var c = Math.max(0, Math.min(heights.length - 1, Math.round(x / COL_W)));
-    return groundY - heights[c] + pitDepth[c];
-  }
-  function applyKernel(col, dh) {
-    for (var k = 0; k < KERNEL.length; k++) {
-      var c = col + k - 3;
-      if (c >= 0 && c < heights.length) heights[c] = Math.max(0, heights[c] + dh * KERNEL[k]);
-    }
+    return compactY[c] - heights[c];
   }
   function pileAdd(s) {
-    s.dep = s.area / COL_W * (s.soil ? 1 : LOGO_BULK);
-    applyKernel(s.col, s.dep);
+    s.dep = s.area / COL_W * (s.soil || s.extra ? 1 : LOGO_BULK);
+    s.kcol = s.kcol || [0, 0, 0, 0, 0, 0];
+    s.kdep = s.kdep || [0, 0, 0, 0, 0, 0];
+    for (var k = 0; k < KERNEL.length; k++) {
+      var t = s.col + k - 3;
+      // Hors limites, ou de l'autre cote d'un pas de compact (trou/paroi) : ce partage
+      // reste sur la colonne de la facette au lieu de "traverser" le pas.
+      if (t < 0 || t >= heights.length || Math.abs(compactY[t] - compactY[s.col]) > REPOSE) t = s.col;
+      var amt = s.dep * KERNEL[k];
+      s.kcol[k] = t;
+      s.kdep[k] = amt;
+      heights[t] = Math.max(0, heights[t] + amt);
+    }
   }
   function pileRemove(s) {
-    applyKernel(s.col, -s.dep);
+    if (!s.kcol) return; // jamais empilee (ne devrait pas arriver)
+    for (var k = 0; k < KERNEL.length; k++) heights[s.kcol[k]] = Math.max(0, heights[s.kcol[k]] - s.kdep[k]);
   }
 
   // Comme du sable : une facette qui tombe sur une pente trop raide roule vers la
@@ -415,11 +394,13 @@
   function restColumn(x) {
     var c = Math.max(0, Math.min(heights.length - 1, Math.round(x / COL_W)));
     for (var n = 0; n < 60; n++) {
-      var l = c > 0 ? heights[c - 1] : Infinity;
-      var r = c < heights.length - 1 ? heights[c + 1] : Infinity;
-      var low = l < r ? c - 1 : c + 1;
-      if (Math.min(l, r) === Infinity || heights[c] - Math.min(l, r) <= REPOSE) break;
-      c = low;
+      var sc = compactY[c] - heights[c];
+      var sl = c > 0 ? compactY[c - 1] - heights[c - 1] : -Infinity;
+      var sr = c < heights.length - 1 ? compactY[c + 1] - heights[c + 1] : -Infinity;
+      // Surface = y monde : plus grand = plus bas. On roule vers le voisin le plus bas.
+      var lowSurf = Math.max(sl, sr);
+      if (lowSurf === -Infinity || lowSurf - sc <= REPOSE) break;
+      c = sl > sr ? c - 1 : c + 1;
     }
     return c;
   }
@@ -522,7 +503,7 @@
     if (bag.on) updateBag();
     if (shovel.on) {
       updateShovel();
-      if (shovel.on) bowlWakePile(); // updateShovel peut la ranger (fin de versement au doigt)
+      if (shovel.on) bowlWakePile(cutCompact()); // updateShovel peut la ranger (fin de versement au doigt)
     }
     var anyDead = false;
     for (var i = 0; i < shards.length; i++) {
@@ -570,7 +551,7 @@
           if (s.leaf) { s.landed = now; if (litter.indexOf(s) < 0) litter.push(s); } else s.mix = 1;
           s.col = restColumn(s.x);
           s.x = (s.col + Math.random() - 0.5) * COL_W;
-          s.y = groundY - heights[s.col];
+          s.y = compactY[s.col] - heights[s.col];
           pileAdd(s);
         }
       }
@@ -640,6 +621,9 @@
   var BOWL_T = 5;                         // epaisseur de la paroi (px)
   var POUR_ANGLE = 2.1;                   // bascule (rad) pour vider
   var SLOW_FOLLOW = 0.12;                 // bouton maintenu : part du chemin vers le curseur par frame
+  var DIG_BITE = 2;                       // penetration (px) dans le compact tolerable sans ralentir la pelle
+  var DIG_SPEED = 0.8;                    // vitesse max (px/frame) du fond de la pelle au-dela de DIG_BITE : le curseur de resistance
+  var DIG_SPEED_DOWN = 0.3;               // idem, mais vers le bas seulement (creuser a la verticale)
   var shovel = {
     on: false, held: false, pouring: false, hideWhenEmpty: false,
     gx: 0, gy: 0,                         // curseur
@@ -656,12 +640,40 @@
   function angleDiff(a, b) { return Math.atan2(Math.sin(a - b), Math.cos(a - b)); }
   function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
 
+  // Pour un cercle de centre (cx, cy) et de rayon Rc, penche de tilt : le point le plus
+  // BAS (y le plus grand) de ce cercle a la colonne x, mais seulement sur la portion qui
+  // fait vraiment partie de la lame (l'arc ouvert de BOWL_SPAN autour du fond du bol) —
+  // au-dela il n'y a rien, juste de l'air. Utilise pour la resistance du compact
+  // (updateShovel/enterShovel) et pour la decompaction (cutCompact). Retourne null si
+  // aucun point du cercle a cette colonne n'est sur la lame.
+  function bladeOuterY(x, cx, cy, tilt, Rc) {
+    var dx = x - cx;
+    if (Math.abs(dx) > Rc) return null;
+    var dy = Math.sqrt(Rc * Rc - dx * dx), bottomDir = Math.PI / 2 - tilt;
+    var cands = [cy + dy, cy - dy], bestY = null, bestA = 0;
+    for (var i = 0; i < 2; i++) {
+      var y = cands[i], a = Math.atan2(y - cy, dx);
+      if (Math.abs(angleDiff(a, bottomDir)) > BOWL_SPAN) continue;
+      if (bestY === null || y > bestY) { bestY = y; bestA = a; }
+    }
+    return bestY === null ? null : { y: bestY, a: bestA };
+  }
+
   function enterShovel(p) {
     shovel.on = true;
     shovel.gx = p.x; shovel.gy = p.y;
     shovel.tilt = shovel.ptilt = 0;
     shovel.pouring = false; shovel.hideWhenEmpty = false;
     shovel.cx = shovel.pcx = p.x; shovel.cy = shovel.pcy = p.y - bowlR();
+    // Si le bol entre deja dans le compact a cet endroit, on le remonte d'autant : prendre
+    // l'outil ne doit jamais creuser un trou instantane.
+    var Rc = bowlR() + BOWL_T, pen = 0;
+    var c0 = Math.max(0, Math.floor((shovel.cx - Rc) / COL_W)), c1 = Math.min(heights.length - 1, Math.ceil((shovel.cx + Rc) / COL_W));
+    for (var c = c0; c <= c1; c++) {
+      var bo = bladeOuterY(c * COL_W, shovel.cx, shovel.cy, shovel.tilt, Rc);
+      if (bo) pen = Math.max(pen, bo.y - compactY[c]);
+    }
+    if (pen > 0) { shovel.cy -= pen; shovel.pcy = shovel.cy; }
     container.classList.add('is-tool-cursor');
   }
 
@@ -683,8 +695,33 @@
     // Penche dans le sens du geste (le bord avant plonge : il mord dans la terre).
     var goal = shovel.pouring ? -shovel.face * POUR_ANGLE : -clamp(dx * 0.06, -0.7, 0.7);
     shovel.tilt += (goal - shovel.tilt) * (shovel.pouring ? 0.12 : 0.2);
-    shovel.cx = bottomX + dx - Math.sin(shovel.tilt) * R;
-    shovel.cy = bottomY + dy - Math.cos(shovel.tilt) * R;
+    var newBottomX = bottomX + dx, newBottomY = bottomY + dy;
+    // Resistance de la couche compacte : y mordre (contrairement a la terre meuble, qui
+    // se traverse librement) est lent. On regarde de combien la lame proposee y
+    // penetrerait ; au-dela d'une tolerance (DIG_BITE), le fond de la pelle n'avance plus
+    // que de DIG_SPEED par frame vers sa cible. Ressortir/remonter n'est jamais ralenti
+    // (penetration <= 0 une fois le compact deja entame par cutCompact).
+    var Rc = R + BOWL_T;
+    var propCx = newBottomX - Math.sin(shovel.tilt) * R, propCy = newBottomY - Math.cos(shovel.tilt) * R;
+    var c0 = Math.max(0, Math.floor((propCx - Rc) / COL_W)), c1 = Math.min(heights.length - 1, Math.ceil((propCx + Rc) / COL_W));
+    var penetration = 0;
+    for (var c = c0; c <= c1; c++) {
+      var bo = bladeOuterY(c * COL_W, propCx, propCy, shovel.tilt, Rc);
+      if (bo) penetration = Math.max(penetration, bo.y - compactY[c]);
+    }
+    if (penetration > DIG_BITE) {
+      var moveLen = Math.hypot(dx, dy);
+      if (moveLen > DIG_SPEED) {
+        var k = DIG_SPEED / moveLen;
+        newBottomX = bottomX + dx * k;
+        newBottomY = bottomY + dy * k;
+      }
+      // Descendre a la verticale est encore plus dur que racler de cote.
+      if (newBottomY - bottomY > DIG_SPEED_DOWN) newBottomY = bottomY + DIG_SPEED_DOWN;
+    }
+    newBottomY = Math.min(newBottomY, worldH - BEDROCK_MARGIN);
+    shovel.cx = newBottomX - Math.sin(shovel.tilt) * R;
+    shovel.cy = newBottomY - Math.cos(shovel.tilt) * R;
     if (shovel.pouring && Math.abs(shovel.tilt) > POUR_ANGLE * 0.9) {
       shovel.pouring = false;
       if (shovel.hideWhenEmpty) leaveShovel();
@@ -743,7 +780,10 @@
     if (Math.abs(angleDiff(Math.atan2(ry, rx), Math.PI / 2 - shovel.tilt)) > BOWL_SPAN) return;
     var k = 1 - (R - d) / field;          // 1 sur la lame, 0 en haut de la zone
     var w = shovel.tilt - shovel.ptilt;
-    var wx = shovel.cx - shovel.pcx + w * ry, wy = shovel.cy - shovel.pcy - w * rx;
+    // Plafonne comme dans collideBowl : un saut brusque de la pelle d'une frame a l'autre
+    // (ex. la resistance du compact qui la freine tout a coup) ne doit pas projeter la
+    // terre a des vitesses absurdes.
+    var wx = clamp(shovel.cx - shovel.pcx + w * ry, -16, 16), wy = clamp(shovel.cy - shovel.pcy - w * rx, -16, 16);
     s.vx += (wx - s.vx) * BLADE_PULL * k;
     s.vy += (wy - s.vy) * BLADE_PULL * k;
     // Attraction vers la lame (vers l'exterieur du cercle, donc vers l'arc).
@@ -751,51 +791,118 @@
     s.vy += ry / d * BLADE_ATTRACT * k;
   }
 
+  var DECOMPACT_BULK = 1.2;               // la terre qui sort du compact "foisonne" (comme LOGO_BULK)
+  var compactDebt = 0;                    // aire de terre meuble encore due suite a une decompaction, reportee entre frames
+
+  // Decompacte la couche compacte la ou la lame mord dedans : chaque colonne entamee voit
+  // son compactY descendre, et de la terre meuble en sort en proportion (avec
+  // foisonnement) — pas forcement une facette par colonne par frame, une dette s'accumule
+  // et se resorbe au fil des frames suivantes (conservation en moyenne, pas facette par
+  // facette). Retourne les colonnes entamees cette frame (ou null), pour que
+  // bowlWakePile sache reveiller ce qui devient suspendu au-dessus.
+  function cutCompact() {
+    var R = bowlR() + BOWL_T, cut = null;
+    var c0 = Math.max(0, Math.floor((shovel.cx - R) / COL_W)), c1 = Math.min(compactY.length - 1, Math.ceil((shovel.cx + R) / COL_W));
+    for (var c = c0; c <= c1; c++) {
+      var bo = bladeOuterY(c * COL_W, shovel.cx, shovel.cy, shovel.tilt, R);
+      if (!bo || bo.y <= compactY[c]) continue;
+      var newTop = Math.min(bo.y, worldH - BEDROCK_MARGIN);
+      var removed = newTop - compactY[c];
+      if (removed <= 0) continue;
+      compactY[c] = newTop;
+      compactDebt += removed * COL_W * DECOMPACT_BULK;
+      if (!cut) cut = {};
+      cut[c] = bo.a;
+    }
+    if (!cut) return null;
+    var cols = Object.keys(cut), guard = 0;
+    while (compactDebt > 0 && guard++ < 40) {
+      var col = cols[(Math.random() * cols.length) | 0];
+      compactDebt -= spawnDecompactShard(cut[col]);
+    }
+    return cut;
+  }
+
+  // Une facette de terre meuble qui sort de la couche compacte, a l'angle a (sur le
+  // cercle de la lame) : apparait juste au-dessus de la lame, a l'interieur du bol,
+  // emportee par le mouvement de la pelle. Retourne son aire (pour la dette de cutCompact).
+  function spawnDecompactShard(a) {
+    var size = Math.max(6, W / 160) * 1.3;
+    var pts = [[-size * 0.55, size * 0.32], [size * 0.55, size * 0.32], [(Math.random() - 0.5) * size * 0.3, -size * 0.55]];
+    var r = bowlR() - 3 - Math.random() * loadDepth() * 0.6;
+    var x = shovel.cx + Math.cos(a) * r, y = shovel.cy + Math.sin(a) * r;
+    // Assombrie selon la profondeur sous le niveau d'origine, comme addSoilShard : la
+    // terre qui sort du compact reste de la terre normale, pas la terre sombre d'avant.
+    var depth = Math.min(1, Math.max(0, y - groundY) / Math.max(1, worldH - groundY));
+    var k = (Math.random() - 0.5) * 0.2 - depth * 0.3;
+    var color = shade(hexToRgb(EARTH[(Math.random() * EARTH.length) | 0]), k);
+    var area = triArea(pts);
+    var s = {
+      pts: pts, ox: x, oy: y, x: x, y: y,
+      vx: shovel.cx - shovel.pcx, vy: shovel.cy - shovel.pcy, rot: 0, vr: (Math.random() - 0.5) * 0.3,
+      from: color, to: color, mix: 1, area: area,
+      settled: false, col: -1, extra: true
+    };
+    s.px = s.x; s.py = s.y;
+    shards.push(s);
+    return area;
+  }
+
   // Reveille les facettes posees que la lame touche, pour que la collision les prenne
   // en charge : la couche juste au-dessus de la lame (ce qu'elle ramasse) plus la lame
   // elle-meme. Autour, une facette restee "suspendue" au-dessus du sol (on a retire la
-  // terre dessous) retombe : le trou se referme comme du vrai sol.
-  function bowlWakePile() {
+  // terre dessous, ou decompacte le compact sous elle) retombe : le trou se referme comme
+  // du vrai sol. cutCols (colonnes decompactees cette frame par cutCompact, ou null) est
+  // fusionne dans le meme scan de reveil.
+  function bowlWakePile(cutCols) {
     // Remuer de la terre colonisee ne produit plus de nutriment ici : la terre en elle-
     // meme n'a pas de valeur nutritive, seul le bois decompose (ou le mycelium qui meurt
     // de faim) en donne — voir stepTrees/stepMycelium.
-    var R = bowlR(), woke = [];
+    var R = bowlR(), woke = [], dirtyCols = null;
     for (var i = 0; i < shards.length; i++) {
       var s = shards[i];
       if (!s.settled) continue;
       var dx = s.x - shovel.cx, dy = s.y - shovel.cy;
-      if (Math.abs(dx) > R * Math.sin(BOWL_SPAN) * 2.5) continue;
-      var d = Math.hypot(dx, dy);
-      var inBowl = d > R - loadDepth() * 1.2 && d < R + BOWL_T + 2 &&
-        Math.abs(angleDiff(Math.atan2(dy, dx), Math.PI / 2 - shovel.tilt)) <= BOWL_SPAN;
-      var floating = s.y < surfaceAt(s.x) - 6;
-      if (!inBowl && !floating) continue;
-      if (s.hard && s.hp > 1) { s.hp--; continue; } // terre dure : resiste, il faut repasser
-      if (s.hard) {
-        // Dernier coup : la colonne descend d'un cran pour de bon (pitDepth), la facette
-        // elle-meme se detache et devient une facette de terre normale a partir d'ici.
-        hardFrontier[s.col] = null;
-        s.hard = false;
-        pitDepth[s.col] += HARD_DIG_STEP;
+      var adx = Math.abs(dx);
+      // La detection "suspendue" porte plus loin que la prise en main normale (2.5x) :
+      // un trou creuse en profondeur laisse plus facilement des bords en surplomb qu'un
+      // simple creusage de surface, et on veut les rattraper meme si le curseur n'est
+      // plus exactement dessus, sans pour autant scanner tout le monde (voir le retour en
+      // arriere plus haut sur le scan global).
+      var touching = false;
+      if (adx <= R * Math.sin(BOWL_SPAN) * 2.5) {
+        var d = Math.hypot(dx, dy);
+        var inBowl = d > R - loadDepth() * 1.2 && d < R + BOWL_T + 2 &&
+          Math.abs(angleDiff(Math.atan2(dy, dx), Math.PI / 2 - shovel.tilt)) <= BOWL_SPAN;
+        touching = inBowl;
       }
+      if (!touching && adx <= R * Math.sin(BOWL_SPAN) * 6 && s.y < surfaceAt(s.x) - 6) touching = true;
+      if (!touching) continue;
+      // Toute matiere enlevee peut laisser quelque chose en suspens juste au-dessus, y
+      // compris le maillage statique d'origine (setupSoil) qui ne bouge jamais tout seul —
+      // meme quand le joueur a deja quitte l'endroit avec la pelle. On note juste la
+      // colonne ici (pas cher) ; le scan qui rattrape les facettes en suspens se fait UNE
+      // SEULE FOIS apres la boucle (pas a chaque facette enlevee, sinon un seul passage de
+      // pelle sur de la terre meuble coutait un scan complet par facette — beaucoup trop).
+      if (s.col >= 0) { if (!dirtyCols) dirtyCols = {}; dirtyCols[s.col] = true; }
       pileRemove(s);
       s.settled = false;
       s.vx = s.vy = 0;
       s.px = s.x; s.py = s.y;
       woke.push(s);
     }
-    // Front de creusage : la ou la pelle presse une colonne deja a nu (plus rien a
-    // retirer) et qu'on n'a pas atteint la roche-mere, une nouvelle facette de terre dure
-    // apparait — c'est elle qu'il faudra deloger pour continuer a descendre.
-    var bowlHalfW = R * Math.sin(BOWL_SPAN);
-    var c0 = Math.max(0, Math.round((shovel.cx - bowlHalfW) / COL_W));
-    var c1 = Math.min(heights.length - 1, Math.round((shovel.cx + bowlHalfW) / COL_W));
-    for (var c = c0; c <= c1; c++) {
-      if (heights[c] > HARD_SPAWN_EPS || hardFrontier[c]) continue;
-      var sx = c * COL_W, sy = surfaceAt(sx);
-      if (sy >= worldH - BEDROCK_MARGIN) continue; // roche-mere
-      if (shovel.cy < sy - 16) continue; // la pelle ne touche pas vraiment cette colonne
-      spawnHardShard(c);
+    if (cutCols) {
+      if (!dirtyCols) dirtyCols = {};
+      for (var cc in cutCols) dirtyCols[cc] = true;
+    }
+    if (dirtyCols) {
+      for (var j = 0; j < shards.length; j++) {
+        var sj = shards[j];
+        if (!sj.settled) continue;
+        var sjCol = Math.round(sj.x / COL_W);
+        if (!(dirtyCols[sjCol] || dirtyCols[sjCol - 1] || dirtyCols[sjCol + 1])) continue;
+        if (sj.y < surfaceAt(sj.x) - 6) { pileRemove(sj); sj.settled = false; }
+      }
     }
     if (!woke.length) return;
     // La pelle qui passe sous un champignon le brise (sauf les tresors, qui portent l'infobulle).
@@ -883,6 +990,21 @@
       poly([in0, in1, mid1, mid0]);
       ctx.fillStyle = i % 2 ? '#7d858a' : '#8a9297';
       poly([mid0, mid1, out1, out0]);
+    }
+
+    // Petit repere au curseur quand la pelle ne le suit plus (freinee par le compact) :
+    // on voit ou on voulait aller.
+    var bx = shovel.cx + Math.sin(shovel.tilt) * R, by = shovel.cy + Math.cos(shovel.tilt) * R;
+    if (!shovel.pouring && Math.hypot(shovel.gx - bx, shovel.gy - by) > 10) {
+      ctx.beginPath();
+      ctx.arc(shovel.gx, shovel.gy, 6, 0, Math.PI * 2);
+      ctx.moveTo(shovel.gx - 10, shovel.gy); ctx.lineTo(shovel.gx - 3, shovel.gy);
+      ctx.moveTo(shovel.gx + 3, shovel.gy); ctx.lineTo(shovel.gx + 10, shovel.gy);
+      ctx.moveTo(shovel.gx, shovel.gy - 10); ctx.lineTo(shovel.gx, shovel.gy - 3);
+      ctx.moveTo(shovel.gx, shovel.gy + 3); ctx.lineTo(shovel.gx, shovel.gy + 10);
+      // Contour fonce + trait clair : lisible sur la terre comme sur le fond clair.
+      ctx.strokeStyle = 'rgba(40,25,15,0.8)'; ctx.lineWidth = 4; ctx.stroke();
+      ctx.strokeStyle = '#fff7e8'; ctx.lineWidth = 2; ctx.stroke();
     }
   }
 
@@ -1331,6 +1453,7 @@
     // Pendant la montee du lit de terre, tout le sol est decale vers le bas.
     var rise = soilRiseT < 1 ? Math.pow(1 - soilRiseT, 3) * soilDepth : 0;
     drawSoil(rise);
+    drawLooseBacking(rise);
     // Avant les facettes : le pied du tronc est enfoui dans la terre.
     for (var ti = 0; ti < trees.length; ti++) drawTree(trees[ti]);
     for (var i = 0; i < shards.length; i++) {
@@ -1343,6 +1466,9 @@
       }
       ctx.fillStyle = s.nutri || 'rgb(' + (r | 0) + ',' + (g | 0) + ',' + (bl | 0) + ')';
       var c = Math.cos(s.rot), sn = Math.sin(s.rot);
+      // Terre meuble posee : dessinee un peu plus grande pour boucher les jours entre
+      // facettes empilees (le lit d'origine, deja jointif, garde sa taille).
+      if (s.settled && !s.soil && !s.leaf) { c *= LOOSE_DRAW_SCALE; sn *= LOOSE_DRAW_SCALE; }
       if (s.eaten !== undefined) {
         var k = Math.max(0, 1 - (vTime - s.eaten) / EATEN_MS);
         c *= k; sn *= k;
@@ -1363,18 +1489,19 @@
     positionTreasureOverlays();
   }
 
-  // Corps du tas : bande de triangles plats entre la crete et le fond du MONDE (worldH,
+  // Couche compacte : bande de triangles plats entre compactY et le fond du MONDE (worldH,
   // pas juste le bas de la boite H : le defilement vertical doit reveler du remplissage,
-  // pas un trou), echantillonnee grossierement pour garder l'aspect facette. On ne dessine
+  // pas un trou). Jamais au-dessus du niveau d'origine, la terre meuble se dessine par-dessus. On ne dessine
   // que la portion du monde visible (autour de camX/camY), pas tout le monde a chaque frame.
   function drawSoil(rise) {
-    var stepX = 14, bottom = worldH, visBottom = camY + H;
+    var stepX = 2 * COL_W, bottom = worldH, visBottom = camY + H;
     var x0 = Math.max(0, Math.floor((camX - stepX) / stepX) * stepX);
     var x1 = Math.min(worldW, camX + W + stepX);
     var pts = [];
     for (var x = x0; x <= x1; x += stepX) {
       var cx = Math.min(x, worldW);
-      pts.push([cx, surfaceAt(cx) + 4 + rise]);
+      var col = Math.max(0, Math.min(compactY.length - 1, Math.round(cx / COL_W)));
+      pts.push([cx, compactY[col] + rise]);
     }
     for (var i = 0; i < pts.length - 1; i++) {
       var a = pts[i], b = pts[i + 1];
@@ -1384,6 +1511,25 @@
       ctx.fillStyle = SOIL[(i + 1) % SOIL.length];
       poly([b, [b[0], bottom], [a[0], bottom]]);
     }
+  }
+
+  // Fond de la terre meuble : aplat sous les facettes, entre compactY et un peu sous la
+  // surface, pour qu'on ne voie pas le ciel entre les triangles empiles. Seulement la ou
+  // il y a vraiment de la terre meuble (LOOSE_MIN) : au bord d'un trou, le lissage laisse
+  // une fine epaisseur fantome, qu'on ne peint pas.
+  var LOOSE_MIN = 4, LOOSE_INSET = 5;
+  function drawLooseBacking(rise) {
+    var c0 = Math.max(0, Math.floor(camX / COL_W) - 1);
+    var c1 = Math.min(heights.length - 1, Math.ceil((camX + W) / COL_W) + 1);
+    ctx.fillStyle = '#5a3d28';
+    ctx.beginPath();
+    for (var c = c0; c <= c1; c++) {
+      var h = heights[c] - LOOSE_INSET;
+      if (heights[c] < LOOSE_MIN || h <= 0) continue;
+      var x = c * COL_W, yb = compactY[c] + rise;
+      ctx.rect(x - COL_W / 2, yb - h, COL_W + 0.5, h + 1);
+    }
+    ctx.fill();
   }
 
   function drawMushroom(m) {
@@ -1627,8 +1773,13 @@
 
   function stepRebuild() {
     rebuildT += 1 / 70;
-    // Le tas s'enfonce avec le lit de terre, qui redescend d'ou il etait monte.
-    for (var i = 0; i < heights.length; i++) heights[i] *= 0.9;
+    // Le tas s'enfonce avec le lit de terre, qui redescend d'ou il etait monte ; le
+    // compact remonte lentement vers son niveau d'origine (setupSoil le refixe de toute
+    // facon au prochain build).
+    for (var i = 0; i < heights.length; i++) {
+      heights[i] *= 0.9;
+      compactY[i] += (groundY - compactY[i]) * 0.1;
+    }
     for (i = 0; i < shards.length; i++) {
       var s = shards[i];
       var t = easeInOut(Math.max(0, Math.min(1, (rebuildT - s.delay) / 0.65)));
