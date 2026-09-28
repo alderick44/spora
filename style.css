@@ -68,26 +68,84 @@ body.home .logo-explosion-hero{
        l'etre aussi quand ils sont hors du champ visible actuel. */
     overflow: hidden;
 }
+/* Avant l'explosion, rien n'a besoin d'etre coupe (le canvas du jeu est encore cache) :
+   ca laisse la zone du badge "play" deborder sous le logo sans se faire tronquer par le
+   bord de la boite. */
+.logo-explosion-inner:has(#logo-explosion-fallback:not(.d-none)){
+    overflow: visible;
+}
 .logo-explosion-layer{
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
 }
-#logo-explosion-fallback{
-    /* Wordmark centre et bien entoure de vide (pas bord a bord). logo-explosion.js
-       lit cette taille/position au clic pour y placer les facettes : c'est le seul
-       endroit ou regler la taille du logo. */
+#logo-explosion-fallback-wrap{
+    /* Porte la position/taille du wordmark (logo-explosion.js mesure #logo-explosion-fallback
+       lui-meme au clic : l'image doit donc rester a 100% de cette boite, sans marge). */
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     width: min(48%, 640px);
-    height: auto;
     cursor: pointer;
+    /* Curseur "play" rouge special : le pointeur seul se remarque a peine sur un wordmark,
+       ce bouton play rend le clic evident des le survol. */
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='36' viewBox='0 0 36 36'%3E%3Ccircle cx='18' cy='18' r='16' fill='%239A2C19'/%3E%3Cpath d='M14 10l13 8-13 8z' fill='white'/%3E%3C/svg%3E") 18 18, pointer;
+}
+/* Une fois explose, logo-explosion.js met #logo-explosion-fallback en d-none : la boite
+   (et son badge) disparaissent avec, sans code JS supplementaire. */
+#logo-explosion-fallback-wrap:has(#logo-explosion-fallback.d-none){
+    display: none;
+}
+#logo-explosion-fallback{
+    display: block;
+    width: 100%;
+    height: auto;
+}
+/* Zone de detection fixe (jamais deplacee) : un vrai :hover CSS dessus ne papillote pas,
+   contrairement au badge qu'il contient qui suit le curseur (voir logo-explosion.js). Des
+   qu'on l'atteint, elle affiche le meme curseur "play" que le logo et cache le badge. */
+.logo-explosion-play-zone{
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translate(-50%, 28px);
+    width: 160px;
+    height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='36' viewBox='0 0 36 36'%3E%3Ccircle cx='18' cy='18' r='16' fill='%239A2C19'/%3E%3Cpath d='M14 10l13 8-13 8z' fill='white'/%3E%3C/svg%3E") 18 18, pointer;
+}
+.logo-explosion-play-badge{
+    /* Decale par --mx/--my (magnetisme vers le curseur, pilote en JS) autour du centre
+       de la zone. Purement decoratif : la zone au-dessus gere le clic/hover reel. */
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-left: 2px;
+    border-radius: 50%;
+    background: var(--color-red);
+    opacity: .55;
+    box-shadow: 0 2px 6px rgba(0,0,0,.25);
+    pointer-events: none;
+    transition: opacity .175s ease;
+    transform: translate(var(--mx, 0px), var(--my, 0px));
+    animation: logo-explosion-badge-pulse 2.4s ease-in-out infinite;
+}
+#logo-explosion-fallback-wrap:hover .logo-explosion-play-badge,
+.logo-explosion-play-zone:hover .logo-explosion-play-badge{
+    opacity: 0;
+}
+@keyframes logo-explosion-badge-pulse{
+    0%, 100% { transform: translate(var(--mx, 0px), var(--my, 0px)) scale(1); }
+    50% { transform: translate(var(--mx, 0px), var(--my, 0px)) scale(1.12); }
 }
 @media (max-width: 767.98px){
-    #logo-explosion-fallback{
+    #logo-explosion-fallback-wrap{
         width: 82%;
     }
 }
