@@ -38,6 +38,40 @@
   var CAPTION_MYC = 'Le mycélium transforme le bois mort en sol vivant, et nourrit les arbres.';
   function setCaption(text) { if (caption) caption.textContent = text; }
 
+  // Effet magnetique du badge "play" : des qu'on bouge la souris sur la page, le badge
+  // se decale vers le curseur (jusqu'a MAGNET_MAX). Purement decoratif : pilote --mx/--my
+  // lus par le transform CSS du badge. Le hover/curseur reel est gere par la zone fixe
+  // autour de lui (.logo-explosion-play-zone dans style.css), pas par le badge lui-meme
+  // qui bouge — sinon le :hover papillote pendant qu'il se deplace.
+  var playBadge = document.querySelector('.logo-explosion-play-badge');
+  if (playBadge) {
+    var MAGNET_MAX = 80;     // px, decalage max du badge
+    var MAGNET_EASE = 0.09;  // lissage du suivi (pas de saut brusque)
+    var magnetTx = 0, magnetTy = 0, magnetCx = 0, magnetCy = 0;
+    var badgeZone = playBadge.parentElement;
+
+    document.addEventListener('mousemove', function (evt) {
+      var zr = badgeZone.getBoundingClientRect();
+      var bx = zr.left + zr.width / 2, by = zr.top + zr.height / 2;
+      var dx = evt.clientX - bx, dy = evt.clientY - by;
+      var dist = Math.hypot(dx, dy);
+      var radius = Math.max(window.innerWidth, 900); // couvre toute la largeur de l'ecran
+      if (dist > radius) { magnetTx = 0; magnetTy = 0; return; }
+      // Vise la position reelle du curseur, bornee a MAGNET_MAX.
+      var k = dist > MAGNET_MAX ? MAGNET_MAX / dist : 1;
+      magnetTx = dx * k; magnetTy = dy * k;
+    });
+    document.addEventListener('mouseleave', function () { magnetTx = 0; magnetTy = 0; });
+
+    (function stepMagnet() {
+      magnetCx += (magnetTx - magnetCx) * MAGNET_EASE;
+      magnetCy += (magnetTy - magnetCy) * MAGNET_EASE;
+      playBadge.style.setProperty('--mx', magnetCx.toFixed(2) + 'px');
+      playBadge.style.setProperty('--my', magnetCy.toFixed(2) + 'px');
+      requestAnimationFrame(stepMagnet);
+    })();
+  }
+
   // Style low-poly : uniquement des triangles a couleur pleine (pas de degrade,
   // pas de flou). La variation de ton d'une facette a l'autre suffit a donner du relief.
   var CELLS_ACROSS = 110;                 // nb de facettes sur la largeur du logo
