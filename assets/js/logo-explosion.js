@@ -1878,6 +1878,11 @@
     if (evt.target.closest('#logo-explosion-rebuild, .logo-explosion-scroll, .logo-explosion-tip, .logo-explosion-tools')) return;
     var pos = getRelativePos(evt);
     if (mode === 'assembled') {
+      // Seul un clic sur le logo (ou sa zone "play" juste en dessous) declenche
+      // l'explosion : avant, n'importe quel clic dans la boite (meme le vide autour)
+      // le faisait, ce qui ne correspond pas au curseur special affiche uniquement
+      // au-dessus du logo.
+      if (!evt.target.closest('#logo-explosion-fallback-wrap')) return;
       // camX vient d'etre (re)centre par build() : + camX donne la position monde de
       // l'origine de l'explosion, coherente avec les coord. monde des facettes.
       if (imgReady && build()) explode(pos.x + camX, pos.y);
