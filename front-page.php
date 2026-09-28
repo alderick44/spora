@@ -14,11 +14,18 @@ $spora_treasures = [
     <main class="bg-secondary">
       <section class="logo-explosion-hero">
         <div id="logo-explosion" class="logo-explosion-inner">
-          <img
-            id="logo-explosion-fallback"
-            src="<?php echo esc_url( get_theme_file_uri( 'assets/icons/wordmark-sporacultus.png' ) ); ?>"
-            alt="Sporacultus"
-          />
+          <div id="logo-explosion-fallback-wrap" class="logo-explosion-fallback-wrap">
+            <img
+              id="logo-explosion-fallback"
+              src="<?php echo esc_url( get_theme_file_uri( 'assets/icons/wordmark-sporacultus.png' ) ); ?>"
+              alt="Sporacultus"
+            />
+            <span class="logo-explosion-play-zone">
+              <span class="logo-explosion-play-badge" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="white"><path d="M8 5l12 7-12 7z"/></svg>
+              </span>
+            </span>
+          </div>
           <canvas
             id="logo-explosion-canvas"
             class="logo-explosion-layer d-none"
