@@ -33,13 +33,41 @@ $spora_treasures = [
             data-treasures="<?php echo esc_attr( wp_json_encode( $spora_treasures ) ); ?>"
             aria-hidden="true"
           ></canvas>
+          <button type="button" id="logo-explosion-fullscreen" class="logo-explosion-fullscreen d-none" aria-label="Agrandir en plein ecran" aria-pressed="false" title="Agrandir en plein ecran">
+            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M8 3H5a2 2 0 0 0-2 2v3"/>
+              <path d="M16 3h3a2 2 0 0 1 2 2v3"/>
+              <path d="M21 16v3a2 2 0 0 1-2 2h-3"/>
+              <path d="M8 21H5a2 2 0 0 1-2-2v-3"/>
+            </svg>
+          </button>
           <button type="button" id="logo-explosion-rebuild" class="logo-explosion-rebuild d-none" aria-label="Reconstruire le logo" title="Reconstruire le logo">
             <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M3 12a9 9 0 1 0 3-6.7"/>
               <path d="M3 4v5h5"/>
             </svg>
           </button>
+          <button type="button" id="logo-explosion-header-toggle" class="logo-explosion-header-toggle d-none" aria-label="Replier le menu" aria-pressed="false" title="Replier le menu">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 15l-6-6-6 6"/>
+            </svg>
+          </button>
+          <button type="button" id="logo-explosion-debug-toggle" class="logo-explosion-debug-toggle d-none" aria-label="Paramètres de simulation" aria-pressed="false" title="Paramètres de simulation">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+          </button>
+          <div id="logo-explosion-debug-panel" class="logo-explosion-debug-panel d-none" role="group" aria-label="Paramètres de simulation"></div>
           <div id="logo-explosion-tools" class="logo-explosion-tools d-none" role="group" aria-label="Outils">
+            <button type="button" class="logo-explosion-tool" data-tool="hand" aria-pressed="false" aria-label="Récolter à la main" title="Récolter à la main">
+              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M8 13V6a1.5 1.5 0 0 1 3 0v5"/>
+                <path d="M11 11V4.5a1.5 1.5 0 0 1 3 0V11"/>
+                <path d="M14 11.5V5.5a1.5 1.5 0 0 1 3 0V13"/>
+                <path d="M17 8.5a1.5 1.5 0 0 1 3 0V15a6 6 0 0 1-6 6h-2a6 6 0 0 1-5-2.7L4 13.8a1.4 1.4 0 0 1 2.2-1.7L8 14"/>
+              </svg>
+            </button>
             <button type="button" class="logo-explosion-tool is-active" data-tool="shovel" aria-pressed="true" aria-label="Pelle" title="Pelle">
               <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M19 3l2 2"/>
@@ -61,10 +89,31 @@ $spora_treasures = [
                 <path d="M12 3l5 7h-3l4 6h-4v5h-4v-5H6l4-6H7z"/>
               </svg>
             </button>
+            <button type="button" class="logo-explosion-tool" data-tool="fertilizer" aria-pressed="false" aria-label="Fertilisant" title="Fertilisant">
+              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 3c3 4 5 6.5 5 9a5 5 0 0 1-10 0c0-2.5 2-5 5-9z"/>
+                <path d="M12 21v-4"/>
+                <circle cx="6" cy="20" r=".6" fill="currentColor"/>
+                <circle cx="18" cy="20" r=".6" fill="currentColor"/>
+              </svg>
+            </button>
+            <div id="logo-explosion-money"class="logo-explosion-money d-none" aria-live="polite"><span id="logo-explosion-money-val">0</span>&nbsp;$</div>
           </div>
           <div id="logo-explosion-speed-wrap" class="logo-explosion-speed d-none">
             <label for="logo-explosion-speed">Vitesse <span id="logo-explosion-speed-val">1×</span></label>
             <input type="range" id="logo-explosion-speed" min="1" max="30" step="1" value="1" aria-label="Vitesse de simulation">
+            <label for="logo-explosion-rain">Pluie</label>
+            <input type="range" id="logo-explosion-rain" min="0" max="100" step="1" value="30" aria-label="Fréquence de la pluie naturelle">
+            <label for="logo-explosion-drought">Sécheresse</label>
+            <input type="range" id="logo-explosion-drought" min="0" max="100" step="1" value="30" aria-label="Fréquence de la sécheresse naturelle">
+            <span id="logo-explosion-drought-indicator" class="logo-explosion-drought-indicator d-none">Sécheresse en cours</span>
+            <label for="logo-explosion-storm">Tempêtes</label>
+            <input type="range" id="logo-explosion-storm" min="0" max="100" step="1" value="20" aria-label="Fréquence des tempêtes (averses intenses)">
+            <span id="logo-explosion-storm-indicator" class="logo-explosion-storm-indicator d-none">Tempête en cours</span>
+            <label for="logo-explosion-grass-nutri">Nutriments gazon</label>
+            <input type="number" id="logo-explosion-grass-nutri" min="0" step="0.5" value="1" aria-label="Production de nutriments du gazon ordinaire (1 = normal, 0 = aucune)" style="width:4.5em">
+            <label for="logo-explosion-grassmyc-nutri">Nutriments gazon long</label>
+            <input type="number" id="logo-explosion-grassmyc-nutri" min="0" step="0.5" value="1" aria-label="Production de nutriments du gazon long avec champignons (1 = normal, 0 = aucune)" style="width:4.5em">
           </div>
           <button type="button" id="logo-explosion-scroll-left" class="logo-explosion-scroll logo-explosion-scroll-left d-none" aria-label="Défiler le monde vers la gauche">
             <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

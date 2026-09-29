@@ -122,6 +122,10 @@
   var MYC_SPREAD_P = 1;                   // chance, par passage, de gagner une voisine
   var MYC_RADIUS = 0.4;                   // portee max depuis le point d'inoculation (x hauteur)
   var FRUIT_W = 0.22;                     // largeur d'une zone de fructification (x hauteur)
+  var HYPHA_COLOR = '#fbf8f0';            // filaments du mycelium vivant (par-dessus le blanchiment des facettes)
+  var HYPHA_DEAD_COLOR = '#d8cdb0';       // filaments du mycelium mort de secheresse (paille, casses)
+  var HYPHA_W = 1.1;                      // epaisseur des filaments (px)
+  var HYPHA_MAX_LINK = 40;                // distance max (px) entre une facette et son origine (parent ou inoculation) pour tracer le filament
   var FRUIT_MIN = 6;                      // facettes de surface colonisees pour faire sortir une grappe
   // MYC_DECOMPOSE_REACH et MYC_STARVE_MS doivent rester coherents avec le rythme naturel
   // de chute des feuilles (LEAF_LIFE_MS, 25-45s) : une feuille tombee dure ~21s de
@@ -414,6 +418,9 @@
   var CANOPY_LIMBS = 5;                   // nb de branches maitresses / bouquets (utilise seulement a la creation de l'arbre)
   var CANOPY_CLUSTER_R = 0.065;           // rayon d'un bouquet de feuilles (fraction de H) ; sert aussi a la masse de feuillage dessinee
   var LEAF_LIFE_MS = [58000, 180000];     // duree de vie d'une feuille (min, max)
+  var LITTER_BULK = 0.2;                  // une feuille posee n'ajoute que cette fraction de sa hauteur au tas (litiere a plat, pas une butte)
+  var LOG_BULK = 0.4;                     // idem pour le bois tombe
+  var LITTER_FLAT = 0.4;                  // ecrasement vertical d'une feuille posee (dessin seulement)
   var LITTER_MS = 300000;                 // une feuille tombee loin de tout mycelium redevient humus toute seule, tres lentement (5 min, comme dans la vraie vie) ; le mycelium a proximite accelere fortement ce delai (MYC_DECOMPOSE_MULT)
   var LEAF_AGES = [[0, [156, 204, 90]], [0.25, [86, 150, 60]], [0.65, [62, 120, 50]], [0.82, [217, 169, 46]], [1, [184, 97, 42]]];
   var trees = [], litter = [], treeLife = false, slowTimer = null;
@@ -516,6 +523,7 @@
     worldH = H + H * DEPTH_MULT;
     camY = 0;
     groundY = H - 6;
+    buildHills();
     heights = new Float32Array(Math.ceil(worldW / COL_W) + 1);
     compactY = new Float32Array(heights.length);
     compactY.fill(groundY);
@@ -733,6 +741,7 @@
   }
   function pileAdd(s) {
     s.dep = s.area / COL_W * (s.soil || s.extra ? 1 : LOGO_BULK);
+    if (s.branch) s.dep *= LOG_BULK; else if (s.leaf) s.dep *= LITTER_BULK; // litiere a plat : kdep memorise ce qui est reellement ajoute
     s.kcol = s.kcol || [0, 0, 0, 0, 0, 0];
     s.kdep = s.kdep || [0, 0, 0, 0, 0, 0];
     for (var k = 0; k < KERNEL.length; k++) {
@@ -937,6 +946,7 @@
           s.vy *= -0.28; s.vx *= 0.6; s.vr *= 0.5;
         } else {
           s.settled = true; s.vx = s.vy = s.vr = 0;
+          if (s.leaf) s.restRot = (Math.random() - 0.5) * (s.branch ? 0.24 : 0.3); // angle fige a plat (dessin seulement)
           // Une feuille garde sa couleur au sol et se decompose lentement (voir stepTrees).
           if (s.leaf) {
             // Une feuille/du bois deja passe par la litiere (pris a la main ou relance) garde
@@ -1473,12 +1483,24 @@
   var HAND_LIMB_TOL = 12;                 // distance max (px) du curseur a un segment de branche pour l'agripper
   var HAND_BREAK_DIST = 40;               // ecart (px) au point de prise au-dela duquel la branche casse
   var LIMB_REGROW_MS = 120000;            // une branche maitresse cassee reapparait apres ce delai (temps de jeu, vTime)
-  var hand = { x: 0, y: 0, on: false, fist: 0, tilt: 0, lx: 0, grip: null };
+  var hand = { x: 0, y: 0, on: false, fist: 0, tilt: 0, lx: 0, grip: null, px: 0, py: 0, pcx: 0, pcy: 0 };
   var handCarry = [];
+  // Effleurement : la main qui BOUGE pousse un peu ce qu'elle frole, comme la pelle mais
+  // tres doucement (voir handPush). Vitesse en px/frame, mesuree en repere monde moins le
+  // defilement de la camera (une souris immobile pendant que le monde glisse ne pousse rien).
+  var HAND_PUSH_R = 24;                   // rayon d'effet (px) autour de la paume, un peu > HAND_PICK_R
+  var HAND_PUSH_MIN_V = 2.5;              // en dessous, le survol ne fait rien
+  var HAND_PUSH_MAX_V = 14;               // vitesse de main retenue au plus (borne l'impulsion)
+  var HAND_PUSH_LEAF = 0.22;              // part de la vitesse de la main transmise a une feuille en l'air
+  var HAND_PUSH_LOOSE = 0.12;             // idem pour une facette posee delogee (beaucoup moins)
+  var HAND_PUSH_P = 0.08;                 // chance par facette posee et par frame d'etre delogee
+  var HAND_PUSH_MAX_LOOSE = 2;            // facettes posees delogees au plus par frame
+  var HAND_PUSH_DEPTH = 8;                // seule la peau du tas (px sous la surface) peut bouger
 
   function enterHand(p) {
     hand.on = true;
-    hand.x = hand.lx = p.x; hand.y = p.y;
+    hand.x = hand.lx = hand.px = p.x; hand.y = hand.py = p.y;
+    hand.pcx = camX; hand.pcy = camY;
     hand.fist = 0; hand.tilt = 0;
     container.classList.add('is-tool-cursor');
   }
@@ -1624,7 +1646,50 @@
     hand.lx = hand.x;
     hand.tilt += (tiltGoal - hand.tilt) * 0.2;
     if (Math.abs(tiltGoal - hand.tilt) > 0.005 || Math.abs(hand.tilt) > 0.01) busy = true;
+    // Vitesse reelle du geste (monde, camera deduite), puis effleurement des facettes.
+    var hvx = hand.x - hand.px - (camX - hand.pcx), hvy = hand.y - hand.py - (camY - hand.pcy);
+    hand.px = hand.x; hand.py = hand.y; hand.pcx = camX; hand.pcy = camY;
+    if (mode === 'exploded' && hvx * hvx + hvy * hvy >= HAND_PUSH_MIN_V * HAND_PUSH_MIN_V) {
+      handPush(hvx, hvy);
+      busy = true;
+    }
     return busy;
+  }
+
+  // Effleurement par la main en mouvement (vitesse hvx,hvy). Feuilles en l'air : impulsion
+  // dans le sens du geste, plus forte au centre de la zone. Facettes posees (terre meuble,
+  // feuilles, bois) : a peine quelques-unes delogees, seulement si la main ne tient rien, et
+  // sans jamais toucher a compactY ni au tas au-dela de la peau superieure.
+  function handPush(hvx, hvy) {
+    var sp = Math.hypot(hvx, hvy);
+    if (sp > HAND_PUSH_MAX_V) { hvx *= HAND_PUSH_MAX_V / sp; hvy *= HAND_PUSH_MAX_V / sp; }
+    var busyHand = handCarry.length > 0 || hand.grip !== null, loose = 0;
+    for (var i = 0; i < shards.length; i++) {
+      var s = shards[i];
+      if (s.carried || s.dead || s.eaten !== undefined || s.grain) continue;
+      var dx = s.x - hand.x, dy = s.y - hand.y;
+      if (dx > HAND_PUSH_R || dx < -HAND_PUSH_R || dy > HAND_PUSH_R || dy < -HAND_PUSH_R) continue;
+      var d = Math.hypot(dx, dy);
+      if (d > HAND_PUSH_R) continue;
+      var k = 1 - d / HAND_PUSH_R;
+      if (!s.settled) {
+        if (!s.leaf) continue;            // seules les feuilles/le bois en l'air sont sensibles
+        s.vx += hvx * HAND_PUSH_LEAF * k;
+        s.vy += hvy * HAND_PUSH_LEAF * k;
+        s.vr = clamp(s.vr + hvx * 0.01 * k, -0.4, 0.4);
+        continue;
+      }
+      if (busyHand || loose >= HAND_PUSH_MAX_LOOSE) continue;
+      if (s.soil || s.myc || s.nutri || s.deadMyc || !s.kcol) continue; // maillage d'origine, mycelium : jamais
+      if (s.y > surfaceAt(s.x) + HAND_PUSH_DEPTH) continue;             // enfouie sous la peau du tas
+      if (Math.random() > HAND_PUSH_P * k * 2) continue;
+      pileRemove(s);
+      s.settled = false;
+      s.vx = hvx * HAND_PUSH_LOOSE; s.vy = Math.min(hvy * HAND_PUSH_LOOSE, 0) - 0.6 - Math.random() * 0.6;
+      s.vr = (Math.random() - 0.5) * 0.2;
+      s.px = s.x; s.py = s.y;
+      loose++;
+    }
   }
 
   // Tension de la branche agrippee du meme arbre, 0..1 (sert au tremblement, voir drawTree).
@@ -1744,9 +1809,17 @@
   // dans la terre ne nourrit pas, seul le bois pres d'une facette (stepTrees) la nourrit
   // vraiment. Seule l'inoculation directe (grain du sac, sa propre reserve) demarre une
   // horloge fraiche.
-  function infect(s, ox, oy, amount, now, lastFed) {
+  // parent : facette colonisatrice (le filament en part, voir drawHyphae) ; absent pour une
+  // inoculation directe. hyJ/hyTw/hyF : jitter, ramilles et duvet figes (pas de random au dessin).
+  function infect(s, ox, oy, amount, now, lastFed, parent) {
     if (s.myc || s.grain || s.nutri || s.deadMyc || isRocky(s.x)) return;
     s.myc = amount;
+    s.mycParent = parent || null;
+    s.hyJ = (Math.random() - 0.5) * 8;
+    s.hyTw = [Math.random() * 6.283, 3 + Math.random() * 4];
+    if (Math.random() < 0.5) s.hyTw.push(Math.random() * 6.283, 3 + Math.random() * 4);
+    s.hyF = [];
+    for (var hi = 0; hi < 3; hi++) s.hyF.push((Math.random() - 0.5) * 8, -1.5708 + (Math.random() - 0.5) * 1.2, 2 + Math.random() * 2);
     s.mox = ox; s.moy = oy;               // point d'inoculation : borne la portee (MYC_RADIUS)
     s.mycTone = 0.7 + Math.random() * 0.2; // jamais tout a fait blanc : les facettes restent lisibles
     s.lastFed = lastFed !== undefined ? lastFed : now;
@@ -1805,6 +1878,7 @@
           c.nutriSince = now;
         }
         colonised.splice(i, 1);
+        if (!c.deadMyc) c.mycParent = null; // redevient de la terre normale (le mort garde son filament)
       }
     }
     if (frame % MYC_SPREAD_EVERY === 0) spreadMycelium(now);
@@ -1850,7 +1924,7 @@
       // Plus rien a gagner autour : on la laisse tranquille un moment (economise des calculs).
       if (!free.length) { c.mycIdle = frame + 90; continue; }
       // Herite l'horloge de faim du parent : se repandre dans la terre ne nourrit pas.
-      infect(free[(Math.random() * free.length) | 0], c.mox, c.moy, 0.02, now, c.lastFed);
+      infect(free[(Math.random() * free.length) | 0], c.mox, c.moy, 0.02, now, c.lastFed, c);
     }
     // Une zone de surface bien blanche fructifie une fois.
     for (b in buckets) {
@@ -2403,7 +2477,7 @@
     for (var i = deadMyc.length - 1; i >= 0; i--) {
       var c = deadMyc[i];
       if (!c.settled || Math.random() > DEAD_MYC_DECOMPOSE_P) continue;
-      c.deadMyc = false;
+      c.deadMyc = false; c.mycParent = null;
       toNutriColor(c);
       deadMyc.splice(i, 1);
     }
@@ -3195,9 +3269,63 @@
   }
 
   // --- Rendu -------------------------------------------------------------------------
+  // --- Decor lointain : ciel + collines en parallaxe ----------------------------------
+  // Dessine en coord. ECRAN (avant le translate camera). Chaque couche de collines est une
+  // crete irreguliere facettee en triangles, decalee de camX/camY x facteur : plus la
+  // couche est loin, moins elle bouge. Teintes melangees a la creme de la page (aerien).
+  var HILL_LAYERS = [
+    { f: 0.16, lift: 0.23, amp: 0.09, rgb: [201, 208, 178] },  // lointaine, tres pale
+    { f: 0.38, lift: 0.15, amp: 0.07, rgb: [178, 186, 146] }   // proche, un peu plus dense
+  ];
+  var hillRidges = [];
+  function buildHills() {
+    hillRidges = HILL_LAYERS.map(function (L, li) {
+      var xs = [], ys = [], x = -40, ph = Math.random() * 10;
+      while (x < worldW + 80) {
+        var u = x / worldW;
+        var n = Math.sin(u * 13 + ph + li * 2) * 0.5 + Math.sin(u * 31 + ph * 1.7) * 0.28 + Math.random() * 0.22;
+        xs.push(x);
+        ys.push(groundY - H * (L.lift + L.amp * (0.5 + n * 0.5)));
+        x += 28 + Math.random() * 30;
+      }
+      return { xs: xs, ys: ys };
+    });
+  }
+  function drawBackdrop() {
+    var a = easeInOut(soilRiseT);
+    if (a <= 0) return;
+    ctx.save();
+    ctx.globalAlpha = a;
+    // Ciel : transparent en haut (se fond dans la creme de la page), a peine chaud a l'horizon.
+    var sky = ctx.createLinearGradient(0, 0, 0, groundY);
+    sky.addColorStop(0, 'rgba(246,222,182,0)');
+    sky.addColorStop(1, 'rgba(246,214,168,0.32)');
+    ctx.fillStyle = sky;
+    ctx.fillRect(0, 0, W, H);
+    for (var li = 0; li < HILL_LAYERS.length; li++) {
+      var L = HILL_LAYERS[li], R = hillRidges[li];
+      if (!R) continue;
+      var ox = camX * L.f, oy = camY * L.f, bottom = worldH;
+      for (var i = 0; i < R.xs.length - 1; i++) {
+        var x0 = R.xs[i] - ox, x1 = R.xs[i + 1] - ox;
+        if (x1 < -4 || x0 > W + 4) continue;
+        var y0 = R.ys[i] - oy, y1 = R.ys[i + 1] - oy;
+        // Lumiere haut-gauche : pente montante vers la droite = face eclairee.
+        var k = clamp((y0 - y1) / 40, -1, 1) * 0.07;
+        var lo = shade(L.rgb, k - 0.03), hi = shade(L.rgb, k + 0.03);
+        ctx.fillStyle = rgbStr(hi);
+        poly([[x0, y0], [x1, y1], [x0, bottom]]);
+        ctx.fillStyle = rgbStr(lo);
+        poly([[x1, y1], [x1, bottom], [x0, bottom]]);
+      }
+    }
+    ctx.restore();
+  }
+
   function draw() {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, W, H);
+    drawBackdrop();
     // Tout ce qui suit est dessine en coord. MONDE ; ce translate ramene la portion
     // visible (camX..camX+W, camY..camY+H) a l'ecran. Les overlays HTML (tresors) font
     // ce -camX/-camY a la main dans positionTreasureOverlays, hors de ce contexte canvas.
@@ -3222,8 +3350,18 @@
         var w = s.myc * s.mycTone;
         r = lerp(r, MYC[0], w); g = lerp(g, MYC[1], w); bl = lerp(bl, MYC[2], w);
       }
+      // Bois tombe (tant qu'il n'est pas devenu de la terre) : un petit baton, pas ses pts.
+      if (s.branch && s.eaten === undefined && (!s.settled || s.mix < 1)) {
+        if (s.settled && s.restRot === undefined) s.restRot = (Math.random() - 0.5) * 0.24;
+        drawLog(s, s.x, sy, s.settled ? s.restRot : s.rot, r, g, bl);
+        continue;
+      }
       ctx.fillStyle = s.nutri || 'rgb(' + (r | 0) + ',' + (g | 0) + ',' + (bl | 0) + ')';
-      var c = Math.cos(s.rot), sn = Math.sin(s.rot);
+      // Feuille posee : couchee a plat (angle fige, hauteur ecrasee), sans toucher a s.pts.
+      var flat = s.leaf && !s.branch && s.settled, fy = 1, fo = 0;
+      if (flat && s.restRot === undefined) s.restRot = (Math.random() - 0.5) * 0.3;
+      if (flat) fy = LITTER_FLAT, fo = 1;
+      var c = Math.cos(flat ? s.restRot : s.rot), sn = Math.sin(flat ? s.restRot : s.rot);
       // Terre meuble posee : dessinee un peu plus grande pour boucher les jours entre
       // facettes empilees (le lit d'origine, deja jointif, garde sa taille).
       if (s.settled && !s.soil && !s.leaf) { c *= LOOSE_DRAW_SCALE; sn *= LOOSE_DRAW_SCALE; }
@@ -3232,12 +3370,13 @@
         c *= k; sn *= k;
       }
       ctx.beginPath();
-      ctx.moveTo(s.x + p[0][0] * c - p[0][1] * sn, sy + p[0][0] * sn + p[0][1] * c);
-      ctx.lineTo(s.x + p[1][0] * c - p[1][1] * sn, sy + p[1][0] * sn + p[1][1] * c);
-      ctx.lineTo(s.x + p[2][0] * c - p[2][1] * sn, sy + p[2][0] * sn + p[2][1] * c);
+      ctx.moveTo(s.x + p[0][0] * c - p[0][1] * sn, sy + fo + (p[0][0] * sn + p[0][1] * c) * fy);
+      ctx.lineTo(s.x + p[1][0] * c - p[1][1] * sn, sy + fo + (p[1][0] * sn + p[1][1] * c) * fy);
+      ctx.lineTo(s.x + p[2][0] * c - p[2][1] * sn, sy + fo + (p[2][0] * sn + p[2][1] * c) * fy);
       ctx.closePath();
       ctx.fill();
     }
+    drawHyphae(rise);
     drawMoss(rise);
     drawGrass(rise);
     drawUnderbrush(rise);
@@ -3251,6 +3390,87 @@
     drawRain();
     ctx.restore();
     positionTreasureOverlays();
+  }
+
+  // Baton low-poly (bois tombe) : hexagone a deux facettes, moitie haute = couleur de la
+  // facette, moitie basse plus sombre. Pose, il est couche et un peu enfonce dans le sol.
+  function drawLog(s, x, y, rot, r, g, b) {
+    var L = H * 0.0425, T = H * 0.007, bv = T * 0.8, c = Math.cos(rot), sn = Math.sin(rot);
+    if (s.settled) y += T * 0.66;
+    var x0 = x - L * c, y0 = y - L * sn, x1 = x + L * c, y1 = y + L * sn;   // extremites
+    var ta = -L + bv, tb = L - bv;
+    var ax = x + ta * c + T * sn, ay = y + ta * sn - T * c;                  // haut, cote gauche
+    var bx = x + tb * c + T * sn, by = y + tb * sn - T * c;                  // haut, cote droit
+    var cx = x + tb * c - T * sn, cy = y + tb * sn + T * c;                  // bas, cote droit
+    var dx = x + ta * c - T * sn, dy = y + ta * sn + T * c;                  // bas, cote gauche
+    ctx.fillStyle = shadeRgb(r, g, b, 1);
+    poly([[x0, y0], [ax, ay], [bx, by], [x1, y1]]);
+    ctx.fillStyle = shadeRgb(r, g, b, 0.72);
+    poly([[x0, y0], [x1, y1], [cx, cy], [dx, dy]]);
+  }
+
+  // Filaments du mycelium (par-dessus le blanchiment des facettes) : chaque facette
+  // colonisee tire un fil depuis son parent (ou le point d'inoculation), qui pousse avec
+  // myc. Deux strokes par frame (vivant, mort), aucune allocation.
+  function hyphaPath(c, rise, dead) {
+    if (!c.settled || c.dead || c.eaten !== undefined || !c.hyF) return;
+    var ro = c.soil ? rise : 0, cy = c.y + ro;
+    if (c.x < camX - 40 || c.x > camX + W + 40 || cy < camY - 40 || cy > camY + H + 40) return;
+    var p = c.mycParent, ox, oy;
+    if (p) {
+      if (!p.settled || !(p.myc > 0 || p.deadMyc)) return;
+      ox = p.x; oy = p.y + (p.soil ? rise : 0);
+    } else { ox = c.mox; oy = c.moy + ro; }
+    var dx = c.x - ox, dy = cy - oy, d = Math.sqrt(dx * dx + dy * dy);
+    if (d > HYPHA_MAX_LINK) return;
+    var t = dead ? 1 : Math.min(1, c.myc / MYC_READY);
+    var ex = ox + dx * t, ey = oy + dy * t, L = d * t;
+    if (L > 0.5) {
+      var mx = (ox + ex) / 2 - (ey - oy) / L * c.hyJ, my = (oy + ey) / 2 + (ex - ox) / L * c.hyJ;
+      ctx.moveTo(ox, oy);
+      ctx.lineTo(mx, my);
+      if (dead) ctx.lineTo(mx + (ex - mx) * 0.1, my + (ey - my) * 0.1); // casse : 55% du fil
+      else ctx.lineTo(ex, ey);
+    }
+    if (dead) return;
+    var i, a;
+    if (c.myc >= MYC_READY) {
+      for (i = 0; i < c.hyTw.length; i += 2) {
+        ctx.moveTo(c.x, cy);
+        ctx.lineTo(c.x + Math.cos(c.hyTw[i]) * c.hyTw[i + 1], cy + Math.sin(c.hyTw[i]) * c.hyTw[i + 1]);
+      }
+    }
+    if (c.myc > 0.6) {
+      var surf = surfaceAt(c.x);
+      if (c.y - surf < 6) {
+        var by = Math.min(cy, surf + ro);
+        for (i = 0; i < 9; i += 3) {
+          var hx = c.x + c.hyF[i];
+          a = c.hyF[i + 1];
+          ctx.moveTo(hx, by);
+          ctx.lineTo(hx + Math.cos(a) * c.hyF[i + 2], by + Math.sin(a) * c.hyF[i + 2]);
+        }
+      }
+    }
+  }
+  function drawHyphae(rise) {
+    var i;
+    if (!colonised.length && !deadMyc.length) return;
+    ctx.save();
+    ctx.lineWidth = HYPHA_W;
+    if (colonised.length) {
+      ctx.strokeStyle = HYPHA_COLOR;
+      ctx.beginPath();
+      for (i = 0; i < colonised.length; i++) if (colonised[i].myc > 0) hyphaPath(colonised[i], rise, false);
+      ctx.stroke();
+    }
+    if (deadMyc.length) {
+      ctx.strokeStyle = HYPHA_DEAD_COLOR;
+      ctx.beginPath();
+      for (i = 0; i < deadMyc.length; i++) hyphaPath(deadMyc[i], rise, true);
+      ctx.stroke();
+    }
+    ctx.restore();
   }
 
   // Couche compacte : bande de triangles plats entre compactY et le fond du MONDE (worldH,
@@ -4344,6 +4564,7 @@
     ['Mycélium', 'MYC_SPREAD_EVERY', 'Frames entre propagations', 1, 60, 1],
     ['Mycélium', 'MYC_SPREAD_P', 'Chance de propagation', 0, 1, 0.01],
     ['Mycélium', 'MYC_RADIUS', 'Portée depuis inoculation', 0.05, 2, 0.01],
+    ['Mycélium', 'HYPHA_W', 'Épaisseur des filaments', 0.3, 4, 0.1],
     ['Mycélium', 'FRUIT_W', 'Largeur zone fructification', 0.02, 1, 0.01],
     ['Mycélium', 'FRUIT_MIN', 'Facettes pour fructifier', 1, 30, 1],
     ['Mycélium', 'MYC_DECOMPOSE_REACH', 'Portée décomposition', 10, 400, 5],
@@ -4415,6 +4636,8 @@
     ['Arbres / racines', 'LEAF_LIFE_MS[0]', 'Durée de vie feuille (min)', 5000, 150000, 1000],
     ['Arbres / racines', 'LEAF_LIFE_MS[1]', 'Durée de vie feuille (max)', 5000, 240000, 1000],
     ['Arbres / racines', 'LITTER_MS', 'Décomposition seule', 5000, 1200000, 5000],
+    ['Arbres / racines', 'LITTER_BULK', 'Hauteur litière posée', 0, 1, 0.05],
+    ['Arbres / racines', 'LITTER_FLAT', 'Écrasement litière posée', 0.1, 1, 0.05],
     ['Météo / lessivage', 'STORM_MS[0]', 'Durée tempête (min)', 500, 60000, 500],
     ['Météo / lessivage', 'STORM_MS[1]', 'Durée tempête (max)', 500, 90000, 500],
     ['Météo / lessivage', 'STORM_GAP_MS[0]', 'Délai avant tempête (min)', 2000, 300000, 1000],

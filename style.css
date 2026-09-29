@@ -7,7 +7,7 @@ Description:
 Requires at least: 6.7
 Tested up to: 6.9
 Requires PHP: 7.2
-Version: 1.9.2
+Version: 1.9.10
 License: GNU General Public License v2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: twentytwentyfive
@@ -75,6 +75,20 @@ Tags:
    bord de la boite. */
 .logo-explosion-inner:has(#logo-explosion-fallback:not(.d-none)){
     overflow: visible;
+}
+body.home .logo-explosion-inner{
+    /* Sur l'accueil le header est en position fixed et flotte par-dessus (voir
+       body.home .header) : plutot que de pousser la boite sous lui avec du padding
+       vide (l'espace perdu d'avant), elle remonte carrement jusque sous le header
+       transparent, avec la hauteur gagnee ajoutee a la boite plutot que jetee. */
+    height: clamp(430px, calc(45vh + 150px), 710px);
+}
+/* Plein ecran "sur place" : la boite prend 100vh dans le flux normal de la page,
+   pas une vraie Fullscreen API ni position fixed. Le reste du site n'est pas touche,
+   on peut toujours defiler pour voir la suite en dessous. */
+.logo-explosion-inner.is-fullscreen,
+body.home .logo-explosion-inner.is-fullscreen{
+    height: 100vh;
 }
 .logo-explosion-layer{
     position: absolute;
@@ -191,6 +205,143 @@ Tags:
     flex-direction: column;
     gap: 6px;
 }
+body.home .logo-explosion-rebuild,
+body.home .logo-explosion-tools{
+    /* La boite remonte sous le header fixe (voir body.home .logo-explosion-inner) :
+       ces controles doivent rester sous sa ligne, sinon ils sont caches derriere lui
+       (le pointer-events:none du header laisse passer le clic, mais pas la visibilite). */
+    top: calc(150px + 8px);
+}
+/* Replie/deplie le header (reutilise .header.is-compact, voir nav-compact.js), juste
+   sous le bouton ↻ reconstruire. N'apparait qu'apres l'explosion, comme les autres
+   outils du jeu. */
+.logo-explosion-header-toggle{
+    position: absolute;
+    top: 52px;
+    right: 16px;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(58, 42, 24, .35);
+    color: #fff;
+    opacity: .7;
+    transition: opacity .2s, transform .2s;
+}
+body.home .logo-explosion-header-toggle{
+    top: calc(150px + 8px + 44px);
+}
+.logo-explosion-header-toggle:hover,
+.logo-explosion-header-toggle:focus-visible{
+    opacity: 1;
+}
+.logo-explosion-header-toggle.is-active{
+    transform: rotate(180deg);
+}
+/* Engrenage : ouvre le panneau de parametres de simulation (voir DEBUG_FIELDS dans
+   logo-explosion.js). Outil de debug/experimentation, comme .logo-explosion-speed. */
+.logo-explosion-debug-toggle{
+    position: absolute;
+    top: calc(52px + 44px);
+    right: 16px;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(58, 42, 24, .35);
+    color: #fff;
+    opacity: .7;
+    transition: opacity .2s, transform .3s;
+}
+body.home .logo-explosion-debug-toggle{
+    top: calc(150px + 8px + 44px + 40px);
+}
+.logo-explosion-debug-toggle:hover,
+.logo-explosion-debug-toggle:focus-visible{
+    opacity: 1;
+}
+.logo-explosion-debug-toggle.is-active{
+    opacity: 1;
+    transform: rotate(45deg);
+}
+/* Panneau de parametres : liste scrollable de sliders generee par JS, pas de style
+   soigne (meme esprit que .logo-explosion-speed : outil de debug, pas destine aux
+   visiteurs). */
+.logo-explosion-debug-panel{
+    position: absolute;
+    top: calc(52px + 44px + 40px);
+    right: 16px;
+    z-index: 2;
+    width: min(320px, calc(100% - 32px));
+    max-height: min(70vh, 480px);
+    overflow-y: auto;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: rgba(20, 14, 8, .88);
+    color: #fff;
+    font-size: .72rem;
+}
+body.home .logo-explosion-debug-panel{
+    top: calc(150px + 8px + 44px + 40px + 40px);
+}
+.logo-explosion-debug-panel fieldset{
+    border: 0;
+    margin: 0 0 10px;
+    padding: 0;
+}
+.logo-explosion-debug-panel legend{
+    padding: 0;
+    margin: 0 0 4px;
+    font-size: .75rem;
+    font-weight: 600;
+    color: var(--color-red, #e07856);
+    text-transform: uppercase;
+    letter-spacing: .03em;
+}
+.logo-explosion-debug-panel .logo-explosion-debug-row{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 2px 0;
+}
+.logo-explosion-debug-panel .logo-explosion-debug-row label{
+    flex: 1 1 auto;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.logo-explosion-debug-panel .logo-explosion-debug-row input[type="range"]{
+    flex: 1 1 90px;
+    width: 90px;
+}
+.logo-explosion-debug-panel .logo-explosion-debug-row output{
+    flex: 0 0 auto;
+    min-width: 3.2em;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+.logo-explosion-debug-panel .logo-explosion-debug-reset{
+    display: block;
+    width: 100%;
+    margin-top: 4px;
+    padding: 5px 0;
+    border: 1px solid rgba(255, 255, 255, .3);
+    border-radius: 6px;
+    background: transparent;
+    color: #fff;
+    font-size: .72rem;
+}
+.logo-explosion-debug-panel .logo-explosion-debug-reset:hover{
+    background: rgba(255, 255, 255, .1);
+}
 .logo-explosion-tool{
     display: grid;
     place-items: center;
@@ -213,6 +364,21 @@ Tags:
     border-color: var(--color-red);
     background: rgba(58, 42, 24, .6);
 }
+/* Solde accumule en recoltant les champignons a la main : n'apparait qu'a la
+   premiere vente (voir earn() dans logo-explosion.js), pas de "0 $" avant. */
+.logo-explosion-money{
+    display: grid;
+    place-items: center;
+    min-width: 40px;
+    height: 28px;
+    padding: 0 10px;
+    border-radius: 14px;
+    background: rgba(58, 42, 24, .55);
+    color: #fff;
+    font-size: .8rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
 /* Reglage de vitesse de simulation : outil de debug/experimentation, pas un controle
    destine aux visiteurs (pas de style soigne, juste fonctionnel). */
 .logo-explosion-speed{
@@ -231,6 +397,41 @@ Tags:
 }
 .logo-explosion-speed input[type="range"]{
     width: 100px;
+}
+/* Toujours visible (pas lie a l'explosion, contrairement aux autres controles) : coin
+   bas-droit, seul emplacement libre (bas-gauche = vitesse, bas-centre = fleche mobile). */
+.logo-explosion-fullscreen{
+    position: absolute;
+    bottom: 8px;
+    right: 16px;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(58, 42, 24, .35);
+    color: #fff;
+    opacity: .7;
+    transition: opacity .2s;
+}
+.logo-explosion-fullscreen:hover,
+.logo-explosion-fullscreen:focus-visible{
+    opacity: 1;
+}
+.logo-explosion-fullscreen.is-active{
+    opacity: 1;
+    background: rgba(58, 42, 24, .6);
+}
+.logo-explosion-drought-indicator{
+    color: #e8b04d;
+    font-weight: 600;
+}
+.logo-explosion-storm-indicator{
+    color: #6fb2e8;
+    font-weight: 600;
 }
 /* Fleches de defilement du monde, mobile seulement (desktop defile au survol du bord). */
 .logo-explosion-scroll{
@@ -262,6 +463,10 @@ Tags:
 }
 .logo-explosion-scroll-up{ top: 8px; }
 .logo-explosion-scroll-down{ bottom: 8px; }
+body.home .logo-explosion-scroll-up{
+    /* Meme raison que les outils : reste sous la ligne du header remonte par-dessus. */
+    top: calc(150px + 8px);
+}
 @media (min-width: 768px){
     .logo-explosion-scroll{
         display: none;
@@ -336,7 +541,7 @@ Tags:
     gap: 10px;
     align-items: center;
     width: 250px;
-    padding: 10px 12px;
+    padding: 10px 24px 10px 12px;
     background: #fffaf2;
     border-top: 3px solid var(--color-red);
     border-radius: 6px;
@@ -347,6 +552,28 @@ Tags:
     opacity: 0;
     pointer-events: none;
     transition: opacity .25s, transform .25s;
+}
+.logo-explosion-tip-close{
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    background: transparent;
+    color: #8a7a63;
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
+    border-radius: 50%;
+}
+.logo-explosion-tip-close:hover,
+.logo-explosion-tip-close:focus-visible{
+    background: rgba(58, 42, 24, .1);
+    color: #3a2a18;
 }
 .logo-explosion-tip.is-open{
     /* Delai : laisse le champignon sortir de terre avant l'infobulle. */
@@ -443,6 +670,20 @@ body:not(.home) main .container{
 body.home .header{
     background: rgba(61, 108, 161, 0.12);
     position: fixed;
+}
+/* Sur l'accueil le jeu remonte sous le header fixe (voir body.home .logo-explosion-inner) :
+   ses zones vides doivent laisser passer le clic et le survol (auto-defilement pres du bord
+   haut du canvas, boutons du jeu juste dessous) jusqu'au jeu en dessous. Seuls les vrais
+   controles du header (liens, boutons) restent cliquables. */
+body.home .header,
+body.home .header *{
+    pointer-events: none;
+}
+body.home .header a,
+body.home .header button,
+body.home .header input,
+body.home .header label{
+    pointer-events: auto;
 }
 .header::before{
     content: "";
