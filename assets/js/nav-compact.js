@@ -88,6 +88,13 @@ document.addEventListener("click", (e) => {
   setupObserver();
   window.addEventListener("resize", setupObserver);
 
+  // Expose le mecanisme de compactage a d'autres scripts (ex. le bouton du jeu sur
+  // l'accueil, voir logo-explosion.js) sans dupliquer la logique d'etat isCompact.
+  window.sporaHeaderCompact = {
+    set: setCompact,
+    isCompact: function () { return isCompact; }
+  };
+
 
 
 
