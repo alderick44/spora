@@ -1246,10 +1246,16 @@
   // cercle de la lame) : apparait juste au-dessus de la lame, a l'interieur du bol,
   // emportee par le mouvement de la pelle. Retourne son aire (pour la dette de cutCompact).
   function spawnDecompactShard(a, nutri) {
-    var size = Math.max(6, W / 160) * 1.3;
-    var pts = [[-size * 0.55, size * 0.32], [size * 0.55, size * 0.32], [(Math.random() - 0.5) * size * 0.3, -size * 0.55]];
     var r = bowlR() - 3 - Math.random() * loadDepth() * 0.6;
-    var x = shovel.cx + Math.cos(a) * r, y = shovel.cy + Math.sin(a) * r;
+    return makeDecompactShard(shovel.cx + Math.cos(a) * r, shovel.cy + Math.sin(a) * r,
+      shovel.cx - shovel.pcx, shovel.cy - shovel.pcy, nutri, 1);
+  }
+
+  // Coeur commun (pelle et poing, voir fistStrike) : une facette de terre meuble neuve en
+  // (x,y) a la vitesse (vx,vy), taille multipliee par sizeK. Retourne son aire.
+  function makeDecompactShard(x, y, vx, vy, nutri, sizeK) {
+    var size = Math.max(6, W / 160) * 1.3 * sizeK;
+    var pts = [[-size * 0.55, size * 0.32], [size * 0.55, size * 0.32], [(Math.random() - 0.5) * size * 0.3, -size * 0.55]];
     // Assombrie selon la profondeur sous le niveau d'origine, comme addSoilShard : la
     // terre qui sort du compact reste de la terre normale, pas la terre sombre d'avant.
     var depth = Math.min(1, Math.max(0, y - groundY) / Math.max(1, worldH - groundY));
@@ -1258,7 +1264,7 @@
     var area = triArea(pts);
     var s = {
       pts: pts, ox: x, oy: y, x: x, y: y,
-      vx: shovel.cx - shovel.pcx, vy: shovel.cy - shovel.pcy, rot: 0, vr: (Math.random() - 0.5) * 0.3,
+      vx: vx, vy: vy, rot: 0, vr: (Math.random() - 0.5) * 0.3,
       from: color, to: color, mix: 1, area: area,
       settled: false, col: -1, extra: true
     };
@@ -1271,6 +1277,18 @@
     s.px = s.x; s.py = s.y;
     shards.push(s);
     return area;
+  }
+
+  // Reveille les facettes posees restees suspendues au-dessus du sol dans les colonnes
+  // dirtyCols (et leurs voisines) : elles retombent. Partage par la pelle et le poing.
+  function wakeSuspended(dirtyCols) {
+    for (var j = 0; j < shards.length; j++) {
+      var sj = shards[j];
+      if (!sj.settled) continue;
+      var sjCol = Math.round(sj.x / COL_W);
+      if (!(dirtyCols[sjCol] || dirtyCols[sjCol - 1] || dirtyCols[sjCol + 1])) continue;
+      if (sj.y < surfaceAt(sj.x) - 6) { pileRemove(sj); sj.settled = false; }
+    }
   }
 
   // Reveille les facettes posees que la lame touche, pour que la collision les prenne
@@ -1320,15 +1338,7 @@
       if (!dirtyCols) dirtyCols = {};
       for (var cc in cutCols) dirtyCols[cc] = true;
     }
-    if (dirtyCols) {
-      for (var j = 0; j < shards.length; j++) {
-        var sj = shards[j];
-        if (!sj.settled) continue;
-        var sjCol = Math.round(sj.x / COL_W);
-        if (!(dirtyCols[sjCol] || dirtyCols[sjCol - 1] || dirtyCols[sjCol + 1])) continue;
-        if (sj.y < surfaceAt(sj.x) - 6) { pileRemove(sj); sj.settled = false; }
-      }
-    }
+    if (dirtyCols) wakeSuspended(dirtyCols);
     if (!woke.length) return;
     // La pelle qui passe sous un champignon le brise (sauf les tresors, qui portent l'infobulle).
     for (i = 0; i < mushrooms.length; i++) {
@@ -1488,14 +1498,31 @@
   // Effleurement : la main qui BOUGE pousse un peu ce qu'elle frole, comme la pelle mais
   // tres doucement (voir handPush). Vitesse en px/frame, mesuree en repere monde moins le
   // defilement de la camera (une souris immobile pendant que le monde glisse ne pousse rien).
-  var HAND_PUSH_R = 24;                   // rayon d'effet (px) autour de la paume, un peu > HAND_PICK_R
-  var HAND_PUSH_MIN_V = 2.5;              // en dessous, le survol ne fait rien
+  var HAND_PUSH_R = 32;                   // rayon d'effet (px) autour de la paume, un peu > HAND_PICK_R
+  var HAND_PUSH_MIN_V = 1.2;              // en dessous, le survol ne fait rien (un geste calme de souris fait ~3-10 px/frame)
   var HAND_PUSH_MAX_V = 14;               // vitesse de main retenue au plus (borne l'impulsion)
-  var HAND_PUSH_LEAF = 0.22;              // part de la vitesse de la main transmise a une feuille en l'air
+  var HAND_PUSH_LEAF = 0.4;               // part de la vitesse de la main transmise a une feuille en l'air (la chute amortit vite : 0.94-0.95/frame)
   var HAND_PUSH_LOOSE = 0.12;             // idem pour une facette posee delogee (beaucoup moins)
   var HAND_PUSH_P = 0.08;                 // chance par facette posee et par frame d'etre delogee
   var HAND_PUSH_MAX_LOOSE = 2;            // facettes posees delogees au plus par frame
   var HAND_PUSH_DEPTH = 8;                // seule la peau du tas (px sous la surface) peut bouger
+  // Poing : main fermee (bouton enfonce, rien de tenu ni d'agrippe) qui BOUGE = elle brise
+  // la terre sur son passage (voir fistStrike). Un "coup" tous les HAND_FIST_STEP px
+  // parcourus ; chaque coup entame un peu le compact sous le poing et deloge de petits
+  // blocs projetes dans le sens du geste. Il faut repasser pour creuser profond.
+  var HAND_FIST_R = 13;                   // rayon du poing (px, monde)
+  var HAND_FIST_MIN_V = 1.5;              // vitesse minimale (px/frame) pour compter comme geste
+  var HAND_FIST_MAX_V = 14;               // vitesse retenue au plus pour la projection
+  var HAND_FIST_STEP = 16;                // distance parcourue (px) entre deux coups
+  var HAND_FIST_MAX_STRIKES = 2;          // coups au plus par frame (borne le cout d'un geste tres rapide)
+  var HAND_FIST_DEPTH = 2.5;              // compactY descend au plus de ca (px) par colonne et par coup
+  var HAND_FIST_SHARDS = 3;               // petits blocs neufs au plus par coup (sortis du compact)
+  var HAND_FIST_LOOSE = 2;                // facettes posees delogees au plus par coup
+  var HAND_FIST_SIZE = 0.7;               // taille d'un bloc, en fraction d'un bloc de pelle
+  var HAND_FIST_KICK = 0.5;               // part de la vitesse du poing transmise aux blocs
+  var HAND_FIST_SPREAD = 1.4;             // dispersion aleatoire de la vitesse (px/frame)
+  var HAND_FIST_LIFT = 2.2;               // impulsion vers le haut des blocs (px/frame)
+  var fistDist = 0;                       // distance parcourue par le poing depuis le dernier coup
 
   function enterHand(p) {
     hand.on = true;
@@ -1649,11 +1676,94 @@
     // Vitesse reelle du geste (monde, camera deduite), puis effleurement des facettes.
     var hvx = hand.x - hand.px - (camX - hand.pcx), hvy = hand.y - hand.py - (camY - hand.pcy);
     hand.px = hand.x; hand.py = hand.y; hand.pcx = camX; hand.pcy = camY;
-    if (mode === 'exploded' && hvx * hvx + hvy * hvy >= HAND_PUSH_MIN_V * HAND_PUSH_MIN_V) {
+    var sp2 = hvx * hvx + hvy * hvy;
+    if (mode === 'exploded' && sp2 >= HAND_PUSH_MIN_V * HAND_PUSH_MIN_V) {
       handPush(hvx, hvy);
       busy = true;
     }
+    // Poing : bouton enfonce et rien de tenu (pickUpHand/handGrabTree n'ont rien pris).
+    if (mode === 'exploded' && pointerDown && tool === 'hand' && !handCarry.length && !hand.grip) {
+      if (sp2 >= HAND_FIST_MIN_V * HAND_FIST_MIN_V) {
+        fistDist += Math.min(Math.sqrt(sp2), 30);
+        for (var fs = 0; fistDist >= HAND_FIST_STEP && fs < HAND_FIST_MAX_STRIKES; fs++) {
+          fistDist -= HAND_FIST_STEP;
+          fistStrike(hvx, hvy);
+        }
+        if (fistDist > HAND_FIST_STEP) fistDist = HAND_FIST_STEP; // pas de rattrapage apres un geste tres rapide
+        busy = true;
+      }
+    } else fistDist = 0;
     return busy;
+  }
+
+  // Un coup de poing en (hand.x, hand.y), geste (hvx,hvy) : (1) deloge quelques facettes
+  // posees de terre meuble a portee, (2) entame le compact sous le poing (profil circulaire,
+  // au plus HAND_FIST_DEPTH par colonne, jamais la roche-mere) et libere de petits blocs
+  // via makeDecompactShard (meme mecanique et meme dette que la pelle, voir cutCompact),
+  // (3) reveille ce qui devient suspendu et deterre un peu les tresors proches.
+  function fistStrike(hvx, hvy) {
+    var sp = Math.hypot(hvx, hvy);
+    if (sp > HAND_FIST_MAX_V) { hvx *= HAND_FIST_MAX_V / sp; hvy *= HAND_FIST_MAX_V / sp; }
+    var R = HAND_FIST_R, limit = worldH - BEDROCK_MARGIN, i, c;
+    // (1) Terre meuble posee a portee : delogee, projetee dans le sens du geste.
+    var loose = 0;
+    for (i = 0; i < shards.length && loose < HAND_FIST_LOOSE; i++) {
+      var s = shards[i];
+      if (!s.settled || s.carried || s.dead || s.eaten !== undefined || s.grain) continue;
+      if (s.soil || s.myc || s.nutri || s.deadMyc || !s.kcol) continue; // maillage d'origine, mycelium : jamais
+      var sdx = s.x - hand.x, sdy = s.y - hand.y;
+      if (sdx > R || sdx < -R || sdy > R || sdy < -R || sdx * sdx + sdy * sdy > R * R) continue;
+      pileRemove(s);
+      s.settled = false;
+      s.vx = hvx * HAND_FIST_KICK + (Math.random() - 0.5) * HAND_FIST_SPREAD * 2;
+      s.vy = hvy * HAND_FIST_KICK - HAND_FIST_LIFT * (0.4 + Math.random() * 0.6);
+      s.vr = (Math.random() - 0.5) * 0.4;
+      s.px = s.x; s.py = s.y;
+      loose++;
+    }
+    // (2) Compact sous le poing.
+    var c0 = Math.max(0, Math.floor((hand.x - R) / COL_W)), c1 = Math.min(compactY.length - 1, Math.ceil((hand.x + R) / COL_W));
+    var cut = null;
+    for (c = c0; c <= c1; c++) {
+      if (rocky[c]) continue;               // roche-mere : le poing ne l'entame pas plus que la pelle
+      var ddx = c * COL_W - hand.x;
+      if (ddx > R || ddx < -R) continue;
+      var bottom = hand.y + Math.sqrt(R * R - ddx * ddx);
+      if (bottom <= compactY[c]) continue;
+      var newTop = Math.min(bottom, compactY[c] + HAND_FIST_DEPTH, limit);
+      var removed = newTop - compactY[c];
+      if (removed <= 0) continue;
+      compactY[c] = newTop;
+      compactDebt += removed * COL_W * DECOMPACT_BULK;
+      if (!cut) cut = {};
+      cut[c] = true;
+      // Humus lessive redevenu accessible : rendu a la surface, comme la pelle.
+      for (var ni = compactNutri.length - 1; ni >= 0; ni--) {
+        var dep = compactNutri[ni];
+        if (Math.round(dep.x / COL_W) !== c || dep.y >= newTop) continue;
+        compactNutri.splice(ni, 1);
+        makeDecompactShard(c * COL_W, surfaceAt(c * COL_W) - 3, hvx * HAND_FIST_KICK, -HAND_FIST_LIFT, dep.color, HAND_FIST_SIZE);
+      }
+    }
+    if (cut) {
+      var cols = Object.keys(cut), made = 0, guard = 0;
+      while (compactDebt > 0 && made < HAND_FIST_SHARDS && guard++ < 10) {
+        var col = +cols[(Math.random() * cols.length) | 0];
+        compactDebt -= makeDecompactShard(
+          (col + Math.random() - 0.5) * COL_W, surfaceAt(col * COL_W) - 3,
+          hvx * HAND_FIST_KICK + (Math.random() - 0.5) * HAND_FIST_SPREAD * 2,
+          hvy * HAND_FIST_KICK - HAND_FIST_LIFT * (0.4 + Math.random() * 0.6),
+          undefined, HAND_FIST_SIZE);
+        made++;
+      }
+      if (compactDebt > 150) compactDebt = 150; // dette bornee : un poing ne rattrape pas une montagne
+      wakeSuspended(cut);
+      // (3) Un tresor enfoui juste sous le poing se deterre peu a peu.
+      for (i = 0; i < treasures.length; i++) {
+        var t = treasures[i];
+        if (!t.revealed && Math.abs(t.x - hand.x) < R + 15) tryDig(t, 0.02);
+      }
+    }
   }
 
   // Effleurement par la main en mouvement (vitesse hvx,hvy). Feuilles en l'air : impulsion
@@ -1663,7 +1773,8 @@
   function handPush(hvx, hvy) {
     var sp = Math.hypot(hvx, hvy);
     if (sp > HAND_PUSH_MAX_V) { hvx *= HAND_PUSH_MAX_V / sp; hvy *= HAND_PUSH_MAX_V / sp; }
-    var busyHand = handCarry.length > 0 || hand.grip !== null, loose = 0;
+    // Bouton enfonce = poing (voir fistStrike) : l'effleurement ne deloge alors plus de terre posee.
+    var busyHand = handCarry.length > 0 || hand.grip !== null || !!pointerDown, loose = 0;
     for (var i = 0; i < shards.length; i++) {
       var s = shards[i];
       if (s.carried || s.dead || s.eaten !== undefined || s.grain) continue;
