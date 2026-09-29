@@ -99,7 +99,12 @@
   var ROCK_PATCH_COLS_MIN = 10, ROCK_PATCH_COLS_MAX = 26;    // largeur d'une plaque, en colonnes (COL_W px chacune)
   var ROCK_COVER_MIN = 18;                // epaisseur de terre meuble (px) qui suffit a enterrer la roche : au-dela, on peut a nouveau y faire pousser quelque chose
   var ROCK_H_MIN = 0.06, ROCK_H_MAX = 0.13; // hauteur d'un rocher (x hauteur de la boite H) : bien au-dessus du sol, pas un simple caillou
-  var BEDROCK_MARGIN = 40;                // marge (px) avant le fond du monde ou plus rien n'apparait (roche-mere)
+  var ROCK_LEACH_MULT = 0.3;              // la roche est plus compacte que la terre : le lessivage (chance et enfoncement) y est multiplie par ca, meme si de la terre meuble la recouvre
+  var ROCK_BASIN_DEPTH = 0.05;            // profondeur du fond d'une cuvette (lac) SOUS le niveau general du sol (x hauteur de la boite H) ; les bords, eux, restent releves comme une bosse
+  var ROCK_BASIN_FRAC = 0.5;              // part des plaques rocheuses creusees en cuvette (au moins une, jamais toutes)
+  var LAKE_DROP_VOL = 3;                  // volume d'eau (px2 de section) ajoute par une goutte qui tombe sur une cuvette
+  var LAKE_EVAP_PER_S = 2;                // evaporation (px2 par seconde de vTime) hors pluie, x3 en secheresse ; lente, un lac ne s'asseche jamais d'un coup
+  var BEDROCK_MARGIN = 40;               // marge (px) avant le fond du monde ou plus rien n'apparait (roche-mere)
   var SPECIES = [
     { cap: '#9a948c', gill: '#d9d2c5' },  // pleurote gris
     { cap: '#e58a9b', gill: '#f6c9d1' },  // pleurote rose
@@ -478,6 +483,12 @@
   // installent tant qu'elle est exposee ; l'enterrer sous assez de terre (ROCK_COVER_MIN)
   // la rend a nouveau fertile.
   var rocky = [];
+  // Lacs : une entree par cuvette rocheuse (voir buildRockyPatches) {p0,p1 (plaque entiere,
+  // capte la pluie), c0,c1 (de bord a bord de la cuvette, la ou l'eau tient), vol (px2 d'eau),
+  // level (y monde de la surface de l'eau, Infinity = vide)}. lakeOf[c] = index+1 du lac dont
+  // la plaque couvre la colonne c (0 = aucun). Le niveau se deduit du volume a chaque frame
+  // (voir updateLakes), donc suit la terre meuble ajoutee/enlevee dans la cuvette.
+  var lakes = [], lakeOf = [], lakeLastT = null;
   // Depots d'humus lessives jusque dans la couche compacte (voir leach()) : chacun
   // {x, y, color}, y en coord. MONDE. Distinct de shards (facettes) pour rester leger :
   // ils ne participent a aucune physique, juste a un lent enfoncement pendant la pluie.
@@ -528,6 +539,7 @@
     compactY = new Float32Array(heights.length);
     compactY.fill(groundY);
     compactNutri = [];
+    lakes = []; lakeOf = []; lakeLastT = null;
     drops = [];
     nextLeachAt = 0;
     weather.raining = false; weather.clouds = []; weather.lastNow = null; weather.changeAt = 0;
@@ -712,22 +724,113 @@
     var c = Math.max(0, Math.min(rocky.length - 1, Math.round(x / COL_W)));
     return !!rocky[c] && heights[c] < ROCK_COVER_MIN;
   }
+  // Vrai si la colonne c est sous l'eau d'un lac (entre les bords de sa cuvette, surface du
+  // sol sous le niveau de l'eau) : ni gazon, ni mycelium, ni arbre. `level` est tenu a jour
+  // par updateLakes ; y monde, donc "sous l'eau" = surface plus grande que le niveau.
+  function isSubmergedCol(c) {
+    var li = lakeOf[c];
+    if (!li) return false;
+    var lk = lakes[li - 1];
+    return c >= lk.c0 && c <= lk.c1 && compactY[c] - heights[c] > lk.level + 0.5;
+  }
+  function isSubmerged(x) {
+    return isSubmergedCol(Math.max(0, Math.min(heights.length - 1, Math.round(x / COL_W))));
+  }
+  // Volume (px2) que la cuvette contient quand l'eau monte jusqu'au niveau y.
+  function lakeCapacity(lk, y) {
+    var v = 0;
+    for (var c = lk.c0; c <= lk.c1; c++) {
+      var d = compactY[c] - heights[c] - y;
+      if (d > 0) v += d;
+    }
+    return v * COL_W;
+  }
+  // Deduit le niveau de chaque lac de son volume (on remplit depuis les colonnes les plus
+  // basses, par dichotomie) et l'evapore lentement hors pluie. Plafonne au plus bas des
+  // deux bords : le surplus deborde et est perdu. Recalcule a chaque frame (quelques
+  // dizaines de colonnes par lac), donc suit la terre ajoutee/enlevee a la pelle.
+  function updateLakes(now) {
+    var dt = lakeLastT === null ? 0 : Math.max(0, now - lakeLastT);
+    lakeLastT = now;
+    for (var li = 0; li < lakes.length; li++) {
+      var lk = lakes[li];
+      if (!weather.raining && lk.vol > 0) lk.vol = Math.max(0, lk.vol - LAKE_EVAP_PER_S * (weather.drought ? 3 : 1) * dt / 1000);
+      if (lk.vol <= 0) { lk.level = Infinity; continue; }
+      // Bord le plus bas = le plus grand y des deux sommets (y monde : plus grand = plus bas).
+      var rim = Math.max(compactY[lk.c0] - heights[lk.c0], compactY[lk.c1] - heights[lk.c1]);
+      var cap = lakeCapacity(lk, rim);
+      if (lk.vol >= cap) { lk.vol = cap; lk.level = rim; continue; }
+      var lo = rim, hi = rim, c;
+      for (c = lk.c0; c <= lk.c1; c++) hi = Math.max(hi, compactY[c] - heights[c]);
+      for (var it = 0; it < 12; it++) {
+        var mid = (lo + hi) / 2;
+        if (lakeCapacity(lk, mid) > lk.vol) lo = mid; else hi = mid;
+      }
+      lk.level = (lo + hi) / 2;
+    }
+  }
+  // Eau : un aplat translucide de bord a bord (un seul polygone, sans joints visibles), quelques
+  // facettes plus claires/sombres par-dessus pour le grain low-poly, et une mince bande plus
+  // claire en surface.
+  function drawLakes() {
+    for (var li = 0; li < lakes.length; li++) {
+      var lk = lakes[li];
+      if (lk.level === Infinity || lk.vol < 0.5) continue;
+      var x0 = lk.c0 * COL_W, x1 = lk.c1 * COL_W, yw = lk.level, c, sa, sb;
+      if (x1 < camX - 20 || x0 > camX + W + 20) continue;
+      ctx.fillStyle = 'rgba(58,132,190,0.55)';
+      ctx.beginPath();
+      ctx.moveTo(x0, yw); ctx.lineTo(x1, yw);
+      for (c = lk.c1; c >= lk.c0; c--) ctx.lineTo(c * COL_W, Math.max(yw, compactY[c] - heights[c]));
+      ctx.closePath();
+      ctx.fill();
+      for (c = lk.c0; c < lk.c1; c++) {
+        sa = Math.max(yw, compactY[c] - heights[c]); sb = Math.max(yw, compactY[c + 1] - heights[c + 1]);
+        if (sa <= yw && sb <= yw) continue;
+        ctx.fillStyle = c % 2 ? 'rgba(255,255,255,0.10)' : 'rgba(0,40,90,0.12)';
+        poly([[c * COL_W, yw], [(c + 1) * COL_W, yw], c % 2 ? [(c + 1) * COL_W, sb] : [c * COL_W, sa]]);
+      }
+      ctx.fillStyle = 'rgba(190,230,250,0.55)';
+      ctx.beginPath();
+      ctx.moveTo(x0, yw); ctx.lineTo(x1, yw);
+      for (c = lk.c1; c >= lk.c0; c--) ctx.lineTo(c * COL_W, Math.min(yw + 3, Math.max(yw, compactY[c] - heights[c])));
+      ctx.closePath();
+      ctx.fill();
+    }
+  }
   // Quelques plaques de roche-mere affleurante, disseminees au hasard sur la largeur du
   // monde : des taches ou la couche compacte elle-meme ne se creuse jamais (voir son usage
   // dans cutCompact), pas juste une histoire de surface.
   function buildRockyPatches() {
     rocky = new Uint8Array(heights.length);
+    lakes = []; lakeOf = new Uint16Array(heights.length);
     var n = ROCK_PATCH_MIN + ((Math.random() * (ROCK_PATCH_MAX - ROCK_PATCH_MIN + 1)) | 0);
+    // Une partie des plaques (au moins une, jamais toutes s'il y en a plusieurs) sont des
+    // cuvettes qui retiendront l'eau de pluie (voir updateLakes) au lieu de simples bosses.
+    var nBasin = Math.max(1, Math.min(n - 1, Math.round(n * ROCK_BASIN_FRAC)));
     for (var p = 0; p < n; p++) {
       var w = ROCK_PATCH_COLS_MIN + ((Math.random() * (ROCK_PATCH_COLS_MAX - ROCK_PATCH_COLS_MIN + 1)) | 0);
       var start = (Math.random() * Math.max(1, rocky.length - w)) | 0;
       // Bosse (comme le mound du profil general) : un vrai bloc qui depasse du sol, pas
       // une simple tache plate — pointe au milieu de la plaque, s'efface sur les bords.
       var peak = H * (ROCK_H_MIN + Math.random() * (ROCK_H_MAX - ROCK_H_MIN));
+      var basin = p < nBasin, dip = H * ROCK_BASIN_DEPTH;
       for (var c = start; c < start + w && c < rocky.length; c++) {
         rocky[c] = 1;
         var t = (c - start) / w, edge = Math.sin(Math.PI * t);
         compactY[c] -= peak * edge;
+        // Cuvette : on garde la bosse (bords releves) mais on la creuse au centre par une
+        // gaussienne etroite, dosee pour que le fond tombe a `dip` SOUS le sol general
+        // (compactY = groundY au repos) : l'eau y tient. Pente douce (sigma ~0.16 w).
+        if (basin) compactY[c] += (peak + dip) * Math.exp(-Math.pow((t - 0.5) / 0.16, 2));
+      }
+      if (basin) {
+        var end = Math.min(start + w, rocky.length) - 1, mid = start + (w >> 1), cl = start, cr = end, k;
+        // Les bords de la cuvette = points les plus hauts (y le plus petit) de chaque moitie.
+        for (k = start; k <= mid; k++) if (compactY[k] < compactY[cl]) cl = k;
+        for (k = mid; k <= end; k++) if (compactY[k] < compactY[cr]) cr = k;
+        lakes.push({ p0: start, p1: end, c0: cl, c1: cr, vol: 0, level: Infinity });
+        for (k = start; k <= end; k++) lakeOf[k] = lakes.length;
       }
     }
     // Degage la terre meuble deposee par l'explosion sur ces colonnes : la roche doit
@@ -792,11 +895,11 @@
       s.vr = (Math.random() - 0.5) * 0.35;
     }
     if (rebuildBtn) rebuildBtn.classList.remove('d-none');
-    if (headerToggleBtn) headerToggleBtn.classList.remove('d-none');
+    if (headerToggleBtn) { headerToggleBtn.classList.remove('d-none'); syncHeaderToggle(); }
     if (fullscreenBtn) fullscreenBtn.classList.remove('d-none');
     if (debugToggleBtn) debugToggleBtn.classList.remove('d-none');
     if (toolsBar) toolsBar.classList.remove('d-none');
-    if (speedWrap) speedWrap.classList.remove('d-none');
+    if (speedWrap && debugBarOn) speedWrap.classList.remove('d-none');
     if (scrollLeftBtn) scrollLeftBtn.classList.remove('d-none');
     if (scrollRightBtn) scrollRightBtn.classList.remove('d-none');
     if (scrollUpBtn) scrollUpBtn.classList.remove('d-none');
@@ -1510,18 +1613,19 @@
   // la terre sur son passage (voir fistStrike). Un "coup" tous les HAND_FIST_STEP px
   // parcourus ; chaque coup entame un peu le compact sous le poing et deloge de petits
   // blocs projetes dans le sens du geste. Il faut repasser pour creuser profond.
-  var HAND_FIST_R = 13;                   // rayon du poing (px, monde)
-  var HAND_FIST_MIN_V = 1.5;              // vitesse minimale (px/frame) pour compter comme geste
+  var HAND_FIST_R = 26;                   // rayon du poing (px, monde)
+  var HAND_FIST_MIN_V = 1;              // vitesse minimale (px/frame) pour compter comme geste
   var HAND_FIST_MAX_V = 14;               // vitesse retenue au plus pour la projection
-  var HAND_FIST_STEP = 16;                // distance parcourue (px) entre deux coups
-  var HAND_FIST_MAX_STRIKES = 2;          // coups au plus par frame (borne le cout d'un geste tres rapide)
-  var HAND_FIST_DEPTH = 2.5;              // compactY descend au plus de ca (px) par colonne et par coup
-  var HAND_FIST_SHARDS = 3;               // petits blocs neufs au plus par coup (sortis du compact)
-  var HAND_FIST_LOOSE = 2;                // facettes posees delogees au plus par coup
-  var HAND_FIST_SIZE = 0.7;               // taille d'un bloc, en fraction d'un bloc de pelle
-  var HAND_FIST_KICK = 0.5;               // part de la vitesse du poing transmise aux blocs
-  var HAND_FIST_SPREAD = 1.4;             // dispersion aleatoire de la vitesse (px/frame)
-  var HAND_FIST_LIFT = 2.2;               // impulsion vers le haut des blocs (px/frame)
+  var HAND_FIST_STEP = 8;                // distance parcourue (px) entre deux coups
+  var HAND_FIST_MAX_STRIKES = 4;          // coups au plus par frame (borne le cout d'un geste tres rapide)
+  var HAND_FIST_DEPTH = 7;              // compactY descend au plus de ca (px) par colonne et par coup
+  var HAND_FIST_SHARDS = 4;              // petits blocs neufs au plus par coup (sortis du compact)
+  var HAND_FIST_LOOSE = 8;                // facettes posees delogees au plus par coup
+  var HAND_FIST_SIZE = 0.9;               // taille d'un bloc, en fraction d'un bloc de pelle
+  var HAND_FIST_MAX_UP = 4.5;             // vitesse verticale max vers le haut des blocs (evite la fontaine)
+  var HAND_FIST_KICK = 0.6;              // part de la vitesse du poing transmise aux blocs
+  var HAND_FIST_SPREAD = 3.4;            // dispersion aleatoire de la vitesse (px/frame)
+  var HAND_FIST_LIFT = 2.2;              // impulsion vers le haut des blocs (px/frame)
   var fistDist = 0;                       // distance parcourue par le poing depuis le dernier coup
 
   function enterHand(p) {
@@ -1716,7 +1820,7 @@
       pileRemove(s);
       s.settled = false;
       s.vx = hvx * HAND_FIST_KICK + (Math.random() - 0.5) * HAND_FIST_SPREAD * 2;
-      s.vy = hvy * HAND_FIST_KICK - HAND_FIST_LIFT * (0.4 + Math.random() * 0.6);
+      s.vy = Math.max(-HAND_FIST_MAX_UP, hvy * HAND_FIST_KICK - HAND_FIST_LIFT * (0.4 + Math.random() * 0.6));
       s.vr = (Math.random() - 0.5) * 0.4;
       s.px = s.x; s.py = s.y;
       loose++;
@@ -1750,14 +1854,20 @@
       while (compactDebt > 0 && made < HAND_FIST_SHARDS && guard++ < 10) {
         var col = +cols[(Math.random() * cols.length) | 0];
         compactDebt -= makeDecompactShard(
-          (col + Math.random() - 0.5) * COL_W, surfaceAt(col * COL_W) - 3,
+          hand.x + (Math.random() * 2 - 1) * R * 1.6, surfaceAt(hand.x) - 3 - Math.random() * 6,
           hvx * HAND_FIST_KICK + (Math.random() - 0.5) * HAND_FIST_SPREAD * 2,
-          hvy * HAND_FIST_KICK - HAND_FIST_LIFT * (0.4 + Math.random() * 0.6),
+          Math.max(-HAND_FIST_MAX_UP, hvy * HAND_FIST_KICK - HAND_FIST_LIFT * (0.4 + Math.random() * 0.6)),
           undefined, HAND_FIST_SIZE);
         made++;
       }
-      if (compactDebt > 150) compactDebt = 150; // dette bornee : un poing ne rattrape pas une montagne
+      if (compactDebt > 400) compactDebt = 400; // dette bornee : un poing ne rattrape pas une montagne
       wakeSuspended(cut);
+      // Le poing brise aussi les champignons a portee (sauf les tresors, qui portent l'infobulle).
+      for (i = 0; i < mushrooms.length; i++) {
+        var mu = mushrooms[i];
+        if (mu.treasure || mu.dying || mu.t < 0.5) continue;
+        if (Math.abs(mu.x - hand.x) < R + mu.size * 0.4) breakMushroom(mu);
+      }
       // (3) Un tresor enfoui juste sous le poing se deterre peu a peu.
       for (i = 0; i < treasures.length; i++) {
         var t = treasures[i];
@@ -1923,7 +2033,7 @@
   // parent : facette colonisatrice (le filament en part, voir drawHyphae) ; absent pour une
   // inoculation directe. hyJ/hyTw/hyF : jitter, ramilles et duvet figes (pas de random au dessin).
   function infect(s, ox, oy, amount, now, lastFed, parent) {
-    if (s.myc || s.grain || s.nutri || s.deadMyc || isRocky(s.x)) return;
+    if (s.myc || s.grain || s.nutri || s.deadMyc || isRocky(s.x) || isSubmerged(s.x)) return;
     s.myc = amount;
     s.mycParent = parent || null;
     s.hyJ = (Math.random() - 0.5) * 8;
@@ -2312,8 +2422,14 @@
     for (var d = drops.length - 1; d >= 0; d--) {
       var dr = drops[d];
       dr.y += dr.vy;
-      if (dr.y >= surfaceAt(dr.x)) drops.splice(d, 1);
+      // Une goutte qui touche une cuvette (ou son eau) y ajoute du volume (voir updateLakes).
+      var dcol = Math.max(0, Math.min(heights.length - 1, Math.round(dr.x / COL_W))), dl = lakeOf[dcol] ? lakes[lakeOf[dcol] - 1] : null;
+      if (dr.y >= surfaceAt(dr.x) || (dl && dcol >= dl.c0 && dcol <= dl.c1 && dr.y >= dl.level)) {
+        if (dl) dl.vol += LAKE_DROP_VOL;
+        drops.splice(d, 1);
+      }
     }
+    updateLakes(now);
     // A vitesse elevee (slider debug), vTime peut sauter de bien plus qu'un
     // LEACH_INTERVAL_MS en une seule frame reelle. On compte combien de pas ont ete
     // "rates" (plafonne par LEACH_MAX_STEPS_PER_FRAME, pour eviter un calcul sans fin si le
@@ -2405,7 +2521,7 @@
     var dt = grassLastNow === null ? 0 : now - grassLastNow;
     grassLastNow = now;
     for (var c = 0; c < grassCover.length; c++) {
-      if (rocky[c] && heights[c] < ROCK_COVER_MIN) { grassCover[c] = 0; continue; }
+      if ((rocky[c] && heights[c] < ROCK_COVER_MIN) || isSubmergedCol(c)) { grassCover[c] = 0; continue; }
       var diff = heights[c] - grassPrevH[c];
       if (Math.abs(diff) > GRASS_DISTURB_EPS) grassCover[c] = 0;
       grassPrevH[c] += diff * GRASS_BASELINE_FOLLOW;
@@ -2518,7 +2634,9 @@
     var stormMult = weather.storm ? STORM_LEACH_MULT : 1;
     for (var di = compactNutri.length - 1; di >= 0; di--) {
       var dep = compactNutri[di];
-      dep.y = Math.min(worldH - BEDROCK_MARGIN - 5, dep.y + COMPACT_SINK_SPEED * stormMult * steps * (0.5 + Math.random()));
+      // Sous une plaque rocheuse (plus compacte que la terre), l'enfoncement est plus lent.
+      var rockMult = rocky[Math.max(0, Math.min(rocky.length - 1, Math.round(dep.x / COL_W)))] ? ROCK_LEACH_MULT : 1;
+      dep.y = Math.min(worldH - BEDROCK_MARGIN - 5, dep.y + COMPACT_SINK_SPEED * rockMult * stormMult * steps * (0.5 + Math.random()));
     }
   }
 
@@ -2531,7 +2649,8 @@
       if (s.leaf && s.settled && !s.bonus && Math.random() < (s.branch ? leafP * WOOD_RAIN_MULT : leafP)) rainLeaf(s);
       if (!s.settled || !s.nutri || s.leachTick === frame) continue;
       if (heldByMycelium(s.x, s.y, s.nutriSince)) continue;
-      if (Math.random() > leachP) continue;
+      // Sur la roche (meme recouverte de terre meuble), le lessivage est plus lent.
+      if (Math.random() > (rocky[Math.max(0, Math.min(rocky.length - 1, Math.round(s.x / COL_W)))] ? leachP * ROCK_LEACH_MULT : leachP)) continue;
       var best = null, bestDy = Infinity;
       for (var j = 0; j < shards.length; j++) {
         var o = shards[j];
@@ -2738,7 +2857,7 @@
   // trop pres d'un autre (TREE_MIN_SPACING).
   function plantTree(x) {
     if (trees.length >= MAX_TREES) return false;
-    if (isRocky(x)) return false;
+    if (isRocky(x) || isSubmerged(x)) return false;
     for (var i = 0; i < trees.length; i++) {
       if (Math.abs(trees[i].x - x) < TREE_MIN_SPACING) return false;
     }
@@ -3487,6 +3606,7 @@
       ctx.closePath();
       ctx.fill();
     }
+    drawLakes();
     drawHyphae(rise);
     drawMoss(rise);
     drawGrass(rise);
@@ -4294,6 +4414,7 @@
     trees = []; litter = []; treeLife = false;
     insects = []; insectNextAt = null; insectLastT = null;
     compactNutri = []; drops = [];
+    lakes = []; lakeOf = []; lakeLastT = null;
     weather.raining = false; weather.clouds = []; weather.lastNow = null;
     weather.drought = false;
     updateDroughtIndicator();
@@ -4371,6 +4492,7 @@
     weather.drought = false;
     updateDroughtIndicator();
     drops = []; compactNutri = [];
+    lakes = []; lakeOf = []; lakeLastT = null;
     shards = [];
     mushrooms = [];
     colonised = []; fruited = {}; deadMyc = [];
@@ -4554,6 +4676,26 @@
   // window.sporaHeaderCompact) plutot que d'en refaire un : simple bascule manuelle,
   // en plus de celle au scroll. Verifie sa presence pour ne rien casser si ce script
   // change ou ne s'est pas encore charge.
+  // Colle le bouton sous le bord bas du header, qui change de hauteur en mode compact
+  // (padding en transition 0.2s) : suivi image par image pendant la transition.
+  var siteHeader = document.querySelector('.header');
+  function syncHeaderToggle() {
+    if (!headerToggleBtn || !siteHeader || !headerToggleBtn.offsetParent) return;
+    var parentTop = headerToggleBtn.offsetParent.getBoundingClientRect().top;
+    headerToggleBtn.style.top = (siteHeader.getBoundingClientRect().bottom - parentTop + 8) + 'px';
+  }
+  if (headerToggleBtn && siteHeader) {
+    var syncUntil = 0;
+    var syncTick = function () {
+      syncHeaderToggle();
+      if (performance.now() < syncUntil) requestAnimationFrame(syncTick);
+    };
+    new MutationObserver(function () {
+      syncUntil = performance.now() + 450;
+      requestAnimationFrame(syncTick);
+    }).observe(siteHeader, { attributes: true, attributeFilter: ['class'] });
+    window.addEventListener('resize', syncHeaderToggle);
+  }
   if (headerToggleBtn) {
     headerToggleBtn.addEventListener('click', function () {
       if (!window.sporaHeaderCompact || typeof window.sporaHeaderCompact.set !== 'function') return;
@@ -4790,7 +4932,7 @@
   ];
   function getDebugVar(name) { return eval(name); }
   function setDebugVar(name, value) { eval(name + ' = ' + value + ';'); }
-  var debugDefaults = null, debugBuilt = false;
+  var debugDefaults = null, debugBuilt = false, debugBarOn = false;
   function buildDebugPanel() {
     if (!debugPanel || debugBuilt) return;
     debugBuilt = true;
@@ -4803,6 +4945,19 @@
       byGroup[f[0]].push(f);
     }
     var frag = document.createDocumentFragment();
+    // Interrupteur de la barre de debug (vitesse, pluie, secheresse...) : masquee par defaut.
+    var barLabel = document.createElement('label');
+    barLabel.className = 'logo-explosion-debug-bar-toggle';
+    var barCheck = document.createElement('input');
+    barCheck.type = 'checkbox';
+    barCheck.checked = debugBarOn;
+    barCheck.addEventListener('change', function () {
+      debugBarOn = this.checked;
+      if (speedWrap) speedWrap.classList.toggle('d-none', !debugBarOn);
+    });
+    barLabel.appendChild(barCheck);
+    barLabel.appendChild(document.createTextNode(' Afficher la barre de debug'));
+    frag.appendChild(barLabel);
     groups.forEach(function (g) {
       var fs = document.createElement('fieldset');
       var lg = document.createElement('legend');
