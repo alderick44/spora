@@ -217,8 +217,9 @@ body.home .logo-explosion-tools{
    outils du jeu. */
 .logo-explosion-header-toggle{
     position: absolute;
-    top: 52px;
-    right: 16px;
+    top: 8px;
+    left: 50%;
+    margin-left: -16px;
     z-index: 1;
     display: grid;
     place-items: center;
@@ -233,7 +234,7 @@ body.home .logo-explosion-tools{
     transition: opacity .2s, transform .2s;
 }
 body.home .logo-explosion-header-toggle{
-    top: calc(150px + 8px + 44px);
+    top: calc(150px + 8px);
 }
 .logo-explosion-header-toggle:hover,
 .logo-explosion-header-toggle:focus-visible{
@@ -1085,4 +1086,45 @@ body.home .header label{
     width: 1px;
     height: 1px;
     overflow: hidden;
+}
+
+/* Barre d'outils repliee : seule la bulle de l'outil actif reste visible ; les autres
+   (et le solde) se deroulent en dessous au survol/focus et se referment quand on s'eloigne. */
+.logo-explosion-tools{
+    gap: 0;
+}
+.logo-explosion-tools .logo-explosion-tool,
+.logo-explosion-tools .logo-explosion-money{
+    overflow: hidden;
+    transition: opacity .2s, border-color .2s, max-height .25s ease, margin-top .25s ease;
+}
+.logo-explosion-tools .logo-explosion-tool.is-active{
+    order: -1;
+}
+.logo-explosion-tools .logo-explosion-tool:not(.is-active),
+.logo-explosion-tools .logo-explosion-money{
+    max-height: 0;
+    margin-top: 0;
+    border-width: 0;
+    opacity: 0;
+    pointer-events: none;
+}
+.logo-explosion-tools:hover .logo-explosion-tool:not(.is-active),
+.logo-explosion-tools:has(:focus-visible) .logo-explosion-tool:not(.is-active){
+    max-height: 40px;
+    margin-top: 6px;
+    border-width: 2px;
+    opacity: .7;
+    pointer-events: auto;
+}
+.logo-explosion-tools:hover .logo-explosion-money,
+.logo-explosion-tools:has(:focus-visible) .logo-explosion-money{
+    max-height: 28px;
+    margin-top: 6px;
+    opacity: 1;
+    pointer-events: auto;
+}
+.logo-explosion-tools .logo-explosion-tool:not(.is-active):hover,
+.logo-explosion-tools .logo-explosion-tool:not(.is-active):focus-visible{
+    opacity: 1;
 }
