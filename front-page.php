@@ -87,38 +87,35 @@ $spora_treasures = [
             </svg>
           </button>
         </div>
+        <h1 class="logo-explosion-tagline">Mycélium et substrats pour cultiver vos champignons</h1>
+        <a class="btn btn-primary mt-3" href="/shop/">Visitez notre boutique!</a>
         <p id="logo-explosion-caption" class="logo-explosion-caption d-none" aria-live="polite"></p>
-      </section>
-      <section class="hero-viewport z-0">
-        <div class="position-relative">
-          <img
-            class="w-100 h-100 object-fit-cover object-position-center hero-pan"
-            src="<?php echo get_template_directory_uri();?>/assets/img/banner-mushroom-autumn.webp"
-            alt="Pleurote qui pousse dans les feuilles"/>
-          <div class="position-absolute top-50 start-50 translate-middle z-1 w-100 mt-5 pt-5">
-            <div class="container mt-5">
-              <a class="text-start text-light m-0 p-3 mt-5 btn btn-primary" href="/shop">
-                Visitez notre boutique!
-              </a>
-            </div>
-          </div>
-        </div>
       </section>
       <div class="container pb-5">
         <section class="pt-5 mt-5">
-          <h1 class=text-center>Sporacultus, culture de champignons</h1>
-          <p>
-            Sporacultus est un projet dédié à la culture de champignons
-            comestibles et à la valorisation des ressources naturelles locales.
-            Nous produisons des substrats, du mycélium et des ensembles prêts à
-            l’emploi pour les jardiniers et producteurs. Notre mission : rendre
-            la myciculture accessible, durable et inspirante. Cultivez vos
-            propres champignons, simplement et naturellement !
-          </p>
+          <h2 class="text-center h1">Sporacultus, culture de champignons</h2>
+          <div class="row py-5 align-items-lg-center">
+            <div class="col-12 col-lg-6">
+              <p>
+                Sporacultus est un projet dédié à la culture de champignons
+                comestibles et à la valorisation des ressources naturelles locales.
+                Nous produisons des substrats, du mycélium et des ensembles prêts à
+                l’emploi pour les jardiniers et producteurs. Notre mission : rendre
+                la myciculture accessible, durable et inspirante. Cultivez vos
+                propres champignons, simplement et naturellement !
+              </p>
+            </div>
+            <div class="col-12 col-lg-6">
+              <img
+                src="<?php echo get_template_directory_uri();?>/assets/img/banner-mushroom-autumn.webp"
+                alt="Pleurote qui pousse dans les feuilles"
+                class="img-fluid rounded-2"/>
+            </div>
+          </div>
         </section>
         <section class="py-5 my-5">
           <div class="text-center d-flex flex-column align-items-center">
-            <h1>Précommandez votre mycélium en vrac!</h1>
+            <h2 class="h1">Précommandez votre mycélium en vrac!</h2>
             <div class="row py-5">
               <div class="col-12 col-lg-6">
                 <img
@@ -151,7 +148,7 @@ $spora_treasures = [
           </div>
         </section>
         <section class="pb-5">
-          <h1 class="text-center pt-5 my-5">Pour les producteurs</h1>
+          <h2 class="text-center pt-5 my-5 h1">Pour les producteurs</h2>
           <div
             class="row align-items-center justify-content-between px-lg-5 mx-lg-5 pb-5">
             <div class="col-md-5 col-12">

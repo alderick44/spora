@@ -32,9 +32,6 @@ Tags:
     --bs-link-hover-color-rgb: 112, 26, 11;
     --bs-body-bg: #F7F7FF; /*Footer, cards, carousel,*/
 }
-.hero-viewport{
-    overflow: hidden;
-}
 .logo-explosion-hero{
     display: flex;
     flex-direction: column;
@@ -43,18 +40,23 @@ Tags:
     padding: 4vh 0;
     width: 100%;
 }
+/* Titre principal de la page : toujours visible (pas de d-none, pas de JS), reste
+   en place apres l'explosion. Lisible mais plus discret que le wordmark. */
+.logo-explosion-tagline{
+    margin: 16px 0 0;
+    padding: 0 1rem;
+    max-width: 640px;
+    color: rgba(33, 37, 41, .85);
+    font-size: clamp(1.25rem, 1rem + 1vw, 1.75rem);
+    font-weight: 500;
+    text-align: center;
+}
 /* Discrete, sous la boite : indique quoi faire puis ce qui se passe, pas un titre. */
 .logo-explosion-caption{
-    margin: 12px 0 0;
+    margin: 8px 0 0;
     color: rgba(33, 37, 41, .75);
     font-size: .875rem;
     text-align: center;
-}
-body.home .logo-explosion-hero{
-    /* Sur l'accueil le header est en position fixed (voir body.home .header) et
-       flotte par-dessus le contenu : on compense avec sa hauteur pour que le
-       wordmark ne demarre pas caché dessous. */
-    padding-top: calc(150px + 4vh);
 }
 .logo-explosion-inner{
     position: relative;
@@ -615,18 +617,6 @@ body.home .header{
   display: inline-flex;
 }
 
-/* CSS minimal */
-.hero-pan{
-    --hero-pan-intro: 1s;
-    --hero-pan-loop: 75s;
-
-    --hero-pan-intro-scale-transition: 1.5; /* Scale at the end of intro and beginning of loop */
-    --hero-pan-vector-transition: 10%, 20%, 0;
-
-    /* Animation désactivée (préférence du client) */
-    animation: none;
-    transform-origin: center;
-}
 /* Prix sur la fiche produit (la CSS de WooCommerce est desactivee) */
 .single-product .price{
     font-size: 1.5rem;
@@ -676,42 +666,6 @@ body.home .header{
     margin-top: auto;
     align-self: start;
 }
-@keyframes hero-pan-intro{  /* Ajusté pour écran moyen */
-    /* 0%{
-        transform: translate3d(-55%, -25%, 0) scale(2.5);
-    }
-    35%{
-        transform: translate3d(-35%, -15%, 0) scale(2);
-    }
-    100%{
-        transform: translate3d(var(--hero-pan-vector-transition)) scale(var(--hero-pan-intro-scale-transition));
-    } */
-
-    0%{
-        transform: translate3d(2%, 2%, 0) scale(1.7);
-    }
-    35%{
-        transform: translate3d(5%, 5%, 0) scale(1.7);
-    }
-    100%{
-        transform: translate3d(var(--hero-pan-vector-transition)) scale(var(--hero-pan-intro-scale-transition));
-    } 
-}
-@keyframes hero-pan-loop{
-    0%{
-        transform: translate3d(var(--hero-pan-vector-transition)) scale(var(--hero-pan-intro-scale-transition));
-    }
-    50%{
-        
-        transform: translate3d(0%, 0%, 0) scale(1);
-    }
-    75%{
-        transform: translate3d(15%, 20%, 0) scale(2.15);
-    }
-    100%{
-        transform: translate3d(var(--hero-pan-vector-transition)) scale(var(--hero-pan-intro-scale-transition));
-    }
-}
 .carousel-item {
   img{
     height: 70vh;
@@ -736,49 +690,6 @@ body.home .header{
 
 
 @media (max-width: 767.98px) {
-    .hero-viewport{
-        height: 45vh;
-    }
-    .hero-pan{
-        --hero-pan-intro: 1s;
-        --hero-pan-loop: 70s;
-
-        --hero-pan-intro-scale-transition: 5; /* Scale at the end of intro and beginning of loop */
-        --hero-pan-vector-transition: -10%, 45%, 0;
-
-    }
-
-    @keyframes hero-pan-intro{
-
-        0%{
-            transform: translate3d(-45%, 25%, 0) scale(5);
-        }
-        35%{
-            transform: translate3d(-35%, 25%, 0) scale(5);
-        }
-        100%{
-            transform: translate3d(var(--hero-pan-vector-transition)) scale(var(--hero-pan-intro-scale-transition));
-        } 
-    }
-
-    @keyframes hero-pan-loop{
-    0%{
-        transform: translate3d(var(--hero-pan-vector-transition)) scale(var(--hero-pan-intro-scale-transition));
-    }
-    50%{
-        
-        transform: translate3d(100%, 140%, 0) scale(4.5);
-    }
-    75%{
-        transform: translate3d(-10%, 35%, 0) scale(5);
-    }
-    100%{
-        transform: translate3d(var(--hero-pan-vector-transition)) scale(var(--hero-pan-intro-scale-transition));
-    }
-
-    }
-
-
     /* Hierarchie du menu mobile: la nav principale doit dominer.
        Avant, fs-5 etait ecrase par "font-size: small" (13px) alors que la
        nav utilitaire heritait de .small (14px) -- la secondaire paraissait
