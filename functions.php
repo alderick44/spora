@@ -15,6 +15,14 @@ add_filter('woocommerce_enqueue_styles', function ($styles) {
 
 function spora_enqueue_scripts() {
     wp_enqueue_script(
+        'spora-sfx',
+        get_theme_file_uri( 'assets/js/spora-sfx.js' ),
+        [],
+        wp_get_theme()->get( 'Version' ),
+        true
+    );
+
+    wp_enqueue_script(
         'spora-header-compact',
         // get_theme_file_uri( 'assets/js/header-compact.js' ),
         get_theme_file_uri('assets/js/nav-compact.js'),
@@ -27,7 +35,7 @@ function spora_enqueue_scripts() {
         wp_enqueue_script(
             'spora-logo-explosion',
             get_theme_file_uri( 'assets/js/logo-explosion.js' ),
-            [],
+            [ 'spora-sfx' ],
             wp_get_theme()->get( 'Version' ),
             true
         );
@@ -113,7 +121,7 @@ add_action( 'wp_enqueue_scripts', function() {
             wp_enqueue_script(
                 'spora-shop-ensembles',
                 get_theme_file_uri( 'assets/js/shop-ensembles.js' ),
-                [],
+                [ 'spora-sfx' ],
                 wp_get_theme()->get( 'Version' ),
                 true
             );
@@ -122,7 +130,7 @@ add_action( 'wp_enqueue_scripts', function() {
     wp_enqueue_script(
         'spora-mini-cart-qty',
         get_theme_file_uri( 'assets/js/mini-cart-qty.js' ),
-        [ 'wc-cart-fragments' ],
+        [ 'wc-cart-fragments', 'spora-sfx' ],
         wp_get_theme()->get( 'Version' ),
         true
     );
