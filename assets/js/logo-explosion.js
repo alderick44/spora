@@ -59,6 +59,8 @@
   var CAPTION_MYC_HAND = 'Il lui faut du bois : prenez la main (✋) dans la barre d’outils.';
   var CAPTION_MYC_DROP = 'Déposez-le sur le mycélium.';
   var CAPTION_MYC_LEAVES = 'Arrachez des feuilles ou des branches de l’arbre et déposez-les sur le mycélium.';
+  var CAPTION_MYC_HARVEST = 'Cueillez un champignon : cliquez dessus avec la main (✋).';
+  var CAPTION_MYC_GROW = 'Patientez : les champignons vont bientôt pousser sur le mycélium.';
   var CAPTION_MYC_FED = 'Bravo ! Le mycélium décompose le bois mort et rend ses nutriments au sol.';
   var CAPTION_MYC_NO_WOOD = 'Pas de bois à portée : le mycélium va s’éteindre. Visez le pied d’un arbre.';
   var CAPTION_BAG_EMPTY = 'Sac vide : encore 20 $ pour un nouveau sac.';
@@ -619,7 +621,7 @@
   // gardes en localStorage : au retour, le tutoriel reprend ou on s'etait arrete.
   var guideLastId = null, guideMsgShown = {}, guideStickyText = null;
   var GUIDE_KEY = 'spora-guide-v1';
-  var guideFlags = { tools: false, myc: false, strain: false, poured: false, hand: false, fed: false };
+  var guideFlags = { tools: false, myc: false, strain: false, poured: false, hand: false, fed: false, harvest: false };
   try {
     var savedGuide = JSON.parse(localStorage.getItem(GUIDE_KEY) || 'null');
     if (savedGuide) for (var gk in guideFlags) if (savedGuide[gk] === true) guideFlags[gk] = true;
@@ -682,6 +684,21 @@
   function guideLeavesHint() {
     return handCarry.length ? CAPTION_MYC_DROP : CAPTION_MYC_LEAVES;
   }
+  // Champignon mur issu du mycelium le plus proche du centre de l'ecran, ou null.
+  function guideMushroomTarget(cr) {
+    var best = null, bd = Infinity, i;
+    for (i = 0; i < mushrooms.length; i++) {
+      var m = mushrooms[i];
+      if (!m.myc || m.treasure || m.dying || m.t < 0.9) continue;
+      var d = Math.abs(m.x - (camX + W / 2));
+      if (d < bd) { bd = d; best = m; }
+    }
+    if (!best) return guideMycTarget(cr);
+    return { x: clamp(best.x - camX, 40, W - 40) * cr.width / W, y: clamp(surfaceAt(best.x) - best.size * 0.8 - camY, 90, H - 20) * cr.height / H, off: guideOff(best.x - camX) };
+  }
+  function guideHarvestHint() {
+    return mushrooms.some(function (m) { return m.myc && !m.treasure && !m.dying && m.t >= 0.9; }) ? CAPTION_MYC_HARVEST : CAPTION_MYC_GROW;
+  }
   var GUIDE = [
     { id: 'tools', done: function () { return guideFlags.tools; }, magnet: true,
       target: guideElTarget(function () { return toolsBar; }) },
@@ -694,7 +711,9 @@
     { id: 'hand', done: function () { return guideFlags.hand; }, dir: 'right', hint: CAPTION_MYC_HAND,
       target: guideElTarget(function () { return toolsBar.querySelector('[data-tool="hand"]'); }) },
     { id: 'leaves', done: function () { return guideFlags.fed; }, dir: 'right', magnet: true, fadeNear: true, hint: guideLeavesHint,
-      target: guideLeavesTarget }
+      target: guideLeavesTarget },
+    { id: 'harvest', done: function () { return guideFlags.harvest; }, dir: 'up', magnet: true, fadeNear: true, hint: guideHarvestHint,
+      target: guideMushroomTarget }
   ];
   function guideCurrent() {
     for (var i = 0; i < GUIDE.length; i++) if (!GUIDE[i].done()) return GUIDE[i];
@@ -812,7 +831,12 @@
   var MYC_DECOMPOSE_MULT = 14;            // vitesse de decomposition du bois pres du mycelium vs tout seul
   var MYC_STARVE_MS = 90000;              // sans bois a portee pendant ce temps, le mycelium s'eteint (au-dela de l'ecart naturel entre deux feuilles qui tombent, 25-45s)
   var MYC_DECAY = 0.006;                  // vitesse a laquelle un mycelium affame s'eteint (par frame)
-  var MYC_ACTIVE_FEED_MS = 3000;          // fenetre "activement nourri" : au-dela, une facette peut encore survivre sur sa reserve mais ne colonise plus de terre neuve
+  var FEED_FRUIT_PER_S = 0.012;           // chance/s PAR morceau de bois mange qu'un champignon sorte du mycelium qui le digere
+  var FEED_FRUIT_WET_MULT = 5;            // x(1+5) sous la pluie, decroit lineairement apres
+  var FEED_FRUIT_WET_MS = 40000;          // duree de l'humidite residuelle apres la pluie
+  var FEED_FRUIT_MAX = 12;                // max de champignons issus du mycelium vivants en meme temps
+  var lastRainAt = -1e9;
+  var MYC_ACTIVE_FEED_MS = 3000;         // fenetre "activement nourri" : au-dela, une facette peut encore survivre sur sa reserve mais ne colonise plus de terre neuve
   var MYC_HOLD_REACH = 200;               // portee (px) a laquelle un mycelium bien vivant retient l'humus contre le lessivage de la pluie
   // Duree max de cette retenue (voir heldByMycelium) : passe ce delai, l'humus lessive quand
   // meme. Sans ca, un mycelium tres actif (MYC_DECOMPOSE_MULT) decompose le bois bien plus
@@ -2724,6 +2748,7 @@
     var m = harvestableNear(pos.x, pos.y);
     if (!m) return;
     m.dying = true;
+    guideSet('harvest');
     harvestCount++;
     var hs = m.strain && m.strain.id ? m.strain.id : 'standard', hi = CH_HARVEST_IDS.indexOf(hs);
     if (hi !== -1 && !(chDone & (256 << hi)) && chUnlocked(8 + hi)) {
@@ -4479,16 +4504,28 @@
       if (!l.settled) continue;
       var dt = l.lastNow ? now - l.lastNow : 0;
       l.lastNow = now;
-      var fed = false;
+      var fed = false, fruitCell = null;
       for (var ci = 0; ci < colonised.length; ci++) {
         var c = colonised[ci];
         if (Math.abs(c.x - l.x) < MYC_DECOMPOSE_REACH && Math.abs(c.y - l.y) < MYC_DECOMPOSE_REACH) {
           c.lastFed = now;
           fed = true;
+          if (c.settled && c.myc >= MYC_READY && c.y - surfaceAt(c.x) < 18) fruitCell = c;
           if (!mycFedOnce) { mycFedOnce = true; guideSet('fed'); setCaption(CAPTION_MYC_FED); }
         }
       }
       if (fed) l.bonus = (l.bonus || 0) + dt * (MYC_DECOMPOSE_MULT - 1);
+      // Fructification occasionnelle : chaque morceau de bois mange donne sa chance (donc plus
+      // de bois = plus de champignons), multipliee par l'humidite (pluie en cours ou recente).
+      if (fruitCell) {
+        if (weather.raining) lastRainAt = now;
+        var wet = weather.raining ? 1 : Math.max(0, 1 - (now - lastRainAt) / FEED_FRUIT_WET_MS);
+        var nMyc = 0;
+        for (var mi = 0; mi < mushrooms.length; mi++) if (mushrooms[mi].myc && !mushrooms[mi].dying) nMyc++;
+        if (nMyc < FEED_FRUIT_MAX && Math.random() < dt / 1000 * FEED_FRUIT_PER_S * (1 + FEED_FRUIT_WET_MULT * wet)) {
+          sprout(fruitCell.x, true, fruitCell.strain || STRAIN_STD);
+        }
+      }
       l.mix = Math.min(1, (now - l.landed + (l.bonus || 0)) / (l.branch ? BRANCH_LITTER_MS : LITTER_MS));
       // Le bois rend sa matiere par petits bouts au fil de sa decomposition (voir la section
       // "Une branche a coute..." plus haut), pas d'un coup a la fin : un nouveau petit
