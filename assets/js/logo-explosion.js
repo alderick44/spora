@@ -56,7 +56,8 @@
   var CAPTION_NEED_MONEY_FERT = 'Il faut 3 $ pour du fertilisant — récoltez des champignons à la main.';
   var CAPTION_NEED_MONEY_GRASS = 'Il faut 2 $ pour des graines — récoltez des champignons à la main.';
   var CAPTION_MYC_PLACE = 'Versez le mycélium au pied d’un arbre mature : il décompose son bois mort.';
-  var CAPTION_MYC_WAIT = 'Il lui faut du bois mort ou des feuilles : attendez qu’elles tombent, ou arrachez-en à la main et posez-les sur le mycélium.';
+  var CAPTION_MYC_HAND = 'Il lui faut du bois : prenez la main (✋) dans la barre d’outils.';
+  var CAPTION_MYC_LEAVES = 'Arrachez des feuilles de l’arbre et déposez-les sur le mycélium.';
   var CAPTION_MYC_FED = 'Bravo ! Le mycélium décompose le bois mort et rend ses nutriments au sol.';
   var CAPTION_MYC_NO_WOOD = 'Pas de bois à portée : le mycélium va s’éteindre. Visez le pied d’un arbre.';
   var CAPTION_BAG_EMPTY = 'Sac vide : encore 20 $ pour un nouveau sac.';
@@ -564,14 +565,14 @@
     }
   }
   function hideMsgs() { hideExplain(); hideFact(true); }
-  function setCaption(text, keepFact) {
+  function setCaption(text, keepFact, sticky) {
     if (!caption) return;
     clearTimeout(captionTimer);
     if (!text) { caption.classList.remove('is-visible'); return; }
     if (text !== CAPTION_BEFORE && !keepFact) hideFact(true); // une instruction passe toujours avant
     caption.textContent = text;
     caption.classList.add('is-visible');
-    if (text !== CAPTION_BEFORE) captionTimer = setTimeout(function () { caption.classList.remove('is-visible'); }, 6000);
+    if (text !== CAPTION_BEFORE && !sticky) captionTimer = setTimeout(function () { caption.classList.remove('is-visible'); }, 6000);
   }
 
   // Effet magnetique du badge "play" : des qu'on bouge la souris sur la page, le badge
@@ -615,9 +616,9 @@
   // magnet = la fleche se penche vers le curseur ; halo = halo au pied des arbres matures ;
   // msg = legende affichee une fois a l'entree dans l'etape. Les drapeaux d'avancement sont
   // gardes en localStorage : au retour, le tutoriel reprend ou on s'etait arrete.
-  var guideLastId = null, guideMsgShown = {};
+  var guideLastId = null, guideMsgShown = {}, guideStickyText = null;
   var GUIDE_KEY = 'spora-guide-v1';
-  var guideFlags = { tools: false, myc: false, strain: false, poured: false, fed: false };
+  var guideFlags = { tools: false, myc: false, strain: false, poured: false, hand: false, fed: false };
   try {
     var savedGuide = JSON.parse(localStorage.getItem(GUIDE_KEY) || 'null');
     if (savedGuide) for (var gk in guideFlags) if (savedGuide[gk] === true) guideFlags[gk] = true;
@@ -631,7 +632,7 @@
   function guideReset() {
     for (var k in guideFlags) guideFlags[k] = false;
     mycFedOnce = false;
-    guideLastId = null; guideMsgShown = {};
+    guideLastId = null; guideMsgShown = {}; guideStickyText = null;
     try { localStorage.removeItem(GUIDE_KEY); } catch (e) { /* rien a effacer */ }
   }
   function guideElTarget(getEl) {
@@ -642,6 +643,8 @@
       return { x: tb.left - cr.left + 20, y: tb.top - cr.top + 20 };
     };
   }
+  // -1 / 1 si la cible est hors ecran a gauche / a droite (la fleche pointe alors droit vers ce cote), sinon 0.
+  function guideOff(sx) { return sx < 40 ? -1 : sx > W - 40 ? 1 : 0; }
   function guideTreeTarget(cr) {
     var list = matureTrees(), best = null, bd = Infinity, i;
     if (!list.length) list = trees;
@@ -650,7 +653,18 @@
       if (d < bd) { bd = d; best = list[i]; }
     }
     if (!best) return null;
-    return { x: clamp(best.x - camX, 40, W - 40) * cr.width / W, y: clamp(surfaceAt(best.x) - camY - 12, 90, H - 20) * cr.height / H };
+    return { x: clamp(best.x - camX, 40, W - 40) * cr.width / W, y: clamp(surfaceAt(best.x) - camY - 12, 90, H - 20) * cr.height / H, off: guideOff(best.x - camX) };
+  }
+  function guideCanopyTarget(cr) {
+    var list = matureTrees(), best = null, bd = Infinity, i;
+    if (!list.length) list = trees;
+    for (i = 0; i < list.length; i++) {
+      var d = Math.abs(list[i].x - (camX + W / 2));
+      if (d < bd) { bd = d; best = list[i]; }
+    }
+    if (!best) return null;
+    var tg = treeScale(best), by = best.by !== undefined ? best.by : surfaceAt(best.x) + TREE_EMBED;
+    return { x: clamp(best.x - camX, 40, W - 40) * cr.width / W, y: clamp(by - best.h * tg - camY, 90, H - 20) * cr.height / H, off: guideOff(best.x - camX) };
   }
   var GUIDE = [
     { id: 'tools', done: function () { return guideFlags.tools; }, magnet: true,
@@ -659,10 +673,12 @@
       target: guideElTarget(function () { return toolsBar.querySelector('[data-tool="mycelium"]'); }) },
     { id: 'strain', done: function () { return guideFlags.strain; }, dir: 'down',
       target: guideElTarget(function () { return strainsBar && (strainsBar.querySelector('[data-strain="' + bagStrain + '"]') || strainsBar.querySelector('[data-strain]')); }) },
-    { id: 'tree', done: function () { return guideFlags.poured; }, dir: 'up', magnet: true, halo: true,
+    { id: 'tree', done: function () { return guideFlags.poured; }, dir: 'up', magnet: true, halo: 'tree',
       target: guideTreeTarget, msg: function () { return CAPTION_MYC_PLACE; } },
-    { id: 'wood', done: function () { return guideFlags.fed; }, dir: 'up', magnet: true, halo: true,
-      target: guideTreeTarget, msg: function () { return CAPTION_MYC_WAIT; } }
+    { id: 'hand', done: function () { return guideFlags.hand; }, dir: 'right', hint: CAPTION_MYC_HAND,
+      target: guideElTarget(function () { return toolsBar.querySelector('[data-tool="hand"]'); }) },
+    { id: 'leaves', done: function () { return guideFlags.fed; }, dir: 'right', magnet: true, hint: CAPTION_MYC_LEAVES,
+      target: guideCanopyTarget }
   ];
   function guideCurrent() {
     for (var i = 0; i < GUIDE.length; i++) if (!GUIDE[i].done()) return GUIDE[i];
@@ -677,20 +693,32 @@
     (function stepGuideArrow() {
       requestAnimationFrame(stepGuideArrow);
       if (toolsArrow.classList.contains('d-none')) { arrowInit = false; return; }
+      // Du mycelium vivant pres d'un arbre mature compte comme verse, meme si le clic etait un peu loin.
+      if (!guideFlags.poured) for (var pc = 0; pc < colonised.length; pc++) if (colonised[pc].myc > 0 && nearMatureTree(colonised[pc].x)) { guideSet('poured'); break; }
+      if (guideFlags.poured && tool === 'hand') guideSet('hand');
       var st = guideCurrent();
+      if (!st || st.id !== guideLastId) {
+        // Quitte une etape a legende fixe : on la retire si elle est encore affichee.
+        if (guideStickyText && caption && caption.textContent === guideStickyText) setCaption('');
+        guideStickyText = st && st.hint ? st.hint : null;
+      }
       if (!st) { toolsArrow.classList.add('d-none'); return; }
       if (st.id !== guideLastId) {
         guideLastId = st.id;
         if (st.msg && !guideMsgShown[st.id]) { guideMsgShown[st.id] = true; setCaption(st.msg()); }
       }
+      // Legende fixe : reaffichee des qu'une autre legende disparait.
+      if (st.hint && caption && !caption.classList.contains('is-visible')) setCaption(st.hint, true, true);
       var cr = container.getBoundingClientRect(), tg = st.target(cr);
       if (!tg) return;
-      var tx = tg.x, ty = tg.y, dir = st.dir || 'right';
+      var tx = tg.x, ty = tg.y, dir = st.dir || 'right', off = tg.off || 0;
       var ax = tx + (dir === 'right' ? 58 : dir === 'left' ? -58 : 0), ay = ty + (dir === 'up' ? -64 : dir === 'down' ? 64 : 0);
+      // Cible hors ecran : la fleche se colle au bord et pointe a l'horizontale, sans angle ni aimant.
+      if (off) { ax = off > 0 ? cr.width - 60 : 60; ay = ty; tx = ax + off * 100; ty = ay; }
       var baseX = toolsArrow.offsetLeft + toolsArrow.offsetWidth / 2, baseY = toolsArrow.offsetTop + toolsArrow.offsetHeight / 2;
       var gx = ax - baseX, gy = ay - baseY;
       // Aimant : la fleche se penche vers le curseur sans quitter son poste.
-      if (st.magnet && mouseCX !== null) {
+      if (st.magnet && !off && mouseCX !== null) {
         var mdx = mouseCX - (cr.left + ax), mdy = mouseCY - (cr.top + ay), md = Math.hypot(mdx, mdy);
         var mk = md > ARROW_MAGNET_MAX ? ARROW_MAGNET_MAX / md : 1;
         gx += mdx * mk; gy += mdy * mk;
@@ -3972,7 +4000,7 @@
   // Aide au placement du mycelium : tant que le visiteur n'a pas nourri un mycelium avec du bois
   // (mycFedOnce, voir stepTrees), un halo marque le pied des arbres matures et la fleche du
   // menu d'outils reste affichee.
-  var mycFedOnce = guideFlags.fed, MYC_HALO_GROWTH = 0.6;
+  var mycFedOnce = guideFlags.fed, MYC_HALO_GROWTH = 0.6, MYC_NEAR_TREE = 260;
   function matureTrees() {
     var out = [];
     for (var i = 0; i < trees.length; i++) if (trees[i].growth >= MYC_HALO_GROWTH) out.push(trees[i]);
@@ -3981,7 +4009,8 @@
   function drawMycHalo() {
     var gs = guideCurrent();
     if (!gs || !gs.halo || !unlockedStrains.length) return;
-    var list = matureTrees(), pulse = 0.5 + 0.5 * Math.sin(vTime / 420);
+    var pulse = 0.5 + 0.5 * Math.sin(vTime / 420);
+    var list = matureTrees();
     for (var i = 0; i < list.length; i++) {
       var hx = list[i].x, hy = surfaceAt(hx), rr = H * 0.07 * (0.9 + 0.2 * pulse);
       ctx.save();
@@ -4001,7 +4030,7 @@
   // Vrai si aucun arbre mature ni bois au sol n'est a portee de x : le mycelium verse la
   // va s'eteindre faute de nourriture.
   function nearMatureTree(x) {
-    for (var i = 0; i < trees.length; i++) if (trees[i].growth >= MYC_HALO_GROWTH && Math.abs(trees[i].x - x) < MYC_DECOMPOSE_REACH * 1.6) return true;
+    for (var i = 0; i < trees.length; i++) if (trees[i].growth >= MYC_HALO_GROWTH && Math.abs(trees[i].x - x) < MYC_NEAR_TREE) return true;
     return false;
   }
   function noWoodNear(x) {
@@ -6123,7 +6152,8 @@
   }
   function updateCompass() {
     var best = null, bd = Infinity, cx = W / 2, cy = H / 2, i;
-    if (mode === 'exploded') {
+    // Pas de boussole pendant le tutoriel du mycelium : elle detournerait l'attention.
+    if (mode === 'exploded' && !(unlockedStrains.length && guideCurrent())) {
       for (i = 0; i < treasures.length; i++) {
         var t = treasures[i];
         if (t.revealed) continue;
