@@ -615,6 +615,7 @@
   // magnet = la fleche se penche vers le curseur ; halo = halo au pied des arbres matures ;
   // msg = legende affichee une fois a l'entree dans l'etape. Les drapeaux d'avancement sont
   // gardes en localStorage : au retour, le tutoriel reprend ou on s'etait arrete.
+  var guideLastId = null, guideMsgShown = {};
   var GUIDE_KEY = 'spora-guide-v1';
   var guideFlags = { tools: false, myc: false, strain: false, poured: false, fed: false };
   try {
@@ -625,6 +626,13 @@
     if (guideFlags[flag]) return;
     guideFlags[flag] = true;
     try { localStorage.setItem(GUIDE_KEY, JSON.stringify(guideFlags)); } catch (e) { /* ignore */ }
+  }
+  // Remise a zero du tutoriel (reset du jeu) : drapeaux, sauvegarde, messages deja montres.
+  function guideReset() {
+    for (var k in guideFlags) guideFlags[k] = false;
+    mycFedOnce = false;
+    guideLastId = null; guideMsgShown = {};
+    try { localStorage.removeItem(GUIDE_KEY); } catch (e) { /* rien a effacer */ }
   }
   function guideElTarget(getEl) {
     return function (cr) {
@@ -665,7 +673,6 @@
       toolsBar.addEventListener(ev, function () { guideSet('tools'); });
     });
     var arrowCx = 0, arrowCy = 0, arrowInit = false, ARROW_MAGNET_MAX = 70, mouseCX = null, mouseCY = null;
-    var guideLastId = null, guideMsgShown = {};
     document.addEventListener('mousemove', function (evt) { mouseCX = evt.clientX; mouseCY = evt.clientY; });
     (function stepGuideArrow() {
       requestAnimationFrame(stepGuideArrow);
@@ -1677,6 +1684,7 @@
   // l'animation de reconstruction du logo (le prochain monde repart de zero, pas de la cle).
   function resetAllAndRebuild() {
     try { localStorage.removeItem(WORLD_KEY); } catch (e) { /* rien a effacer */ }
+    guideReset();
     worldKeyHeld = false;
     money = 0; moneyRevealed = false; usedFreeBag = false; bagGrainsLeft = 0;
     unlockedStrains = []; bagStrain = 'standard';
@@ -1693,6 +1701,7 @@
   window.sporaResetWorld = function () {
     worldSaveOff = true;
     try { localStorage.removeItem(WORLD_KEY); } catch (e) { /* rien a effacer */ }
+    guideReset();
     location.reload();
   };
 
@@ -6370,11 +6379,12 @@
       if (unlockStrain(strainOrder[sk].id) && strainOrder[sk] === st) fresh = true;
     }
     if (!fresh) st = null;
-    if (fresh && nDug === 1 && toolsArrow) toolsArrow.classList.remove('d-none');
+    if (fresh && toolsArrow && guideCurrent()) toolsArrow.classList.remove('d-none');
     if (fresh && st.id === 'pleurote') pleuroteDug = true;
     t.tip = buildTip(shown);
     container.appendChild(t.tip);
-    openTip(t);
+    // Pendant le tutoriel du mycelium, la bulle des tresors suivants ne s'ouvre pas seule (elle reste ouvrable au clic).
+    if (nDug <= 1 || !guideCurrent()) openTip(t);
     treasuresFound++;
     updateTreasureUI();
     savePlayerIfChanged();
