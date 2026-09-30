@@ -3,11 +3,15 @@
 // x = position en fraction de la largeur du MONDE explorable (pas juste du logo, le
 // monde continue horizontalement au-dela de la boite) ; species = couleur du champignon
 // (0 gris, 1 rose, 2 hydne, 3 huitre, 4 shiitake, voir SPECIES dans logo-explosion.js).
+// depth (optionnel) = enfouissement, en fraction de la hauteur de la boite sous le niveau
+// d'origine du sol (0 = a la surface, se deterre au moindre passage ; borne par DEPTH_MULT). Le premier tresor
+// porte le repere (halo + fleche) : garde-le peu profond (ex. 0.06) mais pas a 0.
+// strain (optionnel) = souche de mycelium debloquee au reveal : id, label, tint (couleur hex),
+// perk (texte du trait) facultatif ; price (prix de recolte), grow / decay (multiplicateurs de croissance et d'extinction). La souche debloquee ne depend pas du tresor : le 1er deterre donne le strophaire, le 2e le pleurote, le 3e l'hydne (les strain ci-dessus ne servent qu'a definir leurs traits).
 $spora_treasures = [
-    [ 'x' => 0.12, 'species' => 3, 'title' => 'Pleurote huître', 'text' => 'Le plus facile à cultiver : il pousse même dans la paille ou le carton.', 'img' => get_theme_file_uri( 'assets/img/produits/pleurote-huitre.jpg' ), 'url' => '/shop/' ],
-    [ 'x' => 0.4, 'species' => 0, 'title' => 'Mycélium en vrac', 'text' => 'Du grain colonisé à étendre dans vos copeaux ou vos feuilles.', 'img' => get_theme_file_uri( 'assets/img/produits/grain-colonising.jpg' ), 'url' => '/product/mycelium-en-vrac' ],
-    [ 'x' => 0.68, 'species' => 2, 'title' => 'Hydne hérisson', 'text' => 'Texture de crabe, goût délicat. Il pousse sur le bois franc.', 'img' => get_theme_file_uri( 'assets/img/produits/hydne-herisson.jpg' ), 'url' => '/shop/' ],
-    [ 'x' => 0.92, 'species' => 1, 'title' => 'Le saviez-vous ?', 'text' => 'Le mycélium décompose le bois mort et le rend au sol : c\'est lui qui nourrit la forêt.' ],
+    [ 'x' => 0.12, 'depth' => 0.06, 'species' => 5, 'title' => 'Strophaire rouge vin', 'text' => 'Des copeaux de bois colonisés de strophaire, à étendre dans votre jardin.', 'url' => '/product/mycelium-en-vrac' ],
+    [ 'x' => 0.4, 'depth' => 0.14, 'strain' => [ 'id' => 'pleurote', 'label' => 'Pleurote huître', 'tint' => '#7fa9d4', 'perk' => 'couleurs variées, croissance normale', 'price' => 8 ], 'species' => 3, 'title' => 'Pleurote huître', 'text' => 'Le plus facile à cultiver : il pousse même dans la paille ou le carton.', 'img' => get_theme_file_uri( 'assets/img/produits/pleurote-huitre.jpg' ), 'url' => '/shop/' ],
+    [ 'x' => 0.68, 'depth' => 0.3, 'strain' => [ 'id' => 'hydne', 'label' => 'Hydne hérisson', 'tint' => '#f0c860', 'perk' => 'pousse plus vite, moins résistante', 'price' => 12, 'grow' => 1.3, 'decay' => 1.4 ], 'species' => 2, 'title' => 'Hydne hérisson', 'text' => 'Texture de crabe, goût délicat. Il pousse sur le bois franc.', 'img' => get_theme_file_uri( 'assets/img/produits/hydne-herisson.jpg' ), 'url' => '/shop/' ],
 ];
 ?>
 <?php get_header(); ?>
@@ -33,6 +37,7 @@ $spora_treasures = [
             data-treasures="<?php echo esc_attr( wp_json_encode( $spora_treasures ) ); ?>"
             aria-hidden="true"
           ></canvas>
+          <button type="button" id="logo-explosion-speed-btn" class="logo-explosion-speed-btn d-none" aria-label="Vitesse de simulation : normale" title="Vitesse de simulation"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path class="spd-1" d="M2 6l6 6-6 6"/><path class="spd-2" d="M9 6l6 6-6 6" style="display:none"/><path class="spd-3" d="M16 6l6 6-6 6" style="display:none"/></svg><span class="logo-explosion-speed-btn-val">×1</span></button>
           <button type="button" id="logo-explosion-fullscreen" class="logo-explosion-fullscreen d-none" aria-label="Agrandir en plein ecran" aria-pressed="false" title="Agrandir en plein ecran">
             <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M8 3H5a2 2 0 0 0-2 2v3"/>
@@ -41,7 +46,7 @@ $spora_treasures = [
               <path d="M8 21H5a2 2 0 0 1-2-2v-3"/>
             </svg>
           </button>
-          <button type="button" id="logo-explosion-rebuild" class="logo-explosion-rebuild d-none" aria-label="Reconstruire le logo" title="Reconstruire le logo">
+          <button type="button" id="logo-explosion-rebuild" class="logo-explosion-rebuild d-none" aria-label="Tout remettre à zéro" title="Tout remettre à zéro">
             <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M3 12a9 9 0 1 0 3-6.7"/>
               <path d="M3 4v5h5"/>
@@ -60,19 +65,12 @@ $spora_treasures = [
           </button>
           <div id="logo-explosion-debug-panel" class="logo-explosion-debug-panel d-none" role="group" aria-label="Paramètres de simulation"></div>
           <div id="logo-explosion-tools" class="logo-explosion-tools d-none" role="group" aria-label="Outils">
-            <button type="button" class="logo-explosion-tool" data-tool="hand" aria-pressed="false" aria-label="Récolter à la main" title="Récolter à la main">
+            <button type="button" class="logo-explosion-tool is-active" data-tool="hand" aria-pressed="true" aria-label="Récolter à la main" title="Récolter à la main">
               <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M8 13V6a1.5 1.5 0 0 1 3 0v5"/>
                 <path d="M11 11V4.5a1.5 1.5 0 0 1 3 0V11"/>
                 <path d="M14 11.5V5.5a1.5 1.5 0 0 1 3 0V13"/>
                 <path d="M17 8.5a1.5 1.5 0 0 1 3 0V15a6 6 0 0 1-6 6h-2a6 6 0 0 1-5-2.7L4 13.8a1.4 1.4 0 0 1 2.2-1.7L8 14"/>
-              </svg>
-            </button>
-            <button type="button" class="logo-explosion-tool is-active" data-tool="shovel" aria-pressed="true" aria-label="Pelle" title="Pelle">
-              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M19 3l2 2"/>
-                <path d="M20 4l-9 9"/>
-                <path d="M13 11l-6 6a3 3 0 0 1-4-4l6-6z"/>
               </svg>
             </button>
             <button type="button" class="logo-explosion-tool" data-tool="mycelium" aria-pressed="false" aria-label="Mycélium en vrac" title="Mycélium en vrac">
@@ -99,6 +97,12 @@ $spora_treasures = [
             </button>
             <div id="logo-explosion-money"class="logo-explosion-money d-none" aria-live="polite"><span id="logo-explosion-money-val">0</span>&nbsp;$</div>
           </div>
+          <div id="logo-explosion-challenges" class="logo-explosion-challenges-badge d-none" tabindex="0" role="button" aria-label="Défis">
+            <span class="logo-explosion-challenges-count"></span>
+            <div class="logo-explosion-challenges-pop" role="tooltip"></div>
+          </div>
+          <div id="logo-explosion-strains" class="logo-explosion-strains d-none" role="group" aria-label="Souche de mycélium et gazon"></div>
+          <div id="logo-explosion-treasures" class="logo-explosion-treasures d-none" aria-live="polite"></div>
           <div id="logo-explosion-speed-wrap" class="logo-explosion-speed d-none">
             <label for="logo-explosion-speed">Vitesse <span id="logo-explosion-speed-val">1×</span></label>
             <input type="range" id="logo-explosion-speed" min="1" max="30" step="1" value="1" aria-label="Vitesse de simulation">
@@ -113,7 +117,7 @@ $spora_treasures = [
             <label for="logo-explosion-grass-nutri">Nutriments gazon</label>
             <input type="number" id="logo-explosion-grass-nutri" min="0" step="0.5" value="1" aria-label="Production de nutriments du gazon ordinaire (1 = normal, 0 = aucune)" style="width:4.5em">
             <label for="logo-explosion-grassmyc-nutri">Nutriments gazon long</label>
-            <input type="number" id="logo-explosion-grassmyc-nutri" min="0" step="0.5" value="1" aria-label="Production de nutriments du gazon long avec champignons (1 = normal, 0 = aucune)" style="width:4.5em">
+            <input type="number" id="logo-explosion-grassmyc-nutri" min="0" step="0.5" value="2.5" aria-label="Production de nutriments du gazon long avec champignons (1 = normal, 0 = aucune)" style="width:4.5em">
           </div>
           <button type="button" id="logo-explosion-scroll-left" class="logo-explosion-scroll logo-explosion-scroll-left d-none" aria-label="Défiler le monde vers la gauche">
             <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -135,10 +139,20 @@ $spora_treasures = [
               <path d="M6 9l6 6 6-6"/>
             </svg>
           </button>
+          <span id="logo-explosion-tools-arrow" class="logo-explosion-tools-arrow d-none" aria-hidden="true"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12H5"/><path d="M11 6l-6 6 6 6"/></svg></span>
+          <p id="logo-explosion-caption" class="logo-explosion-caption d-none" aria-live="polite"></p>
+          <aside id="logo-explosion-explain" class="logo-explosion-explain" aria-live="polite" aria-hidden="true">
+            <svg class="logo-explosion-explain-icon" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3C8 8.5 6 11.5 6 15a6 6 0 0 0 12 0c0-3.5-2-6.5-6-12z"/><path d="M9.5 15.5a2.6 2.6 0 0 0 2.5 2.2"/></svg>
+            <div><strong class="logo-explosion-explain-title">Dans le sol</strong><p class="logo-explosion-explain-text"></p><button type="button" class="logo-explosion-explain-ack">Compris</button><button type="button" class="logo-explosion-explain-locate" aria-label="Voir où le mycélium est mort">Voir</button></div><button type="button" class="logo-explosion-explain-close" aria-label="Fermer le message">&times;</button>
+          </aside>
+          <aside id="logo-explosion-fact" class="logo-explosion-fact" aria-live="polite" aria-hidden="true">
+            <span class="logo-explosion-fact-badge" aria-hidden="true">?</span>
+            <div><strong class="logo-explosion-fact-title">Le saviez-vous ?</strong><p class="logo-explosion-fact-text"></p></div>
+            <button type="button" class="logo-explosion-fact-close" aria-label="Fermer le saviez-vous">&times;</button>
+          </aside>
         </div>
         <h1 class="logo-explosion-tagline">Mycélium et substrats pour cultiver vos champignons</h1>
         <a class="btn btn-primary mt-3" href="/shop/">Visitez notre boutique!</a>
-        <p id="logo-explosion-caption" class="logo-explosion-caption d-none" aria-live="polite"></p>
       </section>
       <div class="container pb-5">
         <section class="pt-5 mt-5">

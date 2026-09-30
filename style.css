@@ -7,7 +7,7 @@ Description:
 Requires at least: 6.7
 Tested up to: 6.9
 Requires PHP: 7.2
-Version: 1.9.10
+Version: 1.11.9
 License: GNU General Public License v2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: twentytwentyfive
@@ -51,12 +51,133 @@ Tags:
     font-weight: 500;
     text-align: center;
 }
-/* Discrete, sous la boite : indique quoi faire puis ce qui se passe, pas un titre. */
+/* Message dans la scene, facon Kingdom Two Crowns : petite banniere en bas de la boite,
+   qui apparait puis s'efface toute seule (voir setCaption dans logo-explosion.js). */
 .logo-explosion-caption{
-    margin: 8px 0 0;
-    color: rgba(33, 37, 41, .75);
-    font-size: .875rem;
+    position: absolute;
+    left: 50%;
+    bottom: 16px;
+    z-index: 2;
+    max-width: min(90%, 34rem);
+    margin: 0;
+    padding: 8px 18px;
+    border-radius: 6px;
+    background: rgba(58, 42, 24, .78);
+    border: 1px solid rgba(255, 235, 190, .35);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, .35);
+    color: #f6e9c9;
+    font-size: .9rem;
     text-align: center;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, .5);
+    pointer-events: none;
+    opacity: 0;
+    transform: translate(-50%, 8px);
+    transition: opacity .5s ease, transform .5s ease;
+}
+.logo-explosion-caption.is-visible{
+    opacity: 1;
+    transform: translate(-50%, 0);
+}
+/* Explications du jeu (haut-gauche, vert mousse) et "Le saviez-vous ?" (bas-droite, note de
+   carnet) : deux canaux distincts de la legende brune, geres par showExplain/showFact dans
+   logo-explosion.js (jamais affiches en meme temps). */
+.logo-explosion-explain,
+.logo-explosion-fact{
+    position: absolute;
+    z-index: 2;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 0;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .5s ease, transform .5s ease, visibility 0s linear .5s;
+}
+.logo-explosion-explain.is-visible,
+.logo-explosion-fact.is-visible{
+    opacity: 1;
+    transform: none;
+    visibility: visible;
+    transition: opacity .5s ease, transform .5s ease;
+}
+.logo-explosion-explain p,
+.logo-explosion-fact p{ margin: 0; }
+.logo-explosion-explain{
+    top: 12px;
+    left: 12px;
+    max-width: min(60%, 20rem);
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: rgba(52, 84, 48, .88);
+    border: 1px solid rgba(190, 230, 170, .4);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, .3);
+    color: #eef8e6;
+    font-size: .82rem;
+    line-height: 1.35;
+    pointer-events: none;
+    transform: translateY(-8px);
+}
+.logo-explosion-explain-locate{ display: none; margin-top: 6px; padding: 3px 12px; border-radius: 6px; border: 1px solid rgba(190, 230, 170, .6); background: rgba(190, 230, 170, .18); color: #eef8e6; font: inherit; font-size: .78rem; cursor: pointer; pointer-events: auto; touch-action: manipulation; }
+.logo-explosion-explain.has-locate .logo-explosion-explain-locate{ display: inline-block; }
+.logo-explosion-explain-locate:hover{ background: rgba(190, 230, 170, .32); }
+.logo-explosion-explain-ack{ display: none; margin-top: 6px; padding: 3px 12px; border-radius: 6px; border: 1px solid rgba(190, 230, 170, .6); background: rgba(190, 230, 170, .18); color: #eef8e6; font: inherit; font-size: .78rem; cursor: pointer; pointer-events: auto; touch-action: manipulation; }
+.logo-explosion-explain.has-ack .logo-explosion-explain-ack{ display: inline-block; }
+.logo-explosion-explain-ack:hover{ background: rgba(190, 230, 170, .32); }
+.logo-explosion-explain-icon{ flex: none; margin-top: 1px; color: #bfe6a8; }
+.logo-explosion-explain-title{ display: block; font-size: .72rem; letter-spacing: .04em; text-transform: uppercase; color: #bfe6a8; }
+.logo-explosion-explain-close{ flex: none; margin: -4px -6px 0 0; padding: 0 6px; border: 0; background: none; color: #bfe6a8; font: 1.3rem/1.2 sans-serif; cursor: pointer; pointer-events: auto; touch-action: manipulation; }
+.logo-explosion-explain-close:hover,
+.logo-explosion-explain-close:focus-visible{ color: #fff; }
+/* Accueil : la carte se pose juste au-dessus de la pastille des defis (meme colonne). */
+body.home .logo-explosion-explain{ top: 150px; left: 16px; transform: translateY(calc(-100% - 8px)); }
+body.home .logo-explosion-explain.is-visible{ transform: translateY(-100%); }
+.logo-explosion-fact{
+    right: 12px;
+    bottom: 56px; /* au-dessus de l'engrenage */
+    max-width: min(46%, 19rem);
+    padding: 10px 12px;
+    border-radius: 3px 3px 3px 12px;
+    background: #f7efd9;
+    border: 1px solid #d9c9a0;
+    box-shadow: 2px 3px 10px rgba(0, 0, 0, .3);
+    color: #4a3a22;
+    font-family: Georgia, "Times New Roman", serif;
+    font-style: italic;
+    font-size: .85rem;
+    line-height: 1.4;
+    transform: translateY(8px);
+}
+.logo-explosion-fact-badge{
+    flex: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #8a5a2b;
+    color: #fff6e0;
+    font: 700 .85rem/22px Georgia, serif;
+    text-align: center;
+}
+.logo-explosion-fact-title{ display: block; font-size: .72rem; font-style: normal; letter-spacing: .04em; text-transform: uppercase; color: #8a5a2b; }
+.logo-explosion-fact-close{
+    flex: none;
+    margin: -4px -4px 0 0;
+    padding: 0 6px;
+    border: 0;
+    background: none;
+    color: #8a5a2b;
+    font: 1.3rem/1.2 Georgia, serif;
+    cursor: pointer;
+}
+.logo-explosion-fact-close:hover,
+.logo-explosion-fact-close:focus-visible{ color: #4a3a22; }
+@media (max-width: 767.98px){
+    /* Trois zones sans chevauchement : explication en haut, legende tout en bas,
+       note de carnet juste au-dessus de la legende. */
+    .logo-explosion-explain{ top: 8px; left: 8px; max-width: calc(100% - 16px); font-size: .78rem; }
+    .logo-explosion-fact{ right: 8px; left: 8px; bottom: 64px; max-width: none; font-size: .8rem; }
+}
+@media (prefers-reduced-motion: reduce){
+    .logo-explosion-explain, .logo-explosion-fact{ transition: none; }
 }
 .logo-explosion-inner{
     position: relative;
@@ -247,7 +368,7 @@ body.home .logo-explosion-header-toggle{
    logo-explosion.js). Outil de debug/experimentation, comme .logo-explosion-speed. */
 .logo-explosion-debug-toggle{
     position: absolute;
-    top: calc(52px + 44px);
+    bottom: 8px;
     right: 16px;
     z-index: 1;
     display: grid;
@@ -262,9 +383,6 @@ body.home .logo-explosion-header-toggle{
     opacity: .7;
     transition: opacity .2s, transform .3s;
 }
-body.home .logo-explosion-debug-toggle{
-    top: calc(150px + 8px + 44px + 40px);
-}
 .logo-explosion-debug-toggle:hover,
 .logo-explosion-debug-toggle:focus-visible{
     opacity: 1;
@@ -273,39 +391,64 @@ body.home .logo-explosion-debug-toggle{
     opacity: 1;
     transform: rotate(45deg);
 }
-/* Panneau de parametres : liste scrollable de sliders generee par JS, pas de style
-   soigne (meme esprit que .logo-explosion-speed : outil de debug, pas destine aux
-   visiteurs). */
+/* Panneau d'options : sections repliables generees par JS (meteo, reglages, monde),
+   largeur et hauteur bornees, defilement interne. */
 .logo-explosion-debug-panel{
     position: absolute;
-    top: calc(52px + 44px + 40px);
+    bottom: 48px; /* s'ouvre vers le haut, au-dessus de l'engrenage (en bas a droite) */
     right: 16px;
     z-index: 2;
-    width: min(320px, calc(100% - 32px));
-    max-height: min(70vh, 480px);
+    width: min(50%, calc(100% - 32px));
+    min-width: min(360px, calc(100% - 32px));
+    max-height: min(70vh, calc(100% - 64px));
+    overflow-x: hidden;
     overflow-y: auto;
+    overscroll-behavior: contain;
     padding: 10px 12px;
     border-radius: 10px;
     background: rgba(20, 14, 8, .88);
     color: #fff;
-    font-size: .72rem;
+    font-size: .85rem;
 }
-body.home .logo-explosion-debug-panel{
-    top: calc(150px + 8px + 44px + 40px + 40px);
+.logo-explosion-debug-section{
+    border-bottom: 1px solid rgba(255, 255, 255, .15);
 }
-.logo-explosion-debug-panel fieldset{
+.logo-explosion-debug-head{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 8px 0;
     border: 0;
-    margin: 0 0 10px;
-    padding: 0;
-}
-.logo-explosion-debug-panel legend{
-    padding: 0;
-    margin: 0 0 4px;
+    background: transparent;
+    color: var(--color-red, #e07856);
     font-size: .75rem;
     font-weight: 600;
-    color: var(--color-red, #e07856);
+    text-align: left;
     text-transform: uppercase;
     letter-spacing: .03em;
+}
+.logo-explosion-debug-head::after{
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: rotate(45deg);
+    transition: transform .2s;
+}
+.logo-explosion-debug-head[aria-expanded="true"]::after{
+    transform: rotate(-135deg);
+}
+.logo-explosion-debug-head:focus-visible{
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+}
+.logo-explosion-debug-body{
+    padding: 0 0 8px;
+}
+.logo-explosion-debug-body[hidden]{
+    display: none;
 }
 .logo-explosion-debug-panel .logo-explosion-debug-row{
     display: flex;
@@ -380,31 +523,29 @@ body.home .logo-explosion-debug-panel{
     font-weight: 600;
     white-space: nowrap;
 }
-/* Reglage de vitesse de simulation : outil de debug/experimentation, pas un controle
-   destine aux visiteurs (pas de style soigne, juste fonctionnel). */
+/* Vitesse, meteo et nutriments du gazon : vivent dans la section "Meteo et rythme" du
+   panneau d'options (deplaces par buildDebugPanel dans logo-explosion.js). */
 .logo-explosion-speed{
-    position: absolute;
-    bottom: 8px;
-    left: 16px;
-    z-index: 1;
-    display: flex;
+    display: grid;
+    grid-template-columns: auto 1fr;
     align-items: center;
-    gap: 8px;
-    padding: 4px 10px;
-    border-radius: 20px;
-    background: rgba(58, 42, 24, .55);
+    gap: 6px 10px;
     color: #fff;
-    font-size: .75rem;
+    font-size: .72rem;
 }
 .logo-explosion-speed input[type="range"]{
-    width: 100px;
+    width: 100%;
+    min-width: 0;
+}
+.logo-explosion-speed span[id$="-indicator"]{
+    grid-column: 1 / -1;
 }
 /* Toujours visible (pas lie a l'explosion, contrairement aux autres controles) : coin
    bas-droit, seul emplacement libre (bas-gauche = vitesse, bas-centre = fleche mobile). */
 .logo-explosion-fullscreen{
     position: absolute;
     bottom: 8px;
-    right: 16px;
+    right: 56px; /* a gauche de l'engrenage (en bas a droite) */
     z-index: 1;
     display: grid;
     place-items: center;
@@ -492,6 +633,29 @@ body.home .logo-explosion-scroll-up{
     0%, 100% { opacity: .5; transform: rotate(45deg) scale(.7); }
     50% { opacity: 1; transform: rotate(45deg) scale(1.1); }
 }
+/* Eclats qui pulsent sur la pepite doree d'un tresor deterre (la pepite elle-meme est
+   dessinee dans le canvas) : en CSS pour ne pas forcer la boucle de rendu a tourner. */
+.logo-explosion-spark{
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    margin: -6px 0 0 -6px;
+    background: #fff4cf;
+    clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%);
+    pointer-events: none;
+    opacity: 0;
+    animation: logo-explosion-spark 1.8s ease-in-out infinite;
+}
+.logo-explosion-spark + .logo-explosion-spark{
+    width: 8px;
+    height: 8px;
+    margin: -4px 0 0 -4px;
+    animation-delay: .9s;
+}
+@keyframes logo-explosion-spark{
+    0%, 100% { opacity: 0; transform: scale(.3) rotate(0deg); }
+    45% { opacity: 1; transform: scale(1) rotate(45deg); }
+}
 /* Repere du tout premier tresor : halo + fleche pales qui invitent a creuser. */
 .logo-explosion-hint{
     position: absolute;
@@ -554,6 +718,29 @@ body.home .logo-explosion-scroll-up{
     pointer-events: none;
     transition: opacity .25s, transform .25s;
 }
+/* Bulle "creusez..." qui s'ouvre au clic sur un tresor pas encore deterre. */
+.logo-explosion-digtip{
+    position: absolute;
+    z-index: 2;
+    width: 210px;
+    padding: 8px 10px;
+    background: #fffaf2;
+    border-top: 3px solid #e8b94a;
+    border-radius: 6px;
+    box-shadow: 0 6px 18px rgba(58, 42, 24, .18);
+    color: #3a2a18;
+    font-size: .85rem;
+    line-height: 1.3;
+    text-align: center;
+    transform: translate(-50%, calc(-100% + 4px));
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s, transform .2s;
+}
+.logo-explosion-digtip.is-open{
+    opacity: 1;
+    transform: translate(-50%, -100%);
+}
 .logo-explosion-tip-close{
     position: absolute;
     top: 4px;
@@ -600,11 +787,22 @@ body.home .logo-explosion-scroll-up{
     height: 56px;
     border-radius: 50%;
     object-fit: cover;
+    transition: width .2s, height .2s, border-radius .2s;
+}
+/* Apercu agrandi au survol : l'image grandit dans la carte (qui s'agrandit vers le haut). */
+.logo-explosion-tip img:hover{
+    width: 130px;
+    height: 130px;
+    border-radius: 10px;
 }
 .logo-explosion-tip-body p{
     margin: 2px 0 4px;
 }
 .logo-explosion-tip-body a{
+    font-weight: 600;
+}
+.logo-explosion-tip-body .logo-explosion-tip-strain{
+    color: #8a6418;
     font-weight: 600;
 }
 @media (max-width: 767.98px){
@@ -1127,4 +1325,475 @@ body.home .header label{
 .logo-explosion-tools .logo-explosion-tool:not(.is-active):hover,
 .logo-explosion-tools .logo-explosion-tool:not(.is-active):focus-visible{
     opacity: 1;
+}
+
+/* Menu des souches de mycelium : rangee de pastilles juste a droite de la barre d'outils
+   (qui est en colonne, large de 40px a left:16px), visible seulement avec l'outil
+   mycelium (voir updateStrainBar). Meme style que les bulles d'outils. */
+.logo-explosion-strains{
+    position: absolute;
+    top: 8px;
+    left: 64px;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 40px;
+}
+body.home .logo-explosion-strains{
+    top: calc(150px + 8px);
+}
+.logo-explosion-strain{
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border: 2px solid transparent;
+    border-radius: 50%;
+    background: rgba(58, 42, 24, .35);
+    color: #fff;
+    opacity: .8;
+    transition: opacity .2s, border-color .2s;
+}
+.logo-explosion-strain:hover:not(:disabled),
+.logo-explosion-strain:focus-visible{
+    opacity: 1;
+}
+.logo-explosion-strain.is-active{
+    opacity: 1;
+    border-color: var(--color-red);
+    background: rgba(58, 42, 24, .6);
+}
+.logo-explosion-strain-dot{
+    display: grid;
+    place-items: center;
+    width: 18px;
+    height: 18px;
+    border: 1px solid rgba(255, 255, 255, .7);
+    border-radius: 50%;
+    font-size: .7rem;
+    font-weight: 700;
+    line-height: 1;
+}
+.logo-explosion-strain.is-locked{
+    opacity: .45;
+    cursor: not-allowed;
+}
+.logo-explosion-strain.is-locked .logo-explosion-strain-dot{
+    background: rgba(255, 255, 255, .12);
+    border-style: dashed;
+}
+.logo-explosion-grass{
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border: 2px solid transparent;
+    border-radius: 50%;
+    background: rgba(58, 42, 24, .35);
+    color: #fff;
+    opacity: .8;
+    font-size: 1.4rem;
+    cursor: pointer;
+    transition: opacity .2s, border-color .2s;
+}
+.logo-explosion-grass:hover,
+.logo-explosion-grass:focus-visible{
+    opacity: 1;
+}
+.logo-explosion-grass.is-active{
+    opacity: 1;
+    border-color: #4ade80;
+    background: rgba(58, 42, 24, .6);
+}
+/* Compteur de tresors, en haut a droite a gauche du bouton reconstruire ; devient un lien
+   vers la boutique quand tout est trouve. */
+.logo-explosion-treasures{
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: calc(100% - 240px);
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    min-height: 28px;
+    padding: 2px 10px;
+    border-radius: 14px;
+    text-align: center;
+    background: rgba(58, 42, 24, .55);
+    color: #fff;
+    font-size: .8rem;
+    font-weight: 600;
+}
+/* Range dans le panneau de parametres : plus de position flottante. */
+.logo-explosion-debug-panel .logo-explosion-treasures{
+    position: static;
+    transform: none;
+    max-width: none;
+    margin: 0 0 8px;
+    justify-content: center;
+}
+.logo-explosion-treasures.is-complete{
+    background: rgba(140, 100, 20, .85);
+}
+.logo-explosion-treasures a{
+    color: #fff4cf;
+    text-decoration: none;
+}
+.logo-explosion-treasures a:hover,
+.logo-explosion-treasures a:focus-visible{
+    text-decoration: underline;
+}
+
+/* Fleche d'invite vers le menu d'outils (remplace l'ancien texte "Creusez...") : rebondit
+   a cote de la bulle jusqu'a la premiere interaction avec les outils. */
+.logo-explosion-tools-arrow{
+    position: absolute;
+    top: 8px;
+    left: 64px;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    /* Meme or que la facette des tresors (.logo-explosion-glint). */
+    color: #e8b94a;
+    pointer-events: none;
+    transform: translate(var(--mx, 0px), var(--my, 0px)) rotate(var(--rot, 0deg));
+}
+.logo-explosion-tools-arrow svg{
+    animation: logo-explosion-arrow-bounce .8s ease-in-out infinite;
+}
+body.home .logo-explosion-tools-arrow{
+    top: calc(150px + 8px);
+}
+@keyframes logo-explosion-arrow-bounce{
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(14px); }
+}
+
+/* Bouton muet des effets sonores (injecte par spora-sfx.js) */
+.spora-sfx-toggle {
+  position: absolute;
+  right: 56px;
+  bottom: 8px;
+  z-index: 1;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.35);
+  color: #fff;
+  opacity: 0.5;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.spora-sfx-toggle:hover,
+.spora-sfx-toggle:focus-visible { opacity: 1; }
+
+/* Plein ecran et son : sortent a cote de l'engrenage (en bas a droite) quand on le survole,
+   comme la barre d'outils. Le petit delai a la disparition laisse le temps d'y aller. */
+.logo-explosion-inner .logo-explosion-fullscreen,
+.logo-explosion-inner .spora-sfx-toggle{
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .2s .4s, visibility 0s .6s;
+}
+.logo-explosion-inner .spora-sfx-toggle{ right: 96px; }
+.logo-explosion-inner:has(.logo-explosion-debug-toggle:hover, .logo-explosion-debug-toggle:focus-visible, .logo-explosion-debug-toggle.is-active, .logo-explosion-fullscreen:hover, .spora-sfx-toggle:hover) .logo-explosion-fullscreen,
+.logo-explosion-inner:has(.logo-explosion-debug-toggle:hover, .logo-explosion-debug-toggle:focus-visible, .logo-explosion-debug-toggle.is-active, .logo-explosion-fullscreen:hover, .spora-sfx-toggle:hover) .spora-sfx-toggle{
+    opacity: .7;
+    visibility: visible;
+    transition-delay: 0s;
+}
+
+/* Boussole des tresors : badge "?" cliquable (teleporte la pelle) + pointe detachee vers le tresor. */
+.logo-explosion-compass{
+    position: absolute;
+    width: 46px;
+    height: 46px;
+    margin: -23px 0 0 -23px;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .4s, visibility 0s .4s;
+    outline: none;
+}
+.logo-explosion-compass.is-visible{
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    cursor: pointer;
+    transition: opacity .4s;
+}
+.logo-explosion-compass-badge{
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    transition: transform .15s;
+}
+.logo-explosion-compass-core{
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #2b1d10;
+    border: 3px solid #f3c94a;
+    box-sizing: border-box;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, .4);
+}
+.logo-explosion-compass-core svg{ display: block; }
+.logo-explosion-compass.is-visible .logo-explosion-compass-core{
+    animation: logo-explosion-compass 1.6s ease-in-out infinite;
+}
+.logo-explosion-compass:focus-visible .logo-explosion-compass-badge{
+    outline: 3px solid #f3c94a;
+    outline-offset: 3px;
+}
+.logo-explosion-compass.is-pressed .logo-explosion-compass-badge{
+    transform: scale(.85);
+}
+/* Onde qui s'etend depuis le badge. */
+.logo-explosion-compass-wave{
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 3px solid #f3c94a;
+    box-sizing: border-box;
+    opacity: 0;
+    pointer-events: none;
+}
+.logo-explosion-compass.is-visible .logo-explosion-compass-wave{
+    animation: logo-explosion-compass-wave 1.8s ease-out infinite;
+}
+/* Pointe detachee : le conteneur tourne, le badge (le "?") reste droit. */
+.logo-explosion-compass-arrow{
+    position: absolute;
+    inset: 0;
+    transform: rotate(var(--ang, 0rad));
+    pointer-events: none;
+}
+.logo-explosion-compass-arrow svg{
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    margin: -9px 0 0 7px;
+    display: block;
+}
+.logo-explosion-compass.is-visible .logo-explosion-compass-arrow svg{
+    animation: logo-explosion-compass-slide 1s ease-in-out infinite;
+}
+/* Bulle explicative (survol/focus, et ~5 s a la toute premiere apparition). */
+.logo-explosion-compass-tip{
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 10px);
+    width: 190px;
+    padding: 8px 10px;
+    background: #fffaf2;
+    border-top: 3px solid #e8b94a;
+    border-radius: 6px;
+    box-shadow: 0 6px 18px rgba(58, 42, 24, .18);
+    color: #3a2a18;
+    font-size: .85rem;
+    line-height: 1.3;
+    text-align: center;
+    transform: translate(calc(-50% + var(--lx, 0px)), 4px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s, transform .2s;
+}
+.logo-explosion-compass.is-below .logo-explosion-compass-tip{
+    bottom: auto;
+    top: calc(100% + 10px);
+}
+.logo-explosion-compass:hover .logo-explosion-compass-tip,
+.logo-explosion-compass:focus-visible .logo-explosion-compass-tip,
+.logo-explosion-compass.show-tip .logo-explosion-compass-tip{
+    opacity: 1;
+    transform: translate(calc(-50% + var(--lx, 0px)), 0);
+}
+@keyframes logo-explosion-compass{
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.06); }
+}
+@keyframes logo-explosion-compass-wave{
+    0% { transform: scale(1); opacity: .8; }
+    100% { transform: scale(1.7); opacity: 0; }
+}
+@keyframes logo-explosion-compass-slide{
+    0%, 100% { translate: 0 0; }
+    50% { translate: 5px 0; }
+}
+@media (prefers-reduced-motion: reduce){
+    .logo-explosion-compass.is-visible .logo-explosion-compass-core,
+    .logo-explosion-compass.is-visible .logo-explosion-compass-wave,
+    .logo-explosion-compass.is-visible .logo-explosion-compass-arrow svg{
+        animation: none;
+    }
+}
+
+/* Bouton de vitesse (bas gauche) : boucle normal -> x3 -> x10, meme style que les outils.
+   Les chevrons allumes montrent le niveau (voir speedBtn dans logo-explosion.js). */
+.logo-explosion-speed-btn{
+    position: absolute;
+    bottom: 8px;
+    left: 16px;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    height: 40px;
+    padding: 0 12px 0 10px;
+    border: 2px solid transparent;
+    border-radius: 20px;
+    background: rgba(58, 42, 24, .35);
+    color: #fff;
+    font-size: .8rem;
+    font-weight: 600;
+    opacity: .7;
+    transition: opacity .2s, border-color .2s;
+}
+.logo-explosion-speed-btn:hover,
+.logo-explosion-speed-btn:focus-visible{
+    opacity: 1;
+}
+.logo-explosion-speed-btn.is-fast{
+    opacity: 1;
+    border-color: var(--color-red);
+    background: rgba(58, 42, 24, .6);
+}
+
+/* Pastille des defis dans la barre d'outils (sous l'argent) ; la liste sort a droite au survol. */
+.logo-explosion-challenges-badge{
+    /* Fixe (ne suit pas la barre d'outils qui se deplie), 2e rangee a droite des outils,
+       sous la rangee des souches ; discret tant qu'on n'est pas pres. */
+    position: absolute;
+    top: 8px;
+    left: 16px;
+    z-index: 2;
+    opacity: .4;
+    transition: opacity .2s;
+    display: grid;
+    place-items: center;
+    height: 28px;
+    padding: 0 10px;
+    border-radius: 14px;
+    background: rgba(58, 42, 24, .55);
+    color: #fff;
+    font-size: .8rem;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+}
+body.home .logo-explosion-challenges-badge{
+    top: calc(150px + 8px);
+}
+/* La pastille prend la place du haut : la barre d'outils et la rangee des souches descendent d'un cran. */
+.logo-explosion-tools,
+.logo-explosion-strains{
+    top: 44px;
+}
+body.home .logo-explosion-tools,
+body.home .logo-explosion-strains{
+    top: calc(150px + 8px + 36px);
+}
+.logo-explosion-challenges-badge:hover,
+.logo-explosion-challenges-badge.is-open,
+.logo-explosion-challenges-badge:focus-visible,
+.logo-explosion-inner:has(.logo-explosion-tools:hover) .logo-explosion-challenges-badge{
+    opacity: 1;
+}
+.logo-explosion-challenges-pop{
+    position: absolute;
+    top: 0;
+    left: calc(100% + 8px);
+    z-index: 3;
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: rgba(20, 14, 8, .92);
+    font-weight: 400;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .2s, visibility 0s .2s;
+}
+/* S'ouvre au clic (classe is-open, voir buildChallengeBadge), plus au survol. */
+.logo-explosion-challenges-badge.is-open .logo-explosion-challenges-pop{
+    opacity: 1;
+    visibility: visible;
+    transition-delay: 0s;
+}
+.logo-explosion-challenges{
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: 0.85rem;
+}
+/* Pont invisible sur l'ecart de 8px : sans lui, le survol se perd en allant de la pastille a la liste. */
+.logo-explosion-challenges-pop::before{
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -8px;
+    width: 8px;
+}
+.logo-explosion-challenges-toggle{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+    margin-top: 6px;
+    padding: 4px 0 0;
+    border: 0;
+    border-top: 1px solid rgba(255, 255, 255, .2);
+    background: transparent;
+    color: #fff;
+    font-size: .8rem;
+    opacity: .8;
+}
+.logo-explosion-challenges-toggle:hover,
+.logo-explosion-challenges-toggle:focus-visible{
+    opacity: 1;
+}
+.logo-explosion-challenges-chevron{
+    transition: transform .2s;
+}
+.logo-explosion-challenges-toggle.is-open .logo-explosion-challenges-chevron{
+    transform: rotate(180deg);
+}
+.logo-explosion-challenges-done{
+    margin-top: 4px;
+    opacity: .7;
+}
+.logo-explosion-challenges-pop.is-empty .logo-explosion-challenges:not(.logo-explosion-challenges-done)::after{
+    content: 'Tous les défis sont réussis !';
+    font-size: .85rem;
+}
+.logo-explosion-challenges li{
+    padding: 2px 0;
+}
+.logo-explosion-challenges li.is-done{
+    opacity: 0.6;
+    text-decoration: line-through;
+}
+
+.logo-explosion-challenges-done{
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: 0.85rem;
+}
+.logo-explosion-challenges-done li{
+    padding: 2px 0;
 }
