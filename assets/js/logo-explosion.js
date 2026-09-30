@@ -55,6 +55,10 @@
   var CAPTION_NEED_STRAIN = 'Pas encore de mycélium : creusez à la pelle ou martelez du poing pour trouver le premier trésor.';
   var CAPTION_NEED_MONEY_FERT = 'Il faut 3 $ pour du fertilisant — récoltez des champignons à la main.';
   var CAPTION_NEED_MONEY_GRASS = 'Il faut 2 $ pour des graines — récoltez des champignons à la main.';
+  var CAPTION_MYC_PLACE = 'Versez le mycélium au pied d’un arbre mature : il décompose son bois mort.';
+  var CAPTION_MYC_WAIT = 'Il lui faut du bois mort ou des feuilles : attendez qu’elles tombent, ou arrachez-en à la main et posez-les sur le mycélium.';
+  var CAPTION_MYC_FED = 'Bravo ! Le mycélium décompose le bois mort et rend ses nutriments au sol.';
+  var CAPTION_MYC_NO_WOOD = 'Pas de bois à portée : le mycélium va s’éteindre. Visez le pied d’un arbre.';
   var CAPTION_BAG_EMPTY = 'Sac vide : encore 20 $ pour un nouveau sac.';
   var captionTimer = null;
   // Message affiche dans la scene puis efface au bout de quelques secondes (sauf l'invite
@@ -604,31 +608,94 @@
     })();
   }
 
-  // La fleche d'invite vers les outils reprend l'effet magnetique du badge "play" (meme
-  // lissage), avec une portee plus courte : elle se penche vers le curseur sans quitter
-  // sa bulle. Le rebond est sur le svg interne, pour ne pas se battre avec le transform.
+  // --- Tutoriel guide : fleche d'invite pilotee par une table d'etapes --------------------------
+  // L'etape courante est la premiere de GUIDE dont done() est faux ; la fleche, le halo et les
+  // messages la lisent. Ajouter une etape = ajouter une ligne. Champs : done() ; target(cr) ->
+  // {x,y} en px du conteneur ; dir = cote de la fleche par rapport a sa cible (right/left/up/down) ;
+  // magnet = la fleche se penche vers le curseur ; halo = halo au pied des arbres matures ;
+  // msg = legende affichee une fois a l'entree dans l'etape. Les drapeaux d'avancement sont
+  // gardes en localStorage : au retour, le tutoriel reprend ou on s'etait arrete.
+  var GUIDE_KEY = 'spora-guide-v1';
+  var guideFlags = { tools: false, myc: false, strain: false, poured: false, fed: false };
+  try {
+    var savedGuide = JSON.parse(localStorage.getItem(GUIDE_KEY) || 'null');
+    if (savedGuide) for (var gk in guideFlags) if (savedGuide[gk] === true) guideFlags[gk] = true;
+  } catch (e) { /* stockage indisponible : on repart du debut */ }
+  function guideSet(flag) {
+    if (guideFlags[flag]) return;
+    guideFlags[flag] = true;
+    try { localStorage.setItem(GUIDE_KEY, JSON.stringify(guideFlags)); } catch (e) { /* ignore */ }
+  }
+  function guideElTarget(getEl) {
+    return function (cr) {
+      var el = getEl(), r = el ? el.getBoundingClientRect() : null;
+      if (r && r.width > 0) return { x: r.left - cr.left + r.width / 2, y: r.top - cr.top + r.height / 2 };
+      var tb = toolsBar.getBoundingClientRect();
+      return { x: tb.left - cr.left + 20, y: tb.top - cr.top + 20 };
+    };
+  }
+  function guideTreeTarget(cr) {
+    var list = matureTrees(), best = null, bd = Infinity, i;
+    if (!list.length) list = trees;
+    for (i = 0; i < list.length; i++) {
+      var d = Math.abs(list[i].x - (camX + W / 2));
+      if (d < bd) { bd = d; best = list[i]; }
+    }
+    if (!best) return null;
+    return { x: clamp(best.x - camX, 40, W - 40) * cr.width / W, y: clamp(surfaceAt(best.x) - camY - 12, 90, H - 20) * cr.height / H };
+  }
+  var GUIDE = [
+    { id: 'tools', done: function () { return guideFlags.tools; }, magnet: true,
+      target: guideElTarget(function () { return toolsBar; }) },
+    { id: 'myc', done: function () { return guideFlags.myc; }, dir: 'right',
+      target: guideElTarget(function () { return toolsBar.querySelector('[data-tool="mycelium"]'); }) },
+    { id: 'strain', done: function () { return guideFlags.strain; }, dir: 'down',
+      target: guideElTarget(function () { return strainsBar && (strainsBar.querySelector('[data-strain="' + bagStrain + '"]') || strainsBar.querySelector('[data-strain]')); }) },
+    { id: 'tree', done: function () { return guideFlags.poured; }, dir: 'up', magnet: true, halo: true,
+      target: guideTreeTarget, msg: function () { return CAPTION_MYC_PLACE; } },
+    { id: 'wood', done: function () { return guideFlags.fed; }, dir: 'up', magnet: true, halo: true,
+      target: guideTreeTarget, msg: function () { return CAPTION_MYC_WAIT; } }
+  ];
+  function guideCurrent() {
+    for (var i = 0; i < GUIDE.length; i++) if (!GUIDE[i].done()) return GUIDE[i];
+    return null;
+  }
   if (toolsArrow && toolsBar) {
-    var ARROW_MAGNET_MAX = 70, arrowTx = 0, arrowTy = 0, arrowCx = 0, arrowCy = 0;
-    document.addEventListener('mousemove', function (evt) {
-      if (toolsArrow.classList.contains('d-none')) return;
-      var ar = toolsArrow.getBoundingClientRect();
-      var dx = evt.clientX - (ar.left + ar.width / 2 - arrowCx), dy = evt.clientY - (ar.top + ar.height / 2 - arrowCy);
-      var dist = Math.hypot(dx, dy);
-      var k = dist > ARROW_MAGNET_MAX ? ARROW_MAGNET_MAX / dist : 1;
-      arrowTx = dx * k; arrowTy = dy * k;
+    ['mouseenter', 'focusin', 'touchstart'].forEach(function (ev) {
+      toolsBar.addEventListener(ev, function () { guideSet('tools'); });
     });
-    (function stepArrowMagnet() {
-      arrowCx += (arrowTx - arrowCx) * 0.18;
-      arrowCy += (arrowTy - arrowCy) * 0.18;
-      // Pointe toujours vers la bulle d'outils (son centre = coin haut-gauche de la barre + 20px),
-      // meme quand l'aimant l'a decalee vers le curseur. Le svg pointe vers la gauche (180deg).
-      var tb = toolsBar.getBoundingClientRect(), ab = toolsArrow.getBoundingClientRect();
-      var ax = ab.left + ab.width / 2, ay = ab.top + ab.height / 2;
-      var rot = Math.atan2(tb.top + 20 - ay, tb.left + 20 - ax) * 180 / Math.PI - 180;
+    var arrowCx = 0, arrowCy = 0, arrowInit = false, ARROW_MAGNET_MAX = 70, mouseCX = null, mouseCY = null;
+    var guideLastId = null, guideMsgShown = {};
+    document.addEventListener('mousemove', function (evt) { mouseCX = evt.clientX; mouseCY = evt.clientY; });
+    (function stepGuideArrow() {
+      requestAnimationFrame(stepGuideArrow);
+      if (toolsArrow.classList.contains('d-none')) { arrowInit = false; return; }
+      var st = guideCurrent();
+      if (!st) { toolsArrow.classList.add('d-none'); return; }
+      if (st.id !== guideLastId) {
+        guideLastId = st.id;
+        if (st.msg && !guideMsgShown[st.id]) { guideMsgShown[st.id] = true; setCaption(st.msg()); }
+      }
+      var cr = container.getBoundingClientRect(), tg = st.target(cr);
+      if (!tg) return;
+      var tx = tg.x, ty = tg.y, dir = st.dir || 'right';
+      var ax = tx + (dir === 'right' ? 58 : dir === 'left' ? -58 : 0), ay = ty + (dir === 'up' ? -64 : dir === 'down' ? 64 : 0);
+      var baseX = toolsArrow.offsetLeft + toolsArrow.offsetWidth / 2, baseY = toolsArrow.offsetTop + toolsArrow.offsetHeight / 2;
+      var gx = ax - baseX, gy = ay - baseY;
+      // Aimant : la fleche se penche vers le curseur sans quitter son poste.
+      if (st.magnet && mouseCX !== null) {
+        var mdx = mouseCX - (cr.left + ax), mdy = mouseCY - (cr.top + ay), md = Math.hypot(mdx, mdy);
+        var mk = md > ARROW_MAGNET_MAX ? ARROW_MAGNET_MAX / md : 1;
+        gx += mdx * mk; gy += mdy * mk;
+      }
+      if (!arrowInit) { arrowCx = gx; arrowCy = gy; arrowInit = true; }
+      arrowCx += (gx - arrowCx) * 0.14;
+      arrowCy += (gy - arrowCy) * 0.14;
+      // Le svg pointe vers la gauche (180deg) : la rotation le tourne vers la cible.
+      var rot = Math.atan2(ty - (baseY + arrowCy), tx - (baseX + arrowCx)) * 180 / Math.PI - 180;
       toolsArrow.style.setProperty('--rot', rot.toFixed(1) + 'deg');
       toolsArrow.style.setProperty('--mx', arrowCx.toFixed(2) + 'px');
       toolsArrow.style.setProperty('--my', arrowCy.toFixed(2) + 'px');
-      requestAnimationFrame(stepArrowMagnet);
     })();
   }
 
@@ -1839,7 +1906,7 @@
     trees = savedTrees && savedTrees.length ? savedTrees : [makeTree(camMargin + W * 0.14), makeStartTree(camMargin + W * 0.93, 10), makeTree(camMargin + W * 1.35)];
     if (savedTrees && savedTrees.length) worldSig = worldSigPrev = terrainSig();
     litter = [];
-    if (toolsArrow) toolsArrow.classList.remove('d-none');
+    if (toolsArrow && unlockedStrains.length) toolsArrow.classList.remove('d-none');
     startLoop();
   }
 
@@ -3893,6 +3960,48 @@
     startLoop();
   }
 
+  // Aide au placement du mycelium : tant que le visiteur n'a pas nourri un mycelium avec du bois
+  // (mycFedOnce, voir stepTrees), un halo marque le pied des arbres matures et la fleche du
+  // menu d'outils reste affichee.
+  var mycFedOnce = guideFlags.fed, MYC_HALO_GROWTH = 0.6;
+  function matureTrees() {
+    var out = [];
+    for (var i = 0; i < trees.length; i++) if (trees[i].growth >= MYC_HALO_GROWTH) out.push(trees[i]);
+    return out;
+  }
+  function drawMycHalo() {
+    var gs = guideCurrent();
+    if (!gs || !gs.halo || !unlockedStrains.length) return;
+    var list = matureTrees(), pulse = 0.5 + 0.5 * Math.sin(vTime / 420);
+    for (var i = 0; i < list.length; i++) {
+      var hx = list[i].x, hy = surfaceAt(hx), rr = H * 0.07 * (0.9 + 0.2 * pulse);
+      ctx.save();
+      ctx.translate(hx, hy);
+      ctx.scale(1, 0.32);
+      ctx.beginPath();
+      ctx.arc(0, 0, rr, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(243,201,74,' + (0.16 + 0.12 * pulse).toFixed(3) + ')';
+      ctx.fill();
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = 'rgba(243,201,74,' + (0.55 + 0.35 * pulse).toFixed(3) + ')';
+      ctx.stroke();
+      ctx.restore();
+    }
+    if (list.length) startLoop();
+  }
+  // Vrai si aucun arbre mature ni bois au sol n'est a portee de x : le mycelium verse la
+  // va s'eteindre faute de nourriture.
+  function nearMatureTree(x) {
+    for (var i = 0; i < trees.length; i++) if (trees[i].growth >= MYC_HALO_GROWTH && Math.abs(trees[i].x - x) < MYC_DECOMPOSE_REACH * 1.6) return true;
+    return false;
+  }
+  function noWoodNear(x) {
+    var i;
+    for (i = 0; i < trees.length; i++) if (trees[i].growth >= MYC_HALO_GROWTH && Math.abs(trees[i].x - x) < MYC_DECOMPOSE_REACH * 1.6) return false;
+    for (i = 0; i < litter.length; i++) if (Math.abs(litter[i].x - x) < MYC_DECOMPOSE_REACH) return false;
+    return true;
+  }
+
   function setTool(name) {
     if (!name || name === tool) return;
     if (window.sporaSfx) sporaSfx.play('toolSwitch'); 
@@ -3902,6 +4011,7 @@
     tool = name;
     updateStrainBar();
     container.classList.toggle('is-planting', name === 'tree');
+    if (name === 'mycelium') guideSet('myc');
     for (var i = 0; i < toolBtns.length; i++) {
       // Le gazon n'a pas de bouton dans la barre d'outils : le bouton mycelium (dont la barre
       // contient le bouton gazon) reste actif, sinon tous les boutons sont replies et la barre disparait.
@@ -4317,6 +4427,7 @@
         if (Math.abs(c.x - l.x) < MYC_DECOMPOSE_REACH && Math.abs(c.y - l.y) < MYC_DECOMPOSE_REACH) {
           c.lastFed = now;
           fed = true;
+          if (!mycFedOnce) { mycFedOnce = true; guideSet('fed'); setCaption(CAPTION_MYC_FED); }
         }
       }
       if (fed) l.bonus = (l.bonus || 0) + dt * (MYC_DECOMPOSE_MULT - 1);
@@ -5073,6 +5184,7 @@
     drawNuggets();
     drawGoldBits();
     drawShovel();
+    drawMycHalo();
     drawBag();
     drawHand();
     drawRain();
@@ -6108,7 +6220,7 @@
       dot.className = 'logo-explosion-strain-dot';
       dot.setAttribute('aria-hidden', 'true');
       b.appendChild(dot);
-      b.addEventListener('click', function () { setStrain(st.id); });
+      b.addEventListener('click', function () { guideSet('strain'); setStrain(st.id); });
       strainsBar.appendChild(b);
     });
     var grassBtn = document.createElement('button');
@@ -6258,6 +6370,7 @@
       if (unlockStrain(strainOrder[sk].id) && strainOrder[sk] === st) fresh = true;
     }
     if (!fresh) st = null;
+    if (fresh && nDug === 1 && toolsArrow) toolsArrow.classList.remove('d-none');
     if (fresh && st.id === 'pleurote') pleuroteDug = true;
     t.tip = buildTip(shown);
     container.appendChild(t.tip);
@@ -6700,6 +6813,11 @@
     if (tool === 'mycelium') {
       if (!unlockedStrains.length) { setCaption(CAPTION_NEED_STRAIN); return; }
       if (!ensureBag()) { setCaption(CAPTION_NEED_MONEY); return; }
+      guideSet('strain');
+      if (!mycFedOnce) {
+        if (nearMatureTree(pos.x)) guideSet('poured');
+        else if (noWoodNear(pos.x)) setCaption(CAPTION_MYC_NO_WOOD);
+      }
       if (!bag.on) enterBag(pos);
       bag.x = pos.x; bag.y = pos.y;
       bag.pouring = true;
@@ -7195,12 +7313,7 @@
       debugToggleBtn.setAttribute('aria-pressed', opening ? 'true' : 'false');
     });
   }
-  // La fleche d'invite disparait des que le visiteur touche au menu d'outils.
-  if (toolsBar && toolsArrow) {
-    ['mouseenter', 'focusin', 'touchstart'].forEach(function (ev) {
-      toolsBar.addEventListener(ev, function () { toolsArrow.classList.add('d-none'); });
-    });
-  }
+  // La fleche d'invite reste tant que le mycelium n'a pas ete nourri de bois (voir mycFedOnce).
   for (var ti = 0; ti < toolBtns.length; ti++) {
     toolBtns[ti].addEventListener('click', function () { setTool(this.getAttribute('data-tool')); });
   }
