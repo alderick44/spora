@@ -61,6 +61,10 @@
   var CAPTION_MYC_LEAVES = 'Arrachez des feuilles ou des branches de l’arbre et déposez-les sur le mycélium.';
   var CAPTION_MYC_HARVEST = 'Cueillez un champignon : cliquez dessus avec la main (✋).';
   var CAPTION_MYC_GROW = 'Patientez : les champignons vont bientôt pousser sur le mycélium.';
+  var CAPTION_MYC_TREE_WAIT = 'Attendez que l’arbre grandisse avant d’y verser le mycélium.';
+  var CAPTION_MYC_TREE_NONE = 'Il faut un arbre pour nourrir le mycélium : plantez-en un.';
+  var CAPTION_MYC_REPOUR = 'Le mycélium a disparu : reversez-en près d’un arbre.';
+  var CAPTION_MYC_CLOSER = 'Plus près : versez le mycélium juste au pied de l’arbre, là où tombent les feuilles.';
   var CAPTION_MYC_FED = 'Bravo ! Le mycélium décompose le bois mort et rend ses nutriments au sol.';
   var CAPTION_MYC_NO_WOOD = 'Pas de bois à portée : le mycélium va s’éteindre. Visez le pied d’un arbre.';
   var CAPTION_BAG_EMPTY = 'Sac vide : encore 20 $ pour un nouveau sac.';
@@ -650,7 +654,6 @@
   function guideOff(sx) { return sx < 40 ? -1 : sx > W - 40 ? 1 : 0; }
   function guideTreeTarget(cr) {
     var list = matureTrees(), best = null, bd = Infinity, i;
-    if (!list.length) list = trees;
     for (i = 0; i < list.length; i++) {
       var d = Math.abs(list[i].x - (camX + W / 2));
       if (d < bd) { bd = d; best = list[i]; }
@@ -696,7 +699,16 @@
     if (!best) return guideMycTarget(cr);
     return { x: clamp(best.x - camX, 40, W - 40) * cr.width / W, y: clamp(surfaceAt(best.x) - best.size * 0.8 - camY, 90, H - 20) * cr.height / H, off: guideOff(best.x - camX) };
   }
+  function guideTreeHint() {
+    if (matureTrees().length) return null;
+    return trees.length ? CAPTION_MYC_TREE_WAIT : CAPTION_MYC_TREE_NONE;
+  }
+  function livingMyc() {
+    for (var i = 0; i < colonised.length; i++) if (colonised[i].myc > 0) return true;
+    return false;
+  }
   function guideHarvestHint() {
+    if (!livingMyc() && !mushrooms.some(function (m) { return m.myc && !m.treasure && !m.dying && m.t >= 0.9; })) return CAPTION_MYC_REPOUR;
     return mushrooms.some(function (m) { return m.myc && !m.treasure && !m.dying && m.t >= 0.9; }) ? CAPTION_MYC_HARVEST : CAPTION_MYC_GROW;
   }
   var GUIDE = [
@@ -704,9 +716,9 @@
       target: guideElTarget(function () { return toolsBar; }) },
     { id: 'myc', done: function () { return guideFlags.myc; }, dir: 'right',
       target: guideElTarget(function () { return toolsBar.querySelector('[data-tool="mycelium"]'); }) },
-    { id: 'strain', done: function () { return guideFlags.strain; }, dir: 'down',
+    { id: 'strain', done: function () { return guideFlags.strain || guideFlags.poured; }, dir: 'down',
       target: guideElTarget(function () { return strainsBar && (strainsBar.querySelector('[data-strain="' + bagStrain + '"]') || strainsBar.querySelector('[data-strain]')); }) },
-    { id: 'tree', done: function () { return guideFlags.poured; }, dir: 'up', magnet: true, halo: 'tree',
+    { id: 'tree', done: function () { return guideFlags.poured && (guideFlags.fed || livingMyc()); }, dir: 'up', magnet: true, halo: 'tree', hint: guideTreeHint,
       target: guideTreeTarget, msg: function () { return CAPTION_MYC_PLACE; } },
     { id: 'hand', done: function () { return guideFlags.hand; }, dir: 'right', hint: CAPTION_MYC_HAND,
       target: guideElTarget(function () { return toolsBar.querySelector('[data-tool="hand"]'); }) },
@@ -729,7 +741,7 @@
       requestAnimationFrame(stepGuideArrow);
       if (toolsArrow.classList.contains('d-none')) { arrowInit = false; return; }
       // Du mycelium vivant pres d'un arbre mature compte comme verse, meme si le clic etait un peu loin.
-      if (!guideFlags.poured) for (var pc = 0; pc < colonised.length; pc++) if (colonised[pc].myc > 0 && nearMatureTree(colonised[pc].x)) { guideSet('poured'); break; }
+      if (!guideFlags.poured) for (var pc = 0; pc < colonised.length; pc++) if (colonised[pc].myc > 0 && underMatureTree(colonised[pc].x)) { guideSet('poured'); break; }
       if (guideFlags.poured && tool === 'hand') guideSet('hand');
       var st = guideCurrent();
       var ht = st && st.hint ? (typeof st.hint === 'function' ? st.hint() : st.hint) : null;
@@ -746,7 +758,7 @@
       // Legende fixe : reaffichee des qu'une autre legende disparait.
       if (ht && caption && !caption.classList.contains('is-visible')) setCaption(ht, true, true);
       var cr = container.getBoundingClientRect(), tg = st.target(cr);
-      if (!tg) return;
+      if (!tg) { toolsArrow.style.opacity = '0'; return; }
       var tx = tg.x, ty = tg.y, dir = st.dir || 'right', off = tg.off || 0;
       var ax = tx + (dir === 'right' ? 58 : dir === 'left' ? -58 : 0), ay = ty + (dir === 'up' ? -64 : dir === 'down' ? 64 : 0);
       // Cible hors ecran : la fleche se colle au bord et pointe a l'horizontale, sans angle ni aimant.
@@ -4078,6 +4090,12 @@
     for (var i = 0; i < trees.length; i++) if (trees[i].growth >= MYC_HALO_GROWTH && Math.abs(trees[i].x - x) < MYC_NEAR_TREE) return true;
     return false;
   }
+  // Tutoriel : le mycelium doit etre verse au pied de l'arbre (la ou tombe le bois), pas juste a cote.
+  var MYC_UNDER_TREE = 120;
+  function underMatureTree(x) {
+    for (var i = 0; i < trees.length; i++) if (trees[i].growth >= MYC_HALO_GROWTH && Math.abs(trees[i].x - x) < MYC_UNDER_TREE) return true;
+    return false;
+  }
   function noWoodNear(x) {
     var i;
     for (i = 0; i < trees.length; i++) if (trees[i].growth >= MYC_HALO_GROWTH && Math.abs(trees[i].x - x) < MYC_DECOMPOSE_REACH * 1.6) return false;
@@ -6916,7 +6934,8 @@
       if (!ensureBag()) { setCaption(CAPTION_NEED_MONEY); return; }
       guideSet('strain');
       if (!mycFedOnce) {
-        if (nearMatureTree(pos.x)) guideSet('poured');
+        if (underMatureTree(pos.x)) guideSet('poured');
+        else if (matureTrees().length && !guideFlags.poured) setCaption(CAPTION_MYC_CLOSER);
         else if (noWoodNear(pos.x)) setCaption(CAPTION_MYC_NO_WOOD);
       }
       if (!bag.on) enterBag(pos);
