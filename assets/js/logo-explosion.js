@@ -57,7 +57,8 @@
   var CAPTION_NEED_MONEY_GRASS = 'Il faut 2 $ pour des graines — récoltez des champignons à la main.';
   var CAPTION_MYC_PLACE = 'Versez le mycélium au pied d’un arbre mature : il décompose son bois mort.';
   var CAPTION_MYC_HAND = 'Il lui faut du bois : prenez la main (✋) dans la barre d’outils.';
-  var CAPTION_MYC_LEAVES = 'Arrachez des feuilles de l’arbre et déposez-les sur le mycélium.';
+  var CAPTION_MYC_DROP = 'Déposez-le sur le mycélium.';
+  var CAPTION_MYC_LEAVES = 'Arrachez des feuilles ou des branches de l’arbre et déposez-les sur le mycélium.';
   var CAPTION_MYC_FED = 'Bravo ! Le mycélium décompose le bois mort et rend ses nutriments au sol.';
   var CAPTION_MYC_NO_WOOD = 'Pas de bois à portée : le mycélium va s’éteindre. Visez le pied d’un arbre.';
   var CAPTION_BAG_EMPTY = 'Sac vide : encore 20 $ pour un nouveau sac.';
@@ -666,6 +667,21 @@
     var tg = treeScale(best), by = best.by !== undefined ? best.by : surfaceAt(best.x) + TREE_EMBED;
     return { x: clamp(best.x - camX, 40, W - 40) * cr.width / W, y: clamp(by - best.h * tg - camY, 90, H - 20) * cr.height / H, off: guideOff(best.x - camX) };
   }
+  // Centre du mycelium vivant (la ou deposer le bois), ou null s'il n'y en a pas.
+  function guideMycTarget(cr) {
+    var n = 0, mx = 0, my = 0;
+    for (var i = 0; i < colonised.length; i++) if (colonised[i].myc > 0) { n++; mx += colonised[i].x; my += colonised[i].y; }
+    if (!n) return null;
+    mx /= n; my /= n;
+    return { x: clamp(mx - camX, 40, W - 40) * cr.width / W, y: clamp(my - camY - 10, 90, H - 20) * cr.height / H, off: guideOff(mx - camX) };
+  }
+  // Le bois est en main : on pointe le mycelium ; lache au mauvais endroit, on repointe l'arbre.
+  function guideLeavesTarget(cr) {
+    return (handCarry.length && guideMycTarget(cr)) || guideCanopyTarget(cr);
+  }
+  function guideLeavesHint() {
+    return handCarry.length ? CAPTION_MYC_DROP : CAPTION_MYC_LEAVES;
+  }
   var GUIDE = [
     { id: 'tools', done: function () { return guideFlags.tools; }, magnet: true,
       target: guideElTarget(function () { return toolsBar; }) },
@@ -677,8 +693,8 @@
       target: guideTreeTarget, msg: function () { return CAPTION_MYC_PLACE; } },
     { id: 'hand', done: function () { return guideFlags.hand; }, dir: 'right', hint: CAPTION_MYC_HAND,
       target: guideElTarget(function () { return toolsBar.querySelector('[data-tool="hand"]'); }) },
-    { id: 'leaves', done: function () { return guideFlags.fed; }, dir: 'right', magnet: true, hint: CAPTION_MYC_LEAVES,
-      target: guideCanopyTarget }
+    { id: 'leaves', done: function () { return guideFlags.fed; }, dir: 'right', magnet: true, fadeNear: true, hint: guideLeavesHint,
+      target: guideLeavesTarget }
   ];
   function guideCurrent() {
     for (var i = 0; i < GUIDE.length; i++) if (!GUIDE[i].done()) return GUIDE[i];
@@ -697,10 +713,11 @@
       if (!guideFlags.poured) for (var pc = 0; pc < colonised.length; pc++) if (colonised[pc].myc > 0 && nearMatureTree(colonised[pc].x)) { guideSet('poured'); break; }
       if (guideFlags.poured && tool === 'hand') guideSet('hand');
       var st = guideCurrent();
-      if (!st || st.id !== guideLastId) {
-        // Quitte une etape a legende fixe : on la retire si elle est encore affichee.
-        if (guideStickyText && caption && caption.textContent === guideStickyText) setCaption('');
-        guideStickyText = st && st.hint ? st.hint : null;
+      var ht = st && st.hint ? (typeof st.hint === 'function' ? st.hint() : st.hint) : null;
+      if (ht !== guideStickyText) {
+        // La legende fixe change (ou l'etape se termine) : on remplace / retire l'ancienne si elle est encore affichee.
+        if (guideStickyText && caption && caption.textContent === guideStickyText) setCaption(ht || '', true, true);
+        guideStickyText = ht;
       }
       if (!st) { toolsArrow.classList.add('d-none'); return; }
       if (st.id !== guideLastId) {
@@ -708,7 +725,7 @@
         if (st.msg && !guideMsgShown[st.id]) { guideMsgShown[st.id] = true; setCaption(st.msg()); }
       }
       // Legende fixe : reaffichee des qu'une autre legende disparait.
-      if (st.hint && caption && !caption.classList.contains('is-visible')) setCaption(st.hint, true, true);
+      if (ht && caption && !caption.classList.contains('is-visible')) setCaption(ht, true, true);
       var cr = container.getBoundingClientRect(), tg = st.target(cr);
       if (!tg) return;
       var tx = tg.x, ty = tg.y, dir = st.dir || 'right', off = tg.off || 0;
@@ -723,6 +740,9 @@
         var mk = md > ARROW_MAGNET_MAX ? ARROW_MAGNET_MAX / md : 1;
         gx += mdx * mk; gy += mdy * mk;
       }
+      // Etape ou l'on agit sur la cible : la fleche s'efface quand le curseur s'en approche.
+      var near = st.fadeNear && mouseCX !== null && Math.hypot(mouseCX - (cr.left + ax), mouseCY - (cr.top + ay)) < 170;
+      toolsArrow.style.opacity = near ? '0.12' : '';
       if (!arrowInit) { arrowCx = gx; arrowCy = gy; arrowInit = true; }
       arrowCx += (gx - arrowCx) * 0.14;
       arrowCy += (gy - arrowCy) * 0.14;
@@ -6846,7 +6866,11 @@
         dropHeldInsect(); // un seul a la fois (appui multi-pointeurs)
         heldSX = screenPos.x; heldSY = screenPos.y;
         catchInsect(bfly);
-      } else if (!harvestableNear(pos.x, pos.y) && !handGrabTree(pos)) pickUpHand(pos);
+      } else if (harvestableNear(pos.x, pos.y)) {
+        // Cueillette des l'appui (pas seulement au relachement) : maintenir le clic fait aussi sortir le champignon.
+        harvestAt(pos);
+        pressCaught = true;
+      } else if (!handGrabTree(pos)) pickUpHand(pos);
       startLoop(); // le poing se ferme, meme sans rien dans la main
       return;
     }
