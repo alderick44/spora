@@ -20,9 +20,9 @@ import { dropHeldInsect } from './flore.js';
 import { sprout } from './mycelium.js';
 import { earn } from './economie.js';
 import {
-  tryDig, treasureNear, openTip, digAt, guideSet, queueDemoEnd, chUnlocked, challengeDone, setCaption,
-  currentStrain, tintCol, updateStrainBar, startLoop
-} from './principal.js';
+  tryDig, treasureNear, digAt, queueDemoEnd, currentStrain, tintCol, updateStrainBar
+} from './tresors.js';
+import { openTip, guideSet, chUnlocked, challengeDone, setCaption, startLoop } from './principal.js';
 
 export var shovel = {
   on: false, held: false, pouring: false, hideWhenEmpty: false, released: false,

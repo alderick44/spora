@@ -13,7 +13,8 @@ import { drawLakes, surfaceAt } from './terrain.js';
 import { drawRain } from './meteo.js';
 import { drawRoots, drawTree, drawMycHalo, shadeRgb } from './arbres.js';
 import { drawShovel, drawBag, drawHand } from './outils.js';
-import { drawNuggets, drawGoldBits, positionTreasureOverlays, strainOrder } from './principal.js';
+import { drawNuggets, drawGoldBits, strainOrder } from './tresors.js';
+import { positionTreasureOverlays } from './principal.js';
 
 var hillRidges = [];
 export function buildHills() {
