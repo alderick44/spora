@@ -8,7 +8,8 @@ add_action('wp_enqueue_scripts', 'spora_enqueue_scripts');
 
 
 add_filter('woocommerce_enqueue_styles', function ($styles) {
-    if (is_shop()) {
+    // Accueil : seul le mini-panier vient de WooCommerce, et le theme le style deja.
+    if (is_shop() || is_front_page()) {
         return false;
     }
     return $styles;
