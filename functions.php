@@ -32,14 +32,21 @@ function spora_enqueue_scripts() {
         true
     );
 
+    // Jeu du logo : modules ES, charges par amorce.js. Chaque module est declare sous sa propre
+    // URL : la carte d'import ajoute alors ?ver= aux imports relatifs (./principal.js), sinon le
+    // cache des telephones garderait les anciens fichiers.
     if ( is_front_page() ) {
-        wp_enqueue_script(
-            'spora-logo-explosion',
-            get_theme_file_uri( 'assets/js/logo-explosion.js' ),
-            [ 'spora-sfx' ],
-            wp_get_theme()->get( 'Version' ),
-            true
-        );
+        $version = wp_get_theme()->get( 'Version' );
+        $modules = [];
+        foreach ( glob( get_theme_file_path( 'assets/js/jeu/*.js' ) ) as $file ) {
+            if ( 'amorce.js' === basename( $file ) ) {
+                continue;
+            }
+            $url = get_theme_file_uri( 'assets/js/jeu/' . basename( $file ) );
+            wp_register_script_module( $url, $url, [], $version );
+            $modules[] = [ 'id' => $url, 'import' => 'dynamic' ];
+        }
+        wp_enqueue_script_module( 'spora-jeu', get_theme_file_uri( 'assets/js/jeu/amorce.js' ), $modules, $version );
     }
 }
 
