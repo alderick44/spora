@@ -24,7 +24,8 @@ import {
 } from './tresors.js';
 import { openTip } from './cartes.js';
 import { setCaption } from './messages.js';
-import { guideSet, chUnlocked, challengeDone, startLoop } from './principal.js';
+import { chUnlocked, challengeDone } from './defis.js';
+import { guideSet, startLoop } from './principal.js';
 
 export var shovel = {
   on: false, held: false, pouring: false, hideWhenEmpty: false, released: false,

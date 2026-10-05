@@ -19,9 +19,8 @@ import {
   tipImgs, positionTreasureOverlays, hideDigTip, buildTip, tipIdle, tapTip, openTip, tipAway
 } from './cartes.js';
 import { setCaption } from './messages.js';
-import {
-  guideFlags, startLoop, guideCurrent, siteHeader, updateChallengeUI, guideSet, getRelativePos
-} from './principal.js';
+import { updateChallengeUI } from './defis.js';
+import { guideFlags, startLoop, guideCurrent, siteHeader, guideSet, getRelativePos } from './principal.js';
 
 var treasuresFound = 0;                 // tresors deterres depuis la derniere explosion (repart a 0 au rebuild)
 export var strainById = { standard: STRAIN_STD };

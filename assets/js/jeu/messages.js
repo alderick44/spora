@@ -9,7 +9,8 @@ import {
 import { partie, monde, caption, vue } from './etat.js';
 import { savePlayerIfChanged } from './sauvegarde.js';
 import { weather } from './meteo.js';
-import { guideCurrent, camMinY, startLoop, challengeTick } from './principal.js';
+import { challengeTick } from './defis.js';
+import { guideCurrent, camMinY, startLoop } from './principal.js';
 
 var captionTimer = null;
 var leachTipAt = -1e9;
