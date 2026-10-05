@@ -3,11 +3,17 @@
 
   var container = document.getElementById('logo-explosion');
   if (!container) return;
+  // Mode demo (accueil) : classe posee par front-page.php ; ce qui est cache l'est en CSS (.is-demo).
+  // "Continuer" sur l'ecran de fin (endDemo) la retire : le jeu complet se debloque, jusqu'a la
+  // prochaine remise a zero (fleche, resetAllAndRebuild), qui relance la demo.
+  var DEMO_KEY = 'spora-demo-finie';
+  var DEMO_TREASURE_X = 0.26;             // demo : position du tresor, en fraction de la largeur de l'ecran
+  var DEMO_PAGE = container.classList.contains('is-demo'), DEMO = DEMO_PAGE;
+  try { if (DEMO && localStorage.getItem(DEMO_KEY)) { DEMO = false; container.classList.remove('is-demo'); } } catch (e) { /* stockage indisponible */ }
 
   var canvas = container.querySelector('#logo-explosion-canvas');
   var fallbackImg = container.querySelector('#logo-explosion-fallback');
   var rebuildBtn = document.getElementById('logo-explosion-rebuild');
-  var headerToggleBtn = document.getElementById('logo-explosion-header-toggle');
   var debugToggleBtn = document.getElementById('logo-explosion-debug-toggle');
   var debugPanel = document.getElementById('logo-explosion-debug-panel');
   var fullscreenBtn = document.getElementById('logo-explosion-fullscreen');
@@ -46,9 +52,25 @@
   var dpr = Math.min(window.devicePixelRatio || 1, 2);
   var isMobile = window.innerWidth < 768;
 
+  // Zoom arriere sur ecran etroit : tout se dessine a MOBILE_ZOOM de sa taille, donc on voit
+  // environ 1/MOBILE_ZOOM fois plus de monde. Le jeu raisonne en px LOGIQUES : W/H = la fenetre
+  // visible (CSS / ZOOM), U = l'unite de taille des objets (hauteur CSS de la boite). A
+  // 768 px et plus, ZOOM vaut exactement 1 : W/H = taille CSS, U = H, RS = dpr (rien ne change).
+  // ?zoom=0.4 dans l'URL remplace MOBILE_ZOOM (essais, borne entre 0.3 et 1).
+  var MOBILE_ZOOM = 0.55;                 // le reglage : plus petit = plus de monde visible, objets plus petits
+  var ZOOM_MAX_W = 768;                   // en dessous de cette largeur (CSS) de boite, on zoome
+  var zoomParam = /[?&]zoom=([0-9.]+)/.exec(window.location.search);
+  if (zoomParam && isFinite(parseFloat(zoomParam[1]))) MOBILE_ZOOM = Math.max(0.3, Math.min(1, parseFloat(zoomParam[1])));
+  var ZOOM = 1, RS = dpr;                 // RS : echelle de rendu du canvas (dpr x ZOOM)
+  function updateZoom() {
+    ZOOM = container.getBoundingClientRect().width < ZOOM_MAX_W ? MOBILE_ZOOM : 1;
+    RS = dpr * ZOOM;
+  }
+  updateZoom();
+
   // Legende sous la boite : indique quoi faire puis ce qui se passe, mise a jour aux
   // moments cles (image prete, explosion, premier champignon issu du mycelium, rebuild).
-  var CAPTION_BEFORE = isMobile ? 'Touchez le logo' : '';
+  var CAPTION_BEFORE = ''; // au doigt, c'est l'anneau du badge "play" qui invite (voir HOLD_MS)
   var CAPTION_EXPLODED = 'Récoltez à la main, creusez à la pelle ou martelez du poing (maintenez le clic) pour trouver les trésors, ou versez du mycélium.';
   var CAPTION_MYC = 'Le mycélium décompose le bois mort et rend ses nutriments au sol.';
   var CAPTION_NEED_MONEY = 'Il faut 20 $ pour un sac de mycélium — récoltez des champignons à la main.';
@@ -131,7 +153,8 @@
   function leachTip(bit, text, ack) {
     if (leachTipSeen & bit) return;
     var t = performance.now();
-    if (!explainEl || msgBlocked(t) || t - leachTipAt < LEACH_TIP_GAP_MS) return;
+    // Pendant la demo, et tant que le tutoriel n'est pas fini : ni conseil vert ni saviez-vous (voir aussi flushDeathAlert, msgTick).
+    if (!explainEl || msgBlocked(t) || t - leachTipAt < LEACH_TIP_GAP_MS || DEMO || guideCurrent()) return;
     if (!ack) leachTipSeen |= bit;
     leachTipAt = t;
     showExplain(text, null, ack ? bit : 0);
@@ -315,7 +338,7 @@
     if (!deathPending) return;
     var t = performance.now();
     if (t - deathPending.t > DEATH_ALERT_STALE_MS) { deathPending = null; return; }
-    if (!explainEl || !explainText || msgBlocked(t) || t - deathAlertAt < DEATH_ALERT_GAP_MS) return;
+    if (!explainEl || !explainText || msgBlocked(t) || t - deathAlertAt < DEATH_ALERT_GAP_MS || DEMO || guideCurrent()) return;
     if (explainEl.classList.contains('is-visible')) return; // jamais empile
     var d = deathPending;
     deathPending = null;
@@ -364,7 +387,7 @@
     msgTickAt = t;
     if (weather.raining) { if (rainSince === null) { rainSince = t; rainCount++; } } else rainSince = null;
     challengeTick(t);
-    if (!factEl || factShown >= 0 || msgBlocked(t)) return;
+    if (!factEl || factShown >= 0 || msgBlocked(t) || DEMO || guideCurrent()) return;
     if ((explainEl && explainEl.classList.contains('is-visible')) || t - explainEndAt < FACT_AFTER_EXPLAIN_MS) return;
     var slow = t - explodedAt >= FACT_FIRST_MS && t - factAt >= FACT_GAP_MS; // delais normaux ; les faits "now" les ignorent
     for (var i = 0; i < FACTS.length; i++) {
@@ -409,7 +432,7 @@
   var chDone = 0, chPlanted = 0, chPending = [], chHoldSince = [0, 0, 0], chListEl = null, chHeadEl = null, chDoneListEl = null, chDoneHeadEl = null;
   function chCount() { var n = 0; for (var i = 0; i < CHALLENGES.length; i++) if (chDone & (1 << i)) n++; return n; }
   function challengeDone(i) {
-    if (chDone & (1 << i)) return;
+    if (DEMO || chDone & (1 << i)) return;
     chDone |= 1 << i;
     if (CHALLENGES[i].gift) freeTrees++;
     chPending.push(i);
@@ -551,7 +574,7 @@
       if (ok >= CH_STRAINS_GOAL) challengeDone(3);
     }
     if (!(chDone & 16) && chUnlocked(4) && live.length && trees.length) {
-      var reach = W * CH_ZONE_REACH, cr = Math.ceil(reach / COL_W);
+      var reach = UW * CH_ZONE_REACH, cr = Math.ceil(reach / COL_W);
       for (i = 0; i < trees.length; i++) {
         var hasMyc = false, hasGrass = false, tc = Math.floor(trees[i].x / COL_W);
         for (j = 0; j < live.length; j++) if (Math.abs(live[j].x - trees[i].x) < reach) { hasMyc = true; break; }
@@ -594,7 +617,10 @@
     var magnetTx = 0, magnetTy = 0, magnetCx = 0, magnetCy = 0;
     var badgeZone = playBadge.parentElement;
 
-    document.addEventListener('mousemove', function (evt) {
+    // pointermove filtre sur la souris, pas mousemove : apres un tap, le navigateur envoie
+    // un faux mousemove qui laisserait le badge decale vers l'endroit touche.
+    document.addEventListener('pointermove', function (evt) {
+      if (evt.pointerType !== 'mouse') return;
       var zr = badgeZone.getBoundingClientRect();
       var bx = zr.left + zr.width / 2, by = zr.top + zr.height / 2;
       var dx = evt.clientX - bx, dy = evt.clientY - by;
@@ -608,8 +634,9 @@
     document.addEventListener('mouseleave', function () { magnetTx = 0; magnetTy = 0; });
 
     (function stepMagnet() {
-      magnetCx += (magnetTx - magnetCx) * MAGNET_EASE;
-      magnetCy += (magnetTy - magnetCy) * MAGNET_EASE;
+      var ease = holdTimer ? HOLD_FOLLOW_EASE : MAGNET_EASE; // au doigt : colle de pres
+      magnetCx += (magnetTx - magnetCx) * ease;
+      magnetCy += (magnetTy - magnetCy) * ease;
       playBadge.style.setProperty('--mx', magnetCx.toFixed(2) + 'px');
       playBadge.style.setProperty('--my', magnetCy.toFixed(2) + 'px');
       requestAnimationFrame(stepMagnet);
@@ -650,8 +677,9 @@
       return { x: tb.left - cr.left + 20, y: tb.top - cr.top + 20 };
     };
   }
+  // Cibles du monde : px logiques * cr.width / W (= * ZOOM) -> px CSS ; les marges (40, 90, 20) sont en px CSS, d'ou / ZOOM.
   // -1 / 1 si la cible est hors ecran a gauche / a droite (la fleche pointe alors droit vers ce cote), sinon 0.
-  function guideOff(sx) { return sx < 40 ? -1 : sx > W - 40 ? 1 : 0; }
+  function guideOff(sx) { return sx < 40 / ZOOM ? -1 : sx > W - 40 / ZOOM ? 1 : 0; }
   function guideTreeTarget(cr) {
     var list = matureTrees(), best = null, bd = Infinity, i;
     for (i = 0; i < list.length; i++) {
@@ -659,7 +687,7 @@
       if (d < bd) { bd = d; best = list[i]; }
     }
     if (!best) return null;
-    return { x: clamp(best.x - camX, 40, W - 40) * cr.width / W, y: clamp(surfaceAt(best.x) - camY - 12, 90, H - 20) * cr.height / H, off: guideOff(best.x - camX) };
+    return { x: clamp(best.x - camX, 40 / ZOOM, W - 40 / ZOOM) * cr.width / W, y: clamp(surfaceAt(best.x) - camY - 12, 90 / ZOOM, H - 20 / ZOOM) * cr.height / H, off: guideOff(best.x - camX) };
   }
   function guideCanopyTarget(cr) {
     var list = matureTrees(), best = null, bd = Infinity, i;
@@ -670,7 +698,7 @@
     }
     if (!best) return null;
     var tg = treeScale(best), by = best.by !== undefined ? best.by : surfaceAt(best.x) + TREE_EMBED;
-    return { x: clamp(best.x - camX, 40, W - 40) * cr.width / W, y: clamp(by - best.h * tg - camY, 90, H - 20) * cr.height / H, off: guideOff(best.x - camX) };
+    return { x: clamp(best.x - camX, 40 / ZOOM, W - 40 / ZOOM) * cr.width / W, y: clamp(by - best.h * tg - camY, 90 / ZOOM, H - 20 / ZOOM) * cr.height / H, off: guideOff(best.x - camX) };
   }
   // Centre du mycelium vivant (la ou deposer le bois), ou null s'il n'y en a pas.
   function guideMycTarget(cr) {
@@ -678,7 +706,7 @@
     for (var i = 0; i < colonised.length; i++) if (colonised[i].myc > 0) { n++; mx += colonised[i].x; my += colonised[i].y; }
     if (!n) return null;
     mx /= n; my /= n;
-    return { x: clamp(mx - camX, 40, W - 40) * cr.width / W, y: clamp(my - camY - 10, 90, H - 20) * cr.height / H, off: guideOff(mx - camX) };
+    return { x: clamp(mx - camX, 40 / ZOOM, W - 40 / ZOOM) * cr.width / W, y: clamp(my - camY - 10, 90 / ZOOM, H - 20 / ZOOM) * cr.height / H, off: guideOff(mx - camX) };
   }
   // Le bois est en main : on pointe le mycelium ; lache au mauvais endroit, on repointe l'arbre.
   function guideLeavesTarget(cr) {
@@ -697,7 +725,7 @@
       if (d < bd) { bd = d; best = m; }
     }
     if (!best) return guideMycTarget(cr);
-    return { x: clamp(best.x - camX, 40, W - 40) * cr.width / W, y: clamp(surfaceAt(best.x) - best.size * 0.8 - camY, 90, H - 20) * cr.height / H, off: guideOff(best.x - camX) };
+    return { x: clamp(best.x - camX, 40 / ZOOM, W - 40 / ZOOM) * cr.width / W, y: clamp(surfaceAt(best.x) - best.size * 0.8 - camY, 90 / ZOOM, H - 20 / ZOOM) * cr.height / H, off: guideOff(best.x - camX) };
   }
   function guideTreeHint() {
     if (matureTrees().length) return null;
@@ -714,9 +742,9 @@
   var GUIDE = [
     { id: 'tools', done: function () { return guideFlags.tools; }, magnet: true,
       target: guideElTarget(function () { return toolsBar; }) },
-    { id: 'myc', done: function () { return guideFlags.myc; }, dir: 'right',
+    { id: 'myc', done: function () { return guideFlags.myc && unlockedStrains.length > 0; }, dir: 'right',
       target: guideElTarget(function () { return toolsBar.querySelector('[data-tool="mycelium"]'); }) },
-    { id: 'strain', done: function () { return guideFlags.strain || guideFlags.poured; }, dir: 'down',
+    { id: 'strain', done: function () { return DEMO || guideFlags.strain || guideFlags.poured; }, dir: 'down', // demo : une seule souche, menu cache
       target: guideElTarget(function () { return strainsBar && (strainsBar.querySelector('[data-strain="' + bagStrain + '"]') || strainsBar.querySelector('[data-strain]')); }) },
     { id: 'tree', done: function () { return guideFlags.poured && (guideFlags.fed || livingMyc()); }, dir: 'up', magnet: true, halo: 'tree', hint: guideTreeHint,
       target: guideTreeTarget, msg: function () { return CAPTION_MYC_PLACE; } },
@@ -1005,8 +1033,10 @@
     if (moneyVal) moneyVal.textContent = money;
   }
   function earn(amount) {
+    // En demo l'argent est cache (mycelium gratuit, voir ensureBag) mais s'accumule en
+    // silence : le joueur le retrouve quand le jeu complet se debloque.
     money += amount;
-    if (window.sporaSfx) sporaSfx.play('coin'); 
+    if (!DEMO && window.sporaSfx) sporaSfx.play('coin'); 
     moneyRevealed = true;
     updateMoneyUI();
     savePlayerIfChanged();
@@ -1015,7 +1045,7 @@
   // si les fonds le permettent. Retourne false (et ne change rien) si on ne peut pas payer.
   function ensureBag() {
     if (bagGrainsLeft > 0) return true;
-    if (!usedFreeBag) { usedFreeBag = true; bagGrainsLeft = BAG_GRAINS; return true; }
+    if (DEMO || !usedFreeBag) { usedFreeBag = true; bagGrainsLeft = BAG_GRAINS; return true; }
     if (money < BAG_COST) return false;
     money -= BAG_COST;
     bagGrainsLeft = BAG_GRAINS;
@@ -1124,8 +1154,16 @@
   var ROOT_GROWTH_MIN = 0.15;             // longueur des racines a la naissance (fraction de leur taille mature)
   var LEAF_UNLOCK_MIN = 8;                // places de feuilles utilisables a la naissance (sur 40)
   var TREE_SCALE_MIN = 0.3;               // taille du tronc/houppier a la naissance (fraction de la taille de reference)
-  var TREE_SCALE_MAX = 1.6;               // taille du tronc/houppier une fois bien nourri (fraction de la taille de reference)
-  var TREE_COST_STEP = 100;               // 1er arbre plante gratuit, puis 1x, 2x, 3x ce palier ; ensuite toujours 3x (pas de plafond de nombre)
+  var TREE_SCALE_MAX = 1.6;              // taille du tronc/houppier une fois bien nourri (fraction de la taille de reference)
+  // Au-dela de la maturite, chaque nutriment mange (t.surplus) fait encore monter l'arbre,
+  // lentement : TALL_FULL nutriments pour la hauteur max (+TALL_SCALE_MAX d'echelle). Plus
+  // il est haut, plus le vent emporte ses feuilles loin (TALL_WIND_MULT a la hauteur max).
+  // Affame, il perd d'abord cette hauteur avant de perdre sa maturite.
+  var TALL_FULL = 40;
+  var TALL_SCALE_MAX = 1.0;
+  var TALL_WIND_MULT = 1.5;
+  var SMALL_WIND_MULT = 0.3;              // vent sur les feuilles d'un arbre tout neuf : elles tombent pres du pied, donc il se nourrit et grandit (monte a 1 a maturite)
+  var TREE_COST_STEP = 100;              // 1er arbre plante gratuit, puis 1x, 2x, 3x ce palier ; ensuite toujours 3x (pas de plafond de nombre)
   var TREE_COST_MAX_MULT = 3;
   var START_TREES = 2;                    // arbres de depart (voir la creation du monde), non payes
   function nextTreeCost() {
@@ -1236,7 +1274,9 @@
   // de def.x/species, juste une infobulle qui suit ce champignon-la). Voir sprout().
   var mycTip = null, mycTipMushroom = null, mycTipShown = false;
 
-  var W = 0, H = 0, groundY = 0;
+  // W/H : fenetre visible en px logiques. U/UW : unite de taille (hauteur/largeur CSS de la
+  // boite, en px logiques) pour tout ce qui ne doit pas changer quand la fenetre s'agrandit.
+  var W = 0, H = 0, U = 0, UW = 0, groundY = 0;
   var shards = [], heights = [], mushrooms = [];
   // compactY[c] est le sommet (y monde) de la couche compacte a la colonne c : ne peut que
   // descendre (la pelle la decompacte, voir cutCompact), jamais remonter au-dessus du
@@ -1294,17 +1334,25 @@
   var SOIL_RISE_FRAMES = 32;
   var soilRiseT = 1, soilDepth = 0;       // soilRiseT < 1 : le lit est en train de monter
 
+  // Toile a sa vraie resolution (px CSS x dpr) ; le style garde la taille CSS de la boite.
+  function sizeCanvas() {
+    canvas.width = ZOOM === 1 ? W * dpr : Math.round(W * RS);
+    canvas.height = ZOOM === 1 ? H * dpr : Math.round(H * RS);
+    canvas.style.width = W * ZOOM + 'px'; canvas.style.height = H * ZOOM + 'px';
+  }
+
   function setupSoil(rect) {
-    W = rect.width; H = rect.height;
-    canvas.width = W * dpr; canvas.height = H * dpr;
-    canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+    W = rect.width / ZOOM; H = rect.height / ZOOM;
+    U = H * ZOOM; UW = W * ZOOM;
+    sizeCanvas();
     // Le monde deborde de la boite ; la boite est centree dedans au depart.
     worldW = W * WORLD_MULT;
     camMargin = (worldW - W) / 2;
     camX = camMargin;
-    worldH = H + H * DEPTH_MULT;
-    camY = 0;
-    groundY = H - 6;
+    // Zoome, la fenetre (H) depasse U : le monde doit rester plus haut qu'elle (bornes de camY jamais inversees).
+    worldH = Math.max(U + U * DEPTH_MULT, H + U * 0.5);
+    groundY = U - 6;
+    camY = camHomeY(); // 0 sans zoom ; zoome, remonte pour poser le sol au bas de l'ecran
     buildHills();
     heights = new Float32Array(Math.ceil(worldW / COL_W) + 1);
     compactY = new Float32Array(heights.length);
@@ -1318,7 +1366,7 @@
     updateDroughtIndicator();
 
     // Profil : couche de base ondulee + bosse centrale sous le logo (au centre du monde).
-    var base = H * 0.07, bump = H * 0.08, phase = Math.random() * 10;
+    var base = U * 0.07, bump = U * 0.08, phase = Math.random() * 10;
     function profile(x) {
       var u = x / worldW;
       var mound = Math.exp(-Math.pow((u - 0.5) / 0.3, 2));
@@ -1333,9 +1381,9 @@
     // Maillage low-poly (sommets partages et decales) sur toute la largeur du MONDE,
     // puis on ne garde que les triangles sous la crete : leurs pointes forment une
     // crete dentelee. Coordonnees x en px monde (0..worldW), pas de decalage camera ici.
-    var cell = Math.max(6, W / 160);
+    var cell = Math.max(6, UW / 160);
     var rows = Math.ceil((base * 1.4 + bump + 6) / cell), cols = Math.ceil(worldW / cell);
-    var top = H - rows * cell;
+    var top = U - rows * cell;
     var verts = [];
     for (var j = 0; j <= rows; j++) {
       verts[j] = [];
@@ -1385,7 +1433,7 @@
     var surf = surfaceAt(cx);
     if (cy < surf) return;
     // Plus sombre en profondeur : la terre "fraiche" se voit quand on creuse.
-    var depth = Math.min(1, (cy - surf) / Math.max(1, H - surf));
+    var depth = Math.min(1, (cy - surf) / Math.max(1, U - surf));
     var k = (Math.random() - 0.5) * 0.2 - depth * 0.3;
     var color = shade(hexToRgb(EARTH[(Math.random() * EARTH.length) | 0]), k);
     shards.push({
@@ -1403,14 +1451,17 @@
   // Construit au moment du clic (pas au chargement) : la boite et le fallback sont
   // alors forcement mesures a leur vraie taille.
   function build() {
+    updateZoom(); // avant toute mesure : tout ce qui suit est en px logiques
     var rect = container.getBoundingClientRect();
     setupSoil(rect);
 
     // Le logo est place exactement la ou le CSS affiche le fallback (encore visible
     // a ce moment-la) : taille et position se reglent donc uniquement dans style.css.
-    // + camMargin : la boite est centree dans le monde, donc le logo aussi.
+    // + camMargin : la boite est centree dans le monde, donc le logo aussi. + camY : zoome,
+    // la vue de depart est remontee (camHomeY), sans ca le logo du jeu apparaitrait plus bas
+    // que celui de la page.
     var fr = fallbackImg.getBoundingClientRect();
-    var lx = fr.left - rect.left + camMargin, oy = fr.top - rect.top, lw = fr.width, lh = fr.height;
+    var lx = (fr.left - rect.left) / ZOOM + camMargin, oy = (fr.top - rect.top) / ZOOM + camY, lw = fr.width / ZOOM, lh = fr.height / ZOOM;
     var CELL = Math.max(5, lw / CELLS_ACROSS);
     var cols = Math.ceil(lw / CELL), rows = Math.ceil(lh / CELL);
 
@@ -1678,7 +1729,7 @@
   var restoredTrees = null;   // arbres lus dans la sauvegarde, consommes par explode()
   function saveTrees() {
     return trees.slice(0, TREES_SAVE_MAX).map(function (t) {
-      return { x: Math.round(t.x), e: Math.min(MATURE_NUTRIENTS, Math.max(0, Math.round(t.eaten) || 0)), p: t.planted ? 1 : 0 };
+      return { x: Math.round(t.x), e: Math.min(MATURE_NUTRIENTS, Math.max(0, Math.round(t.eaten) || 0)), s: Math.min(TALL_FULL, Math.max(0, Math.round(t.surplus) || 0)), p: t.planted ? 1 : 0, g: t.tuto ? 1 : 0 };
     });
   }
   // Colonne valide la plus proche de x (terrain restaure : roche exposee ou lac) dans un
@@ -1706,8 +1757,10 @@
       }
       var t = makeTree(x);
       t.planted = planted;
+      t.tuto = !!o.g;
       t.eaten = Math.min(MATURE_NUTRIENTS, Math.max(0, Math.round(o.e)));
       t.growth = Math.min(1, t.eaten / MATURE_NUTRIENTS);
+      t.surplus = typeof o.s === 'number' && isFinite(o.s) ? Math.min(TALL_FULL, Math.max(0, Math.round(o.s))) : 0;
       // Les 8 feuilles de depart suffiraient pour un arbre neuf ; un arbre grand en veut plus.
       for (var k = 8; k < Math.round(unlockedSlots(t) * 0.7); k++) addLeaf(t, vTime - Math.random() * LEAF_LIFE_MS[0] * 0.6);
       ageSomeLeaves(t);
@@ -1734,7 +1787,7 @@
         r[c] = rocky[c] ? 1 : 0;
       }
       var m = saveMycelium(), p = playerState();
-      localStorage.setItem(WORLD_KEY, JSON.stringify({ v: WORLD_VERSION, cols: n, heights: h, compactY: cy, rocky: r, myc: m.myc, strains: m.strains, trees: saveTrees(), player: p }));
+      localStorage.setItem(WORLD_KEY, JSON.stringify({ v: WORLD_VERSION, zoom: ZOOM, cols: n, heights: h, compactY: cy, rocky: r, myc: m.myc, strains: m.strains, trees: saveTrees(), player: p }));
       worldKeyHeld = true;
       worldSig = terrainSig();
       worldEaten = eatenSum();
@@ -1767,6 +1820,9 @@
   // Fleche de reconstruction : efface la sauvegarde ET l'etat du joueur en memoire, puis joue
   // l'animation de reconstruction du logo (le prochain monde repart de zero, pas de la cle).
   function resetAllAndRebuild() {
+    try { localStorage.removeItem(DEMO_KEY); } catch (e) { /* rien a effacer */ }
+    DEMO = DEMO_PAGE;
+    container.classList.toggle('is-demo', DEMO);
     try { localStorage.removeItem(WORLD_KEY); } catch (e) { /* rien a effacer */ }
     guideReset();
     worldKeyHeld = false;
@@ -1783,6 +1839,7 @@
     rebuild();
   }
   window.sporaResetWorld = function () {
+    try { localStorage.removeItem(DEMO_KEY); } catch (e) { /* rien a effacer */ }
     worldSaveOff = true;
     try { localStorage.removeItem(WORLD_KEY); } catch (e) { /* rien a effacer */ }
     guideReset();
@@ -1844,7 +1901,8 @@
     var n = heights.length;
     try {
       var d = JSON.parse(localStorage.getItem(WORLD_KEY));
-      if (!d || d.v !== WORLD_VERSION || d.cols !== n) return false;
+      // Positions en px logiques : valables seulement pour le meme zoom (sans champ = ancienne sauvegarde, zoom 1).
+      if (!d || d.v !== WORLD_VERSION || d.cols !== n || (d.zoom === undefined ? 1 : d.zoom) !== ZOOM) return false;
       var arrs = [d.heights, d.compactY, d.rocky];
       for (var a = 0; a < 3; a++) {
         if (!Array.isArray(arrs[a]) || arrs[a].length !== n) return false;
@@ -1892,8 +1950,8 @@
       var start = (Math.random() * Math.max(1, rocky.length - w)) | 0;
       // Bosse (comme le mound du profil general) : un vrai bloc qui depasse du sol, pas
       // une simple tache plate — pointe au milieu de la plaque, s'efface sur les bords.
-      var peak = H * (ROCK_H_MIN + Math.random() * (ROCK_H_MAX - ROCK_H_MIN));
-      var basin = p < nBasin, dip = H * ROCK_BASIN_DEPTH;
+      var peak = U * (ROCK_H_MIN + Math.random() * (ROCK_H_MAX - ROCK_H_MIN));
+      var basin = p < nBasin, dip = U * ROCK_BASIN_DEPTH;
       for (var c = start; c < start + w && c < rocky.length; c++) {
         rocky[c] = 1;
         var t = (c - start) / w, edge = Math.sin(Math.PI * t);
@@ -1977,7 +2035,7 @@
       s.vr = (Math.random() - 0.5) * 0.35;
     }
     if (rebuildBtn) rebuildBtn.classList.remove('d-none');
-    if (headerToggleBtn) { headerToggleBtn.classList.remove('d-none'); setHeaderToggleState(true); }
+    compactHeaderForGame();
     if (fullscreenBtn) fullscreenBtn.classList.remove('d-none');
     if (speedBtn) speedBtn.classList.remove('d-none');
     if (debugToggleBtn) debugToggleBtn.classList.remove('d-none');
@@ -2022,7 +2080,7 @@
   // du bas ca descend (camY vers worldH - H, plus profond).
   function cameraSpeedY(screenY) {
     var edge = H * CAMERA_EDGE;
-    var y = Math.max(0, screenY - CAMERA_TOP_DEADZONE);
+    var y = Math.max(0, screenY - CAMERA_TOP_DEADZONE / ZOOM); // la zone cachee par le header est en px CSS
     if (y < edge) {
       var k = 1 - y / edge;
       return -CAMERA_MAX_Y * k * k;
@@ -2048,13 +2106,15 @@
         bag.x = hand.x = hoverScreenX + camX;
         bag.y = hand.y = hoverScreenY + camY;
       }
-      var camV = mobileArrow ? mobileArrow * CAMERA_MAX : (hoverScreenX !== null ? cameraSpeed(hoverScreenX) : 0);
+      // Demo : le monde tient dans l'ecran, aucun defilement horizontal (bords, fleches, glissement).
+      var camV = DEMO ? 0 : mobileArrow ? mobileArrow * CAMERA_MAX : (hoverScreenX !== null ? cameraSpeed(hoverScreenX) : 0);
       if (camV) {
         var newCamX = clamp(camX + camV, 0, worldW - W);
         if (newCamX !== camX) camMoving = true;
         camX = newCamX;
       }
       if (camGoal) { // glissement vers une alerte ; tout defilement manuel l'annule
+        if (DEMO) camGoal.x = camX;
         if (camV || mobileArrowY) camGoal = null;
         else {
           var gdx = camGoal.x - camX, gdy = camGoal.y - camY;
@@ -2133,7 +2193,7 @@
         // feuille a sa prise au vent (s.gust) : la plupart tombent pres, certaines partent loin.
         var wind = (Math.sin(now / 20000) >= 0 ? 1 : -1) * (0.4 + 0.3 * (1 + Math.sin(now / 1700 + s.sway))) * WIND_STRENGTH;
         s.vy += GRAVITY * 0.22 / (1 + s.gust * 0.4); s.vy *= 0.96;
-        s.vx = s.vx * 0.95 + Math.sin(now / 350 + s.sway) * 0.1 + wind * (0.02 + s.gust * 0.045);
+        s.vx = s.vx * 0.95 + Math.sin(now / 350 + s.sway) * 0.1 + wind * (0.02 + s.gust * 0.045) * (s.wm || 1);
         driftScale = timeScale;
       } else if (s.leaf && !s.branch) {
         // Une feuille deja tombee au moins une fois (relancee par la pelle) : elle ne
@@ -2199,7 +2259,7 @@
     // Un champignon sorti du mycelium (pas plante a la main) fane si plus aucun mycelium
     // bien vivant n'est a portee pendant un moment : il ne peut pas survivre sans le
     // reseau qui l'a fait fructifier.
-    var mycNearReach = H * FRUIT_W;
+    var mycNearReach = U * FRUIT_W;
     for (i = 0; i < mushrooms.length; i++) {
       var mm = mushrooms[i];
       if (!mm.myc || mm.dying || mm.treasure) continue;
@@ -2274,8 +2334,8 @@
   var BLADE_ATTRACT = 0.12;               // attraction vers la lame (px/frame^2, sur la lame)
   var pointerDown = null, dragMoved = false;
 
-  function bowlR() { return H * BLADE_WIDTH / 2 / Math.sin(BOWL_SPAN); }
-  function loadDepth() { return H * 0.04; } // hauteur de terre que la lame peut porter
+  function bowlR() { return U * BLADE_WIDTH / 2 / Math.sin(BOWL_SPAN); }
+  function loadDepth() { return U * 0.04; } // hauteur de terre que la lame peut porter
   function angleDiff(a, b) { return Math.atan2(Math.sin(a - b), Math.cos(a - b)); }
   function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
 
@@ -2329,22 +2389,23 @@
   var PLANT_LEAN = 0.12;                  // legere inclinaison du manche (rad)
   function plantedX() {
     if (shovelPlant.x === null) shovelPlant.x = camMargin + W * 0.68; // coord. monde : dans la vue de depart, pres du tas
-    return clamp(shovelPlant.x, 30, worldW - 30);
+    // Demo : la camera ne defile pas, la pelle plantee reste donc dans la vue (voir compassGo).
+    return DEMO ? clamp(shovelPlant.x, camX + 30, camX + W - 30) : clamp(shovelPlant.x, 30, worldW - 30);
   }
   // Repere de la pelle plantee : s le long du manche (vers le haut), k en travers.
   function plantFrame() {
-    var x = plantedX(), bw = H * BLADE_WIDTH, bl = bw;
+    var x = plantedX(), bw = U * BLADE_WIDTH, bl = bw;
     return {
       x: x, sy: surfaceAt(x), bw: bw, bl: bl,
       ux: Math.sin(PLANT_LEAN), uy: -Math.cos(PLANT_LEAN), nx: Math.cos(PLANT_LEAN), ny: Math.sin(PLANT_LEAN),
-      sock: bw / 58 * 34, shaft: H * 0.13
+      sock: bw / 58 * 34, shaft: U * 0.13
     };
   }
   function plantPt(f, s, k) { return [f.x + f.ux * s + f.nx * k, f.sy + f.uy * s + f.ny * k]; }
   // Zone de saisie genereuse (surtout au doigt) autour du manche et de la partie visible de la lame.
   function shovelHit(x, y, touch) {
     if (shovel.on || mode !== 'exploded') return false;
-    var f = plantFrame(), r = touch ? Math.max(30, H * 0.06) : Math.max(14, H * 0.03);
+    var f = plantFrame(), r = touch ? Math.max(30, U * 0.06) : Math.max(14, U * 0.03);
     var top = f.bl * 0.45 + f.sock + f.shaft + f.bw / 58 * 12;
     var a = plantPt(f, -f.bl * 0.1, 0), b = plantPt(f, top, 0);
     return distToSeg(x, y, a[0], a[1], b[0], b[1]) <= Math.max(r, f.bw * 0.35);
@@ -2459,7 +2520,7 @@
   // elle. Un geste lent emporte la pelletee ; un geste rapide la laisse prendre du
   // retard progressivement (pas de decrochage sec).
   function bladeField(s) {
-    var R = bowlR(), field = H * BLADE_FIELD;
+    var R = bowlR(), field = U * BLADE_FIELD;
     var rx = s.x - shovel.cx, ry = s.y - shovel.cy, d = Math.hypot(rx, ry);
     if (d > R + 1 || d < R - field) return;
     if (Math.abs(angleDiff(Math.atan2(ry, rx), Math.PI / 2 - shovel.tilt)) > BOWL_SPAN) return;
@@ -2489,7 +2550,7 @@
     var R = bowlR() + BOWL_T, cut = null;
     var c0 = Math.max(0, Math.floor((shovel.cx - R) / COL_W)), c1 = Math.min(compactY.length - 1, Math.ceil((shovel.cx + R) / COL_W));
     for (var c = c0; c <= c1; c++) {
-      if (rocky[c]) continue; // roche-mere : la pelle ne l'entame jamais, buree ou non
+      if (rocky[c] || demoGuard(c * COL_W)) continue; // roche-mere : la pelle ne l'entame jamais, buree ou non
       var bo = bladeOuterY(c * COL_W, shovel.cx, shovel.cy, shovel.tilt, R);
       if (!bo || bo.y <= compactY[c]) continue;
       var newTop = Math.min(bo.y, worldH - BEDROCK_MARGIN);
@@ -2529,7 +2590,7 @@
   // Coeur commun (pelle et poing, voir fistStrike) : une facette de terre meuble neuve en
   // (x,y) a la vitesse (vx,vy), taille multipliee par sizeK. Retourne son aire.
   function makeDecompactShard(x, y, vx, vy, nutri, sizeK) {
-    var size = Math.max(6, W / 160) * 1.3 * sizeK;
+    var size = Math.max(6, UW / 160) * 1.3 * sizeK;
     var pts = [[-size * 0.55, size * 0.32], [size * 0.55, size * 0.32], [(Math.random() - 0.5) * size * 0.3, -size * 0.55]];
     // Assombrie selon la profondeur sous le niveau d'origine, comme addSoilShard : la
     // terre qui sort du compact reste de la terre normale, pas la terre sombre d'avant.
@@ -2595,7 +2656,7 @@
         touching = inBowl;
       }
       if (!touching && adx <= R * Math.sin(BOWL_SPAN) * 6 && s.y < surfaceAt(s.x) - 6) touching = true;
-      if (!touching) continue;
+      if (!touching || demoGuard(s.x)) continue;
       // Toute matiere enlevee peut laisser quelque chose en suspens juste au-dessus, y
       // compris le maillage statique d'origine (setupSoil) qui ne bouge jamais tout seul —
       // meme quand le joueur a deja quitte l'endroit avec la pelle. On note juste la
@@ -2659,7 +2720,7 @@
   // plantee) est pose par l appelant.
   var SHOVEL_TIP = [124, 168], SHOVEL_BOTTOM = [160, 175.8]; // pointe de la lame, fond de la coque
   function drawShovelShape(ax, ay, dir, ox, oy) {
-    var S = H * BLADE_WIDTH / 58, flip = Math.cos(dir) < 0;
+    var S = U * BLADE_WIDTH / 58, flip = Math.cos(dir) < 0;
     ctx.save();
     ctx.translate(ax, ay);
     if (flip) ctx.scale(-1, 1);
@@ -2698,7 +2759,7 @@
     var f = plantFrame(), tip = plantPt(f, -f.bw * 0.5, 0); // pointe a moitie enterree
     ctx.save();
     ctx.beginPath();
-    ctx.rect(f.x - f.bw * 3, f.sy - H * 2, f.bw * 6, H * 2);   // tout ce qui est sous la surface est cache
+    ctx.rect(f.x - f.bw * 3, f.sy - U * 2, f.bw * 6, U * 2);   // tout ce qui est sous la surface est cache
     ctx.clip();
     drawShovelShape(tip[0], tip[1], Math.atan2(f.uy, f.ux), SHOVEL_TIP[0], SHOVEL_TIP[1]);
     ctx.restore();
@@ -2749,18 +2810,26 @@
   // Outil main : vend un champignon mur issu du mycelium (pas les tresors, qui gardent
   // leur infobulle produit, ni les champignons plantes a la main sans valeur marchande).
   function harvestableNear(x, y) {
+    // Au doigt : a defaut d'etre pile dessus, le champignon mur le plus proche dans l'anneau.
+    var reach = hand.touch ? HAND_RING_R / ZOOM : 0, best = null, bestD = reach;
     for (var i = 0; i < mushrooms.length; i++) {
       var m = mushrooms[i];
       if (!m.myc || m.treasure || m.dying || m.t < 0.9) continue;
       if (Math.abs(x - m.x) < m.size * 0.9 && y > surfaceAt(m.x) - m.size * 1.6) return m;
+      if (reach) {
+        var d = Math.hypot(x - m.x, y - (surfaceAt(m.x) - m.size * 0.8));
+        if (d < bestD) { bestD = d; best = m; }
+      }
     }
-    return null;
+    return best;
   }
   function harvestAt(pos) {
     var m = harvestableNear(pos.x, pos.y);
     if (!m) return;
     m.dying = true;
+    hand.flash = performance.now();
     guideSet('harvest');
+    queueDemoEnd(); // la premiere recolte termine la demo
     harvestCount++;
     var hs = m.strain && m.strain.id ? m.strain.id : 'standard', hi = CH_HARVEST_IDS.indexOf(hs);
     if (hi !== -1 && !(chDone & (256 << hi)) && chUnlocked(8 + hi)) {
@@ -2789,7 +2858,7 @@
   var HAND_LIMB_TOL = 12;                 // distance max (px) du curseur a un segment de branche pour l'agripper
   var HAND_BREAK_DIST = 40;               // ecart (px) au point de prise au-dela duquel la branche casse
   var LIMB_REGROW_MS = 120000;            // une branche maitresse cassee reapparait apres ce delai (temps de jeu, vTime)
-  var hand = { x: 0, y: 0, on: false, fist: 0, tilt: 0, rot: 0, lx: 0, grip: null, px: 0, py: 0, pcx: 0, pcy: 0 };
+  var hand = { x: 0, y: 0, on: false, fist: 0, tilt: 0, rot: 0, lx: 0, grip: null, px: 0, py: 0, pcx: 0, pcy: 0, touch: false, flash: 0 };
   var handCarry = [];
   // Effleurement : la main qui BOUGE pousse un peu ce qu'elle frole, comme la pelle mais
   // tres doucement (voir handPush). Vitesse en px/frame, mesuree en repere monde moins le
@@ -2807,6 +2876,11 @@
   // parcourus ; chaque coup entame un peu le compact sous le poing et deloge de petits
   // blocs projetes dans le sens du geste. Il faut repasser pour creuser profond.
   var HAND_FIST_R = 26;                   // rayon du poing (px, monde)
+  // Au doigt, le poing est cache dessous : un anneau depasse autour du doigt et sert de portee
+  // de cueillette (tout champignon mur dedans est cueilli), il clignote dore quand on attrape.
+  var HAND_RING_R = 38;                   // rayon de l'anneau (px CSS, donc / ZOOM en monde)
+  var HAND_FLASH_MS = 300;                // duree de l'eclat dore
+  var HAND_ZOOM_K = 1.45;                 // poing grossi quand le jeu est dezoome, sinon minuscule sous le doigt
   var HAND_FIST_MIN_V = 1;              // vitesse minimale (px/frame) pour compter comme geste
   var HAND_FIST_MAX_V = 14;               // vitesse retenue au plus pour la projection
   var HAND_FIST_STEP = 14;               // distance parcourue (px) entre deux coups
@@ -3042,7 +3116,7 @@
       if (!s.settled || s.carried || s.dead || s.eaten !== undefined || s.grain) continue;
       if (s.myc || s.nutri || s.deadMyc || !s.kcol) continue; // mycelium : jamais (le maillage de terre, lui, se brise comme sous la pelle)
       var sdx = s.x - hand.x, sdy = s.y - hand.y;
-      if (sdx > R || sdx < -R || sdy > R || sdy < -R || sdx * sdx + sdy * sdy > R * R) continue;
+      if (sdx > R || sdx < -R || sdy > R || sdy < -R || sdx * sdx + sdy * sdy > R * R || demoGuard(s.x)) continue;
       if (s.col >= 0) { if (!cut) cut = {}; cut[s.col] = true; } // ce qui reposait dessus doit retomber
       pileRemove(s);
       s.settled = false;
@@ -3056,7 +3130,7 @@
     var c0 = Math.max(0, Math.floor((hand.x - R) / COL_W)), c1 = Math.min(compactY.length - 1, Math.ceil((hand.x + R) / COL_W));
     var dug = false;
     for (c = c0; c <= c1; c++) {
-      if (rocky[c]) continue;               // roche-mere : le poing ne l'entame pas plus que la pelle
+      if (rocky[c] || demoGuard(c * COL_W)) continue; // roche-mere : le poing ne l'entame pas plus que la pelle
       var ddx = c * COL_W - hand.x;
       if (ddx > R || ddx < -R) continue;
       var bottom = hand.y + Math.sqrt(R * R - ddx * ddx);
@@ -3132,7 +3206,7 @@
       if (busyHand || loose >= HAND_PUSH_MAX_LOOSE) continue;
       if (s.soil || s.myc || s.nutri || s.deadMyc || !s.kcol) continue; // maillage d'origine, mycelium : jamais
       if (s.y > surfaceAt(s.x) + HAND_PUSH_DEPTH) continue;             // enfouie sous la peau du tas
-      if (Math.random() > HAND_PUSH_P * k * 2) continue;
+      if (Math.random() > HAND_PUSH_P * k * 2 || demoGuard(s.x)) continue;
       pileRemove(s);
       s.settled = false;
       s.vx = hvx * HAND_PUSH_LOOSE; s.vy = Math.min(hvy * HAND_PUSH_LOOSE, 0) - 0.6 - Math.random() * 0.6;
@@ -3156,7 +3230,15 @@
   // doigts raccourcis dont le bout se replie sur la paume, pouce en travers.
   function drawHand() {
     if (!hand.on) return;
-    var f = hand.fist, k = clamp(H / 500, 0.7, 1.3), i;
+    var f = hand.fist, k = clamp(U / 500, 0.7, 1.3) * (ZOOM < 1 ? HAND_ZOOM_K : 1), i;
+    if (hand.touch) {
+      // Epaisseurs en px CSS (/ ZOOM) : l'anneau garde la meme taille a l'ecran quel que soit le zoom.
+      var fl = clamp(1 - (performance.now() - hand.flash) / HAND_FLASH_MS, 0, 1);
+      ctx.beginPath();
+      ctx.arc(hand.x, hand.y, (HAND_RING_R * (1 - 0.1 * f) + 6 * fl) / ZOOM, 0, Math.PI * 2);
+      ctx.lineWidth = 5 / ZOOM; ctx.strokeStyle = 'rgba(43,29,16,0.35)'; ctx.stroke();
+      ctx.lineWidth = 2.5 / ZOOM; ctx.strokeStyle = fl > 0 ? 'rgba(243,201,74,' + (0.6 + 0.4 * fl) + ')' : 'rgba(255,248,230,0.85)'; ctx.stroke();
+    }
     ctx.save();
     ctx.translate(hand.x, hand.y);
     ctx.rotate(hand.rot);
@@ -3211,6 +3293,7 @@
         if (flying && !s.leaf) continue;
         if (!!s.leaf !== (pass === 0)) continue;
         if (Math.hypot(s.x - pos.x, s.y - pos.y) > (flying ? HAND_PICK_R * 1.5 : HAND_PICK_R)) continue;
+        if (!s.leaf && demoGuard(s.x)) continue; // la terre seulement : le bois et les feuilles se ramassent toujours
         if (!flying) pileRemove(s);
         s.settled = false;
         s.carried = true;
@@ -3235,13 +3318,14 @@
   // fromMyc : true quand la grappe sort d'une zone de mycelium bien blanche
   // (spreadMycelium) plutot que plantee a la main (tap sur la terre nue, handleTap) —
   // seule celle-la fane si le mycelium qui l'a fait sortir disparait (voir step()).
+  var MYC_MUSHROOM_SCALE = 0.55;          // les grappes issues du mycelium restent petites : le tresor seul est gros
   function sprout(x, fromMyc, strain) {
     var sp = fromMyc && strain ? speciesForStrain(strain) : SPECIES[speciesIdx++ % SPECIES.length];
     var n = 1 + ((Math.random() * 3) | 0);
     var mainMushroom = null;
     for (var i = 0; i < n; i++) {
       var side = i === 0 ? 0 : (i === 1 ? -1 : 1);
-      var size = H * 0.2 * (0.6 + Math.random() * 0.6) * (i === 0 ? 1.15 : 0.85);
+      var size = U * 0.2 * (0.6 + Math.random() * 0.6) * (i === 0 ? 1.15 : 0.85) * (fromMyc ? MYC_MUSHROOM_SCALE : 1);
       var m = {
         x: x + side * size * 0.55, size: size,
         lean: (Math.random() - 0.5) * 0.35 + side * 0.2,
@@ -3366,7 +3450,7 @@
 
   // Grille de voisinage refaite a chaque passage : la pelle deplace les facettes.
   function spreadMycelium(now) {
-    var D = 14, radius = H * MYC_RADIUS, grid = new Map(), i, s, b;
+    var D = 14, radius = U * MYC_RADIUS, grid = new Map(), i, s, b;
     for (i = 0; i < shards.length; i++) {
       s = shards[i];
       if (!s.settled) continue;
@@ -3374,7 +3458,7 @@
       var cell = grid.get(key);
       if (cell) cell.push(s); else grid.set(key, [s]);
     }
-    var buckets = {}, fw = H * FRUIT_W;
+    var buckets = {}, fw = U * FRUIT_W;
     for (i = 0; i < colonised.length; i++) {
       var c = colonised[i];
       if (!c.settled || c.myc < MYC_READY) continue;
@@ -3434,6 +3518,7 @@
     var goal = bag.pouring ? 0.45 : 1.9;
     bag.rot += (goal - bag.rot) * 0.18;
     if (!bag.pouring || bag.rot > 1) return; // les grains coulent une fois le sac bascule
+    if (bagGrainsLeft <= 0 && DEMO) bagGrainsLeft = BAG_GRAINS; // demo : mycelium gratuit, le sac ne se vide jamais
     if (bagGrainsLeft <= 0) {
       bag.pouring = false; // sac vide : se redresse tout seul
       setCaption(CAPTION_BAG_EMPTY);
@@ -3461,7 +3546,7 @@
 
   function drawBag() {
     if (!bag.on) return;
-    var k = clamp(H / 500, 0.7, 1.3);
+    var k = clamp(U / 500, 0.7, 1.3);
     ctx.save();
     ctx.translate(bag.x, bag.y);
     ctx.rotate(bag.rot);
@@ -3583,7 +3668,7 @@
     for (var i = 0; i < RAIN_CLOUDS_N; i++) {
       weather.clouds.push({
         x: (worldW / RAIN_CLOUDS_N) * (i + Math.random() * 0.4),
-        w: H * (0.5 + Math.random() * 0.4),
+        w: U * (0.5 + Math.random() * 0.4),
         vx: (Math.random() < 0.5 ? -1 : 1) * RAIN_CLOUD_DRIFT * (0.6 + Math.random() * 0.8)
       });
     }
@@ -3787,7 +3872,7 @@
     for (var c = 0; c < grassCover.length; c++) {
       if ((rocky[c] && heights[c] < ROCK_COVER_MIN) || isSubmergedCol(c)) { grassCover[c] = 0; continue; }
       var diff = heights[c] - grassPrevH[c];
-      if (Math.abs(diff) > GRASS_DISTURB_EPS) {
+      if (Math.abs(diff) > GRASS_DISTURB_EPS && !demoGuard(c * COL_W)) {
         if (grassCover[c] > 0 && performance.now() > grassTipFrom && ++grassLost >= GRASS_LOST_TIP && leachTip(16, CAPTION_GRASS_LOST, true)) grassLost = 0;
         grassCover[c] = 0;
       }
@@ -3817,7 +3902,7 @@
         var fx = flc * COL_W, treeInf = 0;
         for (var fti = 0; fti < trees.length; fti++) {
           var ft = trees[fti], fd = Math.abs(ft.x - fx);
-          var frr = H * lerp(FLORA_TREE_R_MIN, FLORA_TREE_R_MAX, ft.growth);
+          var frr = U * lerp(FLORA_TREE_R_MIN, FLORA_TREE_R_MAX, ft.growth);
           if (fd >= frr) continue;
           var infl = lerp(0.4, 1, ft.growth) * (1 - fd / frr);
           if (infl > treeInf) treeInf = infl;
@@ -4069,7 +4154,7 @@
     var pulse = 0.5 + 0.5 * Math.sin(vTime / 420);
     var list = matureTrees();
     for (var i = 0; i < list.length; i++) {
-      var hx = list[i].x, hy = surfaceAt(hx), rr = H * 0.07 * (0.9 + 0.2 * pulse);
+      var hx = list[i].x, hy = surfaceAt(hx), rr = U * 0.07 * (0.9 + 0.2 * pulse);
       ctx.save();
       ctx.translate(hx, hy);
       ctx.scale(1, 0.32);
@@ -4092,6 +4177,18 @@
   }
   // Tutoriel : le mycelium doit etre verse au pied de l'arbre (la ou tombe le bois), pas juste a cote.
   var MYC_UNDER_TREE = 120;
+  // Demo : le sol au pied de l'arbre du tutoriel (makeStartTree, t.tuto) ne se creuse pas et son
+  // gazon ne s'arrache pas, sinon le tutoriel du mycelium peut devenir infaisable. Les abords
+  // d'un tresor encore enfoui restent creusables : il faut pouvoir finir la demo.
+  var DEMO_GUARD_TREASURE = 45;
+  function demoGuard(x) {
+    if (!DEMO) return false;
+    var r = Math.min(MYC_UNDER_TREE, UW * 0.1), i, hit = false;
+    for (i = 0; i < trees.length && !hit; i++) hit = !!trees[i].tuto && Math.abs(trees[i].x - x) < r;
+    if (!hit) return false;
+    for (i = 0; i < treasures.length; i++) if (!treasures[i].revealed && Math.abs(treasures[i].x - x) < DEMO_GUARD_TREASURE) return false;
+    return true;
+  }
   function underMatureTree(x) {
     for (var i = 0; i < trees.length; i++) if (trees[i].growth >= MYC_HALO_GROWTH && Math.abs(trees[i].x - x) < MYC_UNDER_TREE) return true;
     return false;
@@ -4112,7 +4209,7 @@
     tool = name;
     updateStrainBar();
     container.classList.toggle('is-planting', name === 'tree');
-    if (name === 'mycelium') guideSet('myc');
+    if (name === 'mycelium' && unlockedStrains.length) guideSet('myc'); // sans souche debloquee, prendre l'outil ne compte pas (le tutoriel resterait sur la barre)
     for (var i = 0; i < toolBtns.length; i++) {
       // Le gazon n'a pas de bouton dans la barre d'outils : le bouton mycelium (dont la barre
       // contient le bouton gazon) reste actif, sinon tous les boutons sont replies et la barre disparait.
@@ -4126,7 +4223,7 @@
   // --- Arbres -----------------------------------------------------------------------
   function makeTree(x) {
     var now = vTime, slots = [], DEG = Math.PI / 180;
-    var rx = H * 0.2, ry = H * 0.13;
+    var rx = U * 0.2, ry = U * 0.13;
     // Branches maitresses : bouts en eventail sur le demi-plan superieur (200-340 deg, la
     // branche du milieu pointe vers le haut), dans l'ellipse du houppier. Les branches
     // laterales partent plus bas sur le tronc. f = hauteur de depart, en fraction de h
@@ -4148,7 +4245,7 @@
     // Places de feuilles : en round-robin sur les bouquets (les N premieres places debloquees
     // touchent donc tous les bouquets), autour du bout de leur branche (disque un peu aplati).
     for (var i = 0; i < 40; i++) {
-      var sa = Math.random() * Math.PI * 2, sr = Math.sqrt(Math.random()) * CANOPY_CLUSTER_R * H, lm = limbs[i % CANOPY_LIMBS];
+      var sa = Math.random() * Math.PI * 2, sr = Math.sqrt(Math.random()) * CANOPY_CLUSTER_R * U, lm = limbs[i % CANOPY_LIMBS];
       slots.push({ dx: lm.dx + Math.cos(sa) * sr, dy: lm.dy + Math.sin(sa) * sr * 0.8, leaf: null, limb: i % CANOPY_LIMBS });
     }
     // Racines dessinees : 6 racines laterales alternees gauche/droite, qui partent en
@@ -4156,7 +4253,7 @@
     // chacune avec une fourche. Longueur volontairement plus courte que la portee de
     // recherche de nutriment (voir ROOT_VISUAL_REACH plus haut). Points pre-calcules ici :
     // rien ne bouge d'une frame a l'autre. Chaque racine = { pts, forkAt, fork }.
-    var roots = [], reach = H * ROOT_VISUAL_REACH;
+    var roots = [], reach = U * ROOT_VISUAL_REACH;
     for (i = 0; i < 6; i++) {
       var side = i % 2 ? 1 : -1, len = (0.45 + Math.random() * 0.55) * reach, nseg = 5 + (Math.random() < 0.5 ? 1 : 0);
       var ang = (20 + Math.random() * 25) * DEG, pts = [[0, 0]], px = 0, py = 0, segL = len / nseg;
@@ -4184,7 +4281,7 @@
     // CAMERA_TOP_DEADZONE) plutot qu'a H au complet : sinon un arbre bien nourri
     // (TREE_SCALE_MAX) a sa cime qui finit cachee sous le header, sans que la camera
     // puisse jamais remonter assez pour la reveler (camY ne descend jamais sous 0).
-    var t = { x: x, h: (H - CAMERA_TOP_DEADZONE) * 0.42, slots: slots, limbs: limbs, roots: roots, nextEat: now + EAT_MS, eaten: 0, growth: 0, lastAte: now, flowers: [] };
+    var t = { x: x, h: (U - CAMERA_TOP_DEADZONE) * 0.42, slots: slots, limbs: limbs, roots: roots, nextEat: now + EAT_MS, eaten: 0, growth: 0, lastAte: now, flowers: [] };
     // Quelques feuilles au depart, d'ages varies : on reconnait un arbre tout de suite.
     for (i = 0; i < 8; i++) addLeaf(t, now - Math.random() * LEAF_LIFE_MS[0] * 0.6);
     return t;
@@ -4195,7 +4292,7 @@
     // Cherche vers la gauche (on reste au bord de l'ecran, loin du tas du logo) une zone
     // sans roche ni eau sur 4 colonnes de chaque cote.
     var maxX = (heights.length - 1) * COL_W, nx = null, cx, d, ok;
-    for (cx = x; cx >= x - W * 0.2 && nx === null; cx -= COL_W) {
+    for (cx = x; cx >= x - UW * 0.2 && nx === null; cx -= COL_W) {
       ok = true;
       for (d = -4; d <= 4 && ok; d++) {
         var px = cx + d * COL_W;
@@ -4205,6 +4302,7 @@
     }
     if (nx === null) nx = nearestTreeX(x);
     var t = makeTree(nx === null ? x : nx);
+    t.tuto = true; // l'arbre du tutoriel : son pied est protege en demo (demoGuard)
     t.eaten = Math.min(MATURE_NUTRIENTS, eaten);
     t.growth = Math.min(1, t.eaten / MATURE_NUTRIENTS);
     for (var k = 8; k < Math.round(unlockedSlots(t) * 0.7); k++) addLeaf(t, vTime - Math.random() * LEAF_LIFE_MS[0] * 0.6);
@@ -4220,8 +4318,9 @@
   // Echelle du tronc/houppier : petit a la naissance, et nettement plus grand que la
   // taille de reference une fois bien nourri (TREE_SCALE_MAX > 1).
   function treeScale(t) {
-    return lerp(TREE_SCALE_MIN, TREE_SCALE_MAX, t.growth);
+    return lerp(TREE_SCALE_MIN, TREE_SCALE_MAX, t.growth) + TALL_SCALE_MAX * treeTall(t);
   }
+  function treeTall(t) { return Math.min(1, (t.surplus || 0) / TALL_FULL); }
 
   // Plante un nouvel arbre (TREE_COST) si on n'est pas trop pres d'un autre
   // (TREE_MIN_SPACING). Pas de plafond : seul le prix limite le nombre.
@@ -4266,9 +4365,10 @@
 
   // Facette d'une feuille qui quitte son arbre (chute naturelle, ou arrachee a la main),
   // couleur de son age (0..1) ; posee ensuite comme n'importe quelle feuille (litiere).
-  function makeLeafShard(lf, x, y, age) {
+  function makeLeafShard(lf, x, y, age, wm) {
     var pts = leafTri(lf.size, lf.rot);
     return {
+      wm: wm || 1,
       pts: pts, x: x, y: y, vx: (Math.random() - 0.5) * 0.6, vy: 0,
       rot: 0, vr: (Math.random() - 0.5) * 0.06, from: leafColor(age),
       to: hexToRgb(NUTRI[(Math.random() * NUTRI.length) | 0]), mix: 0,
@@ -4282,7 +4382,7 @@
   // couleur de bois plutot que de feuille fanee. pts : forme (triangle) ; par defaut un
   // triangle de feuille agrandi.
   function makeWoodShard(x, y, pts) {
-    pts = pts || leafTri(H * 0.05, Math.random() * Math.PI * 2);
+    pts = pts || leafTri(U * 0.05, Math.random() * Math.PI * 2);
     return {
       pts: pts, x: x, y: y, vx: (Math.random() - 0.5) * 0.4, vy: 0,
       rot: 0, vr: (Math.random() - 0.5) * 0.04, from: [107, 74, 48],
@@ -4313,7 +4413,7 @@
     if (!free.length) return false;
     free[(Math.random() * free.length) | 0].leaf = {
       born: born, life: lerp(LEAF_LIFE_MS[0], LEAF_LIFE_MS[1], Math.random()),
-      rot: Math.random() * Math.PI * 2, size: H * (0.028 + Math.random() * 0.016)
+      rot: Math.random() * Math.PI * 2, size: U * (0.028 + Math.random() * 0.016)
     };
     return true;
   }
@@ -4350,8 +4450,8 @@
   // sinon renonce silencieusement cette fois-ci, sans jamais faire echouer la branche.
   function spawnFlower(t, slot, now) {
     if (countLiveFlowers(t) >= FLOWER_MAX_PER_TREE) return;
-    var R = H * lerp(FLORA_TREE_R_MIN, FLORA_TREE_R_MAX, t.growth);
-    var trunkW = H * 0.035 * treeScale(t);
+    var R = U * lerp(FLORA_TREE_R_MIN, FLORA_TREE_R_MAX, t.growth);
+    var trunkW = U * 0.035 * treeScale(t);
     for (var attempt = 0; attempt < 10; attempt++) {
       var side = Math.random() < 0.5 ? -1 : 1;
       var dist = lerp(trunkW * 2.5, R, Math.random());
@@ -4421,7 +4521,7 @@
         // Feuille morte : elle se detache et tombe (devient une facette du monde).
         sl.leaf = null;
         var tg = treeScale(t);
-        shards.push(makeLeafShard(lf, t.x + sl.dx * tg, by - t.h * tg + sl.dy * tg, 1));
+        shards.push(makeLeafShard(lf, t.x + sl.dx * tg, by - t.h * tg + sl.dy * tg, 1, lerp(SMALL_WIND_MULT, 1, t.growth) + (TALL_WIND_MULT - 1) * treeTall(t)));
         state = 2;
       }
       if (branchesFallen) for (var bf = branchesFallen.length - 1; bf >= 0; bf--) t.slots.splice(branchesFallen[bf], 1);
@@ -4434,7 +4534,7 @@
         // nutriment lessive trop profond dans le compact (voir leach()) est hors de portee
         // tant que la pelle ne l'a pas ramene plus haut (cutCompact).
         var g = lerp(ROOT_GROWTH_MIN, 1, t.growth);
-        var reach = W * ROOT_REACH * g, depthReach = H * lerp(ROOT_DEPTH_MIN, ROOT_DEPTH_MAX, t.growth), surf = surfaceAt(t.x);
+        var reach = UW * ROOT_REACH * g, depthReach = U * lerp(ROOT_DEPTH_MIN, ROOT_DEPTH_MAX, t.growth), surf = surfaceAt(t.x);
         var eligible = [];
         for (i = 0; i < shards.length; i++) {
           var s = shards[i];
@@ -4457,6 +4557,7 @@
           addLeaf(t, now + EATEN_MS); // la feuille sort quand le nutriment a fini d'etre absorbe
           // Plus il mange de nutriments, plus il grandit : racines plus longues, plus de
           // feuilles possibles, tronc/houppier plus grands (voir drawTree/drawRoots).
+          if (t.growth >= 1) t.surplus = (t.surplus || 0) + 1;
           t.eaten++;
           t.growth = Math.min(1, t.eaten / MATURE_NUTRIENTS);
           t.lastAte = now;
@@ -4475,6 +4576,7 @@
           for (var el = 0; el < extraLeaves; el++) {
             eatNutrient(eligible[usedIdx], now);
             addLeaf(t, now + EATEN_MS);
+            if (t.growth >= 1) t.surplus = (t.surplus || 0) + 1;
             usedIdx++;
           }
         }
@@ -4486,7 +4588,7 @@
           if (bonusCount < BONUS_BRANCH_MAX) {
             for (var bc = 0; bc < BONUS_BRANCH_COST; bc++) { eatNutrient(eligible[usedIdx], now); usedIdx++; }
             var ba = Math.random() * Math.PI * 2, bdist = 1 + Math.random() * 0.25; // un peu hors du houppier normal
-            var newBranch = { dx: Math.cos(ba) * H * 0.2 * bdist, dy: Math.sin(ba) * H * 0.13 * bdist, leaf: null, branch: true, branchSince: now };
+            var newBranch = { dx: Math.cos(ba) * U * 0.2 * bdist, dy: Math.sin(ba) * U * 0.13 * bdist, leaf: null, branch: true, branchSince: now };
             t.slots.push(newBranch);
             spawnFlower(t, newBranch, now); // fleur cosmetique au pied de l'arbre, cf. section "Flore"
             state = 2;
@@ -4499,7 +4601,11 @@
       // au sol comme une chute normale.
       if (now - t.lastAte > TREE_STARVE_MS) {
         if (t.nextShrink === undefined) t.nextShrink = now + TREE_SHRINK_MS;
-        if (now >= t.nextShrink && t.eaten > 0) {
+        if (now >= t.nextShrink && t.surplus > 0) {
+          t.nextShrink = now + TREE_SHRINK_MS;
+          t.surplus = Math.max(0, t.surplus - 1);
+          state = Math.max(state, 1);
+        } else if (now >= t.nextShrink && t.eaten > 0) {
           t.nextShrink = now + TREE_SHRINK_MS;
           t.eaten = Math.max(0, t.eaten - 1);
           t.growth = Math.min(1, t.eaten / MATURE_NUTRIENTS);
@@ -4596,7 +4702,7 @@
   // meme geometrie appliquee au dessin) : sert de cible d'atterrissage aux insectes.
   function flowerTopWorld(f) {
     var leanSign = f.lean < 0 ? -1 : 1;
-    var stemH = FLOWER_H_F * H * f.sizeK;
+    var stemH = FLOWER_H_F * U * f.sizeK;
     var curveK = stemH * 0.3 * leanSign;
     var baseX = f.x, baseY = surfaceAt(f.x) + FLORA_EMBED;
     var ca = Math.cos(f.lean), sa = Math.sin(f.lean);
@@ -4651,20 +4757,20 @@
     var startX = dir > 0 ? camX - 40 : camX + W + 40;
     var yFrac = 0.12 + Math.random() * (0.45 - 0.12);
     var sizeMult = species === 'bourdon' ? 0.7 : BUTTERFLY_SIZE_K;
-    var speed = H * 0.0009 * INSECT_SPEED * (species === 'bourdon' ? 1.6 : 1);
+    var speed = U * 0.0009 * INSECT_SPEED * (species === 'bourdon' ? 1.6 : 1);
     var ins = {
       species: species, dir: dir, sizeMult: sizeMult, speed: speed, yFrac: yFrac,
       cruiseX: startX, x: startX, y: 0, age: 0,
       phaseWing: Math.random() * Math.PI * 2,
       glideSeed: Math.random() * 3000,
-      wA1: H * 0.02, wA2: H * 0.008, wT1: species === 'bourdon' ? 850 : 1700, wT2: species === 'bourdon' ? 300 : 600,
+      wA1: U * 0.02, wA2: U * 0.008, wT1: species === 'bourdon' ? 850 : 1700, wT2: species === 'bourdon' ? 300 : 600,
       wPh1: Math.random() * Math.PI * 2, wPh2: Math.random() * Math.PI * 2,
-      zzA: species === 'bourdon' ? H * 0.01 : 0, zzT: 320 + Math.random() * 80, zzPh: Math.random() * Math.PI * 2,
+      zzA: species === 'bourdon' ? U * 0.01 : 0, zzT: 320 + Math.random() * 80, zzPh: Math.random() * Math.PI * 2,
       driftT: 4000 + Math.random() * 2000, driftPh: Math.random() * Math.PI * 2,
       state: 'cruise', target: null, nearFlower: false,
       landAt: 0, landDur: 0, landPh: 0
     };
-    ins.y = clamp(surfaceAt(clamp(startX, 0, worldW)) - H * yFrac, camY + 10, camY + H - 10);
+    ins.y = clamp(surfaceAt(clamp(startX, 0, worldW)) - U * yFrac, camY + 10, camY + H - 10);
     if (Math.random() < INSECT_LAND_P) {
       var f = pickOpenFlower();
       if (f) { ins.target = f; ins.state = 'approach'; }
@@ -4679,7 +4785,7 @@
   var heldInsect = null;                   // un seul papillon tenu a la fois
   var heldSX = 0, heldSY = 0;              // position ecran du pointeur (le monde peut defiler)
   function insectAt(wx, wy) {
-    var size = H * INSECT_SIZE_F * BUTTERFLY_SIZE_K, best = null, bd = 1e9;
+    var size = U * INSECT_SIZE_F * BUTTERFLY_SIZE_K, best = null, bd = 1e9;
     for (var i = 0; i < insects.length; i++) {
       var ins = insects[i];
       if (ins.species !== 'papillon' || ins.caught) continue;
@@ -4712,7 +4818,7 @@
     ins.state = 'flee';
     ins.fleeStart = ins.age;
     ins.fvx = 0; ins.fvy = 0;
-    ins.fleeVy = -H * 0.00028;             // petite montee au depart, qui s'estompe
+    ins.fleeVy = -U * 0.00028;             // petite montee au depart, qui s'estompe
   }
   function stepInsectFlee(ins, dt) {
     var t = ins.age - ins.fleeStart;
@@ -4720,11 +4826,11 @@
     ins.fvx += (ins.dir * ins.speed * FLEE_SPEED_K - ins.fvx) * rate;
     ins.fvy += (ins.fleeVy * Math.max(0, 1 - t / 700) - ins.fvy) * rate;
     ins.x += ins.fvx * dt;
-    ins.y = clamp(ins.y + ins.fvy * dt, camY + 10, Math.min(camY + H - 10, surfaceAt(clamp(ins.x, 0, worldW)) - H * 0.03));
+    ins.y = clamp(ins.y + ins.fvy * dt, camY + 10, Math.min(camY + H - 10, surfaceAt(clamp(ins.x, 0, worldW)) - U * 0.03));
     if (t >= FLEE_MS) {
       // Retour en croisiere sans saut : cruiseX absorbe la derive courante, et l'ecart
       // vertical residuel (yOff) s'estompe ensuite dans stepInsectCruise.
-      var drift = Math.sin(ins.age / ins.driftT + ins.driftPh) * H * 0.006;
+      var drift = Math.sin(ins.age / ins.driftT + ins.driftPh) * U * 0.006;
       ins.cruiseX = ins.x - drift;
       ins.state = 'cruise';
       ins.yOff = ins.y - cruiseY(ins);
@@ -4734,13 +4840,13 @@
     var w1 = ins.wA1 * Math.sin((ins.age / ins.wT1) * Math.PI * 2 + ins.wPh1);
     var w2 = ins.wA2 * Math.sin((ins.age / ins.wT2) * Math.PI * 2 + ins.wPh2);
     var zz = ins.zzA * Math.sin((ins.age / ins.zzT) * Math.PI * 2 + ins.zzPh);
-    return surfaceAt(clamp(ins.x, 0, worldW)) - H * ins.yFrac + w1 + w2 + zz;
+    return surfaceAt(clamp(ins.x, 0, worldW)) - U * ins.yFrac + w1 + w2 + zz;
   }
   // Croisiere : traversee de l'ecran, ondulation verticale (+ petits zigzags pour le
   // bourdon) et derive horizontale legere. speedMult vaut 2 sous la pluie (fuite).
   function stepInsectCruise(ins, dt, speedMult) {
     ins.cruiseX += ins.dir * ins.speed * speedMult * dt;
-    var drift = Math.sin(ins.age / ins.driftT + ins.driftPh) * H * 0.006;
+    var drift = Math.sin(ins.age / ins.driftT + ins.driftPh) * U * 0.006;
     ins.x = ins.cruiseX + drift;
     var yo = 0;
     if (ins.yOff) { // ecart residuel apres une fuite : s'estompe en ~0,6 s
@@ -4755,12 +4861,12 @@
   function stepInsectApproach(ins, dt) {
     var top = flowerTopWorld(ins.target);
     var dx = top[0] - ins.x, dy = top[1] - ins.y, dist = Math.hypot(dx, dy);
-    ins.nearFlower = dist < H * 0.08;
-    var hover = Math.min(H * 0.07, dist * 0.5);
+    ins.nearFlower = dist < U * 0.08;
+    var hover = Math.min(U * 0.07, dist * 0.5);
     var rate = Math.min(1, dt / 260);
     ins.x += (top[0] - ins.x) * rate;
     ins.y += (top[1] - hover - ins.y) * rate;
-    ins.y += Math.sin(ins.age / 260 + ins.wPh1) * H * 0.004;
+    ins.y += Math.sin(ins.age / 260 + ins.wPh1) * U * 0.004;
     if (dist < 3) {
       ins.state = 'landed';
       ins.x = top[0]; ins.y = top[1];
@@ -4810,7 +4916,7 @@
           // Tenu : suit le pointeur (lisse, leger tremblement), jamais retire ni recycle.
           var hk = Math.min(1, dt / 18), ht = ins.age / 1000; // constante courte : colle a la main sans trainer
           ins.x += (heldSX + camX + Math.sin(ht * 17) * 2 - ins.x) * hk;
-          ins.y += (heldSY + camY - H * 0.02 + Math.cos(ht * 21) * 2 - ins.y) * hk;
+          ins.y += (heldSY + camY - U * 0.02 + Math.cos(ht * 21) * 2 - ins.y) * hk;
           continue;
         }
       }
@@ -4838,7 +4944,7 @@
   // Brun-roux plus chaud/clair que le tronc : #6b4428 se confondait avec l'aplat #5a3d28.
   var ROOT_COLORS = ['#b8814f', '#9a6a3f'];
   function drawRoots(t) {
-    var by = t.by !== undefined ? t.by : surfaceAt(t.x) + TREE_EMBED, w0 = H * 0.014;
+    var by = t.by !== undefined ? t.by : surfaceAt(t.x) + TREE_EMBED, w0 = U * 0.014;
     // Racines courtes a la naissance, elles s'etirent jusqu'a leur pleine longueur en poussant.
     var rg = lerp(ROOT_GROWTH_MIN, 1, t.growth);
     for (var r = 0; r < t.roots.length; r++) {
@@ -4860,11 +4966,11 @@
     }
     // Racine pivot : descend droit jusqu'a la vraie profondeur ou l'arbre va chercher
     // l'humus (meme calcul que la recherche dans stepTrees), visible en defilant vers le bas.
-    var tipY = surfaceAt(t.x) + H * lerp(ROOT_DEPTH_MIN, ROOT_DEPTH_MAX, t.growth), N = 6, seed = t.x * 0.37;
+    var tipY = surfaceAt(t.x) + U * lerp(ROOT_DEPTH_MIN, ROOT_DEPTH_MAX, t.growth), N = 6, seed = t.x * 0.37;
     for (i = 0; i < N; i++) {
       var k0 = i / N, k1 = (i + 1) / N;
       var y0 = lerp(by, tipY, k0), y1 = lerp(by, tipY, k1);
-      var x0 = t.x + Math.sin(seed + k0 * 5) * H * 0.012 * k0, x1 = t.x + Math.sin(seed + k1 * 5) * H * 0.012 * k1;
+      var x0 = t.x + Math.sin(seed + k0 * 5) * U * 0.012 * k0, x1 = t.x + Math.sin(seed + k1 * 5) * U * 0.012 * k1;
       var w0p = w0 * 1.3 * (1 - k0) + 0.6, w1p = w0 * 1.3 * (1 - k1) + 0.6;
       ctx.fillStyle = ROOT_COLORS[i % 2];
       poly([[x0 - w0p, y0], [x0 + w0p, y0], [x1 + w1p, y1], [x1 - w1p, y1]]);
@@ -4874,7 +4980,7 @@
   var LIMB_COLORS = ['#8a5a3b', '#6b4428']; // deux tons du tronc, alternes d'un segment a l'autre
   function drawTree(t) {
     // Tronc/houppier petits a la naissance, pleine taille une fois l'arbre mature (t.growth).
-    var now = vTime, tg = treeScale(t), by = t.by !== undefined ? t.by : surfaceAt(t.x) + TREE_EMBED, h = t.h * tg, w = H * 0.035 * tg, top = by - h;
+    var now = vTime, tg = treeScale(t), by = t.by !== undefined ? t.by : surfaceAt(t.x) + TREE_EMBED, h = t.h * tg, w = U * 0.035 * tg, top = by - h;
     // Tronc : deux facettes (lumiere a gauche), effile vers le haut.
     ctx.fillStyle = '#8a5a3b';
     poly([[t.x - w, by], [t.x, by], [t.x, top], [t.x - w * 0.35, top]]);
@@ -4921,8 +5027,19 @@
         var bg = Math.min(1, (now - sl.branchSince) / BRANCH_GROW_MS);
         sl.shx = 0; sl.shy = 0;
         if (shk && gp.obj === sl) { sl.shx = shkX; sl.shy = shkY; }
-        ctx.fillStyle = '#6b4428';
-        rootSeg(t.x, top + h * 0.12, t.x + sl.dx * tg * bg + sl.shx, top + sl.dy * tg * bg + sl.shy, wA * 0.8, 0.6);
+        // Meme dessin que les branches maitresses : 2 segments coudes, deux tons, effiles.
+        if (!sl.mj) {
+          sl.mj = [];
+          for (k = 0; k < 7; k++) sl.mj.push(0.78 + Math.random() * 0.4);
+          sl.a0 = Math.random() * Math.PI * 2;
+          sl.bend = (Math.random() < 0.5 ? -1 : 1) * (0.06 + Math.random() * 0.1);
+        }
+        var bsx = t.x, bsy = top + h * 0.12, bex = t.x + sl.dx * tg * bg + sl.shx, bey = top + sl.dy * tg * bg + sl.shy;
+        var bmx = (bsx + bex) / 2 - (bey - bsy) * sl.bend, bmy = (bsy + bey) / 2 + (bex - bsx) * sl.bend, bwM = Math.max(0.8, wA * 0.8 * 0.55);
+        ctx.fillStyle = LIMB_COLORS[i % 2];
+        rootSeg(bsx, bsy, bmx, bmy, wA * 0.8, bwM);
+        ctx.fillStyle = LIMB_COLORS[(i + 1) % 2];
+        rootSeg(bmx, bmy, bex, bey, bwM, 0.6);
       }
       if (!lf || now < lf.born) continue;
       g = easeOutBack(Math.min(1, (now - lf.born) / LEAF_GROW_MS));
@@ -4940,7 +5057,7 @@
       lm = limbs[k];
       if (!lm.cnt) continue;
       var inv = 1 / lm.cnt, cr = lm.cr * inv, cg = lm.cg * inv, cb = lm.cb * inv;
-      var R = CANOPY_CLUSTER_R * H * tg * (0.45 + 0.65 * Math.min(1, lm.w / Math.max(1, lm.n, lm.cnt)));
+      var R = CANOPY_CLUSTER_R * U * tg * (0.45 + 0.65 * Math.min(1, lm.w / Math.max(1, lm.n, lm.cnt)));
       var cx = t.x + lm.dx * tg + lm.shx, cy = top + lm.dy * tg + lm.shy;
       var cUp = shadeRgb(cr, cg, cb, 0.85), cDn = shadeRgb(cr, cg, cb, 0.62);
       var qx = cx + Math.cos(lm.a0) * R * lm.mj[0], qy = cy + Math.sin(lm.a0) * R * 0.8 * lm.mj[0];
@@ -4950,6 +5067,23 @@
         ctx.fillStyle = (qy + vy) * 0.5 < cy ? cUp : cDn;
         poly([[cx, cy], [qx, qy], [vx, vy]]);
         qx = vx; qy = vy;
+      }
+    }
+    // Petit bouquet au bout de chaque branche bonus qui porte une feuille, comme les maitresses.
+    for (i = 0; i < t.slots.length; i++) {
+      sl = t.slots[i]; lf = sl.leaf;
+      if (!sl.branch || !sl.mj || !lf || now < lf.born) continue;
+      var bgF = Math.min(1, (now - sl.branchSince) / BRANCH_GROW_MS);
+      var bR = CANOPY_CLUSTER_R * U * tg * 0.5 * Math.min(1, lf.dg) * bgF;
+      var bcx = t.x + sl.dx * tg * bgF + (sl.shx || 0), bcy = top + sl.dy * tg * bgF + (sl.shy || 0);
+      var bUp = shadeRgb(lf.dcol[0], lf.dcol[1], lf.dcol[2], 0.85), bDn = shadeRgb(lf.dcol[0], lf.dcol[1], lf.dcol[2], 0.62);
+      var bqx = bcx + Math.cos(sl.a0) * bR * sl.mj[0], bqy = bcy + Math.sin(sl.a0) * bR * 0.8 * sl.mj[0];
+      for (var bv = 1; bv <= 7; bv++) {
+        var bva = sl.a0 + bv / 7 * Math.PI * 2, bvr = bR * sl.mj[bv % 7];
+        var bvx = bcx + Math.cos(bva) * bvr, bvy = bcy + Math.sin(bva) * bvr * 0.8;
+        ctx.fillStyle = (bqy + bvy) * 0.5 < bcy ? bUp : bDn;
+        poly([[bcx, bcy], [bqx, bqy], [bvx, bvy]]);
+        bqx = bvx; bqy = bvy;
       }
     }
     // Passe 2 : feuilles individuelles par-dessus la masse (ce sont elles qui tombent).
@@ -4991,7 +5125,7 @@
         var u = x / worldW;
         var n = Math.sin(u * 13 + ph + li * 2) * 0.5 + Math.sin(u * 31 + ph * 1.7) * 0.28 + Math.random() * 0.22;
         xs.push(x);
-        ys.push(groundY - H * (L.lift + L.amp * (0.5 + n * 0.5)));
+        ys.push(groundY - U * (L.lift + L.amp * (0.5 + n * 0.5)));
         x += 28 + Math.random() * 30;
       }
       // Couleurs par facette, precalculees : elles ne dependent que de la pente (y0 - y1).
@@ -5050,7 +5184,7 @@
   // monde, cle "col,row"), recopiees d'un bloc a chaque frame. Une facette qui change est
   // retiree (tuiles salies) et redessinee en direct. Une tuile dont une facette a quitte
   // shards (compte vu != compte inscrit) est repeinte AVANT la copie : jamais d'image perimee.
-  // Coins des tuiles en px device entiers (Math.round(col*TILE*dpr)) : elles se jouxtent
+  // Coins des tuiles en px device entiers (Math.round(col*TILE*RS)) : elles se jouxtent
   // exactement, et la copie est calee au px device (ecart < 0.5 px device avec le direct).
   var TILE = 256, TILE_MAX = 64, BAKE_FRAMES = 20, BAKE_EPS = 0.05, BAKE_PAD = 1.5;
   var tiles = {}, tileList = [], tilePool = [], bakeGen = 1, bakeOid = 0, bakeStamp = 0, bakeFrame = 0;
@@ -5068,12 +5202,12 @@
   function getTile(col, row) {
     var key = col + ',' + row, t = tiles[key];
     if (t) return t;
-    var dx0 = Math.round(col * TILE * dpr), dy0 = Math.round(row * TILE * dpr);
+    var dx0 = Math.round(col * TILE * RS), dy0 = Math.round(row * TILE * RS);
     var c = tilePool.pop() || document.createElement('canvas');
-    c.width = Math.round((col + 1) * TILE * dpr) - dx0;
-    c.height = Math.round((row + 1) * TILE * dpr) - dy0;
+    c.width = Math.round((col + 1) * TILE * RS) - dx0;
+    c.height = Math.round((row + 1) * TILE * RS) - dy0;
     var tc = c.getContext('2d');
-    tc.setTransform(dpr, 0, 0, dpr, -dx0, -dy0);
+    tc.setTransform(RS, 0, 0, RS, -dx0, -dy0);
     t = { key: key, col: col, row: row, c: c, tc: tc, dx0: dx0, dy0: dy0, list: [], n: 0, seen: 0, dirty: false, maxOid: 0 };
     tiles[key] = t; tileList.push(t);
     return t;
@@ -5167,7 +5301,7 @@
       if (s.cullR === undefined) {
         s.cullR = Math.max(Math.abs(p[0][0]), Math.abs(p[0][1]), Math.abs(p[1][0]), Math.abs(p[1][1]), Math.abs(p[2][0]), Math.abs(p[2][1])) * 1.5;
       }
-      var cm = s.cullR * Math.max(1, LOOSE_DRAW_SCALE) + H * 0.06 + 4;
+      var cm = s.cullR * Math.max(1, LOOSE_DRAW_SCALE) + U * 0.06 + 4;
       if (s.x < vx0 - cm || s.x > vx1 + cm || sy < vy0 - cm || sy > vy1 + cm) continue;
       if (s.eaten !== undefined) {
         if (baked) unbakeShard(s);
@@ -5203,7 +5337,7 @@
       t = tileList[i];
       if (t.dirty || t.seen !== t.n) rebuildTile(t);
     }
-    var ox = Math.round(-camX * dpr), oy = Math.round(-camY * dpr), cw = canvas.width, ch = canvas.height;
+    var ox = Math.round(-camX * RS), oy = Math.round(-camY * RS), cw = canvas.width, ch = canvas.height;
     ctx.save();
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     for (i = 0; i < tileList.length; i++) {
@@ -5218,7 +5352,7 @@
   }
 
   function draw() {
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.setTransform(RS, 0, 0, RS, 0, 0);
     ctx.clearRect(0, 0, W, H);
     drawBackdrop();
     // Tout ce qui suit est dessine en coord. MONDE ; ce translate ramene la portion
@@ -5252,7 +5386,7 @@
       if (s.cullR === undefined) {
         s.cullR = Math.max(Math.abs(p[0][0]), Math.abs(p[0][1]), Math.abs(p[1][0]), Math.abs(p[1][1]), Math.abs(p[2][0]), Math.abs(p[2][1])) * 1.5;
       }
-      var cm = s.cullR * Math.max(1, LOOSE_DRAW_SCALE) + H * 0.06 + 4;
+      var cm = s.cullR * Math.max(1, LOOSE_DRAW_SCALE) + U * 0.06 + 4;
       if (s.x < camX - cm || s.x > camX + W + cm || sy < camY - cm || sy > camY + H + cm) continue;
       var r = lerp(s.from[0], s.to[0], m), g = lerp(s.from[1], s.to[1], m), bl = lerp(s.from[2], s.to[2], m);
       if (s.myc) {
@@ -5308,7 +5442,7 @@
   // Baton low-poly (bois tombe) : hexagone a deux facettes, moitie haute = couleur de la
   // facette, moitie basse plus sombre. Pose, il est couche et un peu enfonce dans le sol.
   function drawLog(s, x, y, rot, r, g, b) {
-    var L = H * 0.0425, T = H * 0.007, bv = T * 0.8, c = Math.cos(rot), sn = Math.sin(rot);
+    var L = U * 0.0425, T = U * 0.007, bv = T * 0.8, c = Math.cos(rot), sn = Math.sin(rot);
     if (s.settled) y += T * 0.66;
     var x0 = x - L * c, y0 = y - L * sn, x1 = x + L * c, y1 = y + L * sn;   // extremites
     var ta = -L + bv, tb = L - bv;
@@ -5411,23 +5545,87 @@
     var stepX = 2 * COL_W, bottom = worldH, visBottom = camY + H;
     var x0 = Math.max(0, Math.floor((camX - stepX) / stepX) * stepX);
     var x1 = Math.min(worldW, camX + W + stepX);
-    var pts = [];
-    for (var x = x0; x <= x1; x += stepX) {
-      var cx = Math.min(x, worldW);
-      var col = Math.max(0, Math.min(compactY.length - 1, Math.round(cx / COL_W)));
-      pts.push([cx, compactY[col] + rise, !!rocky[col]]);
+    // Maillage low-poly a plusieurs rangees (pas de longues bandes verticales jusqu'au
+    // fond) : la rangee 0 suit compactY exactement ; les suivantes sont plus profondes,
+    // avec sommets decales (hash stable par indice absolu, donc rien ne bouge au defilement),
+    // diagonales alternees et teinte qui s'assombrit avec la profondeur.
+    var rowH = U * 0.045, K = 1, dk = [0], k;
+    var minTop = Infinity;
+    for (var xx = x0; xx <= x1; xx += stepX) minTop = Math.min(minTop, compactY[Math.max(0, Math.min(compactY.length - 1, Math.round(Math.min(xx, worldW) / COL_W)))] + rise);
+    while (K < 9 && minTop + dk[K - 1] < visBottom) { dk.push(dk[K - 1] + rowH * (1 + 0.3 * K)); K++; }
+    var n = Math.max(0, Math.floor((x1 - x0) / stepX)) + 2, g0 = Math.round(x0 / stepX);
+    var grid = [];
+    for (k = 0; k < K; k++) {
+      var row = [];
+      for (var i = 0; i < n; i++) {
+        var gi = g0 + i, bx = Math.min(x0 + i * stepX, worldW);
+        var vx = bx, col = Math.max(0, Math.min(compactY.length - 1, Math.round(bx / COL_W)));
+        var vy;
+        if (k === 0) vy = compactY[col] + rise;
+        else {
+          vx = bx + (soilHash(gi, k, 1) - 0.5) * 0.7 * stepX;
+          col = Math.max(0, Math.min(compactY.length - 1, Math.round(Math.max(0, Math.min(worldW, vx)) / COL_W)));
+          vy = (k === K - 1 ? Math.max(bottom, compactY[col] + rise + dk[k]) : compactY[col] + rise + dk[k] + (soilHash(gi, k, 2) - 0.5) * 0.55 * rowH * (1 + 0.3 * k));
+        }
+        row.push([vx, vy, !!rocky[col]]);
+      }
+      grid.push(row);
     }
-    for (var i = 0; i < pts.length - 1; i++) {
-      var a = pts[i], b = pts[i + 1];
-      if (a[1] >= visBottom && b[1] >= visBottom) continue;
-      // Un rocher affleure directement dans la couche compacte (voir buildRockyPatches) :
-      // meme rendu low-poly que le reste du sol, juste teinte en gris pierre.
-      var pal = (a[2] || b[2]) ? ROCK : SOIL;
-      ctx.fillStyle = pal[i % pal.length];
-      poly([a, b, [a[0], bottom]]);
-      ctx.fillStyle = pal[(i + 1) % pal.length];
-      poly([b, [b[0], bottom], [a[0], bottom]]);
+    for (k = 0; k < K - 1; k++) {
+      var shade = 1 - 0.07 * k;
+      for (var j = 0; j < n - 1; j++) {
+        var A = grid[k][j], B = grid[k][j + 1], C = grid[k + 1][j], D = grid[k + 1][j + 1];
+        if (A[1] >= visBottom && B[1] >= visBottom && k > 0) continue;
+        // Plus on descend, plus de triangles de pierre (et la terre restante vire au gris-brun).
+        // Sol varie : plaques de terre foncee, argile, sable (groupees par bruit grossier) et,
+        // plus on descend, de plus en plus de pierre ; quelques cailloux poses par-dessus.
+        var rk = A[2] || B[2] || C[2] || D[2], gj = g0 + j;
+        var depthT = Math.max(0, Math.min(1, (dk[k] - rowH * 4.25) / (U * 0.5)));
+        var patchT = Math.max(0, Math.min(1, (dk[k] - rowH * 6) / (U * 0.2)));   // le haut reste de la terre unie, les plaques/cailloux apparaissent plus bas
+        var dA = (gj + k) & 1;
+        var t1 = dA ? [A, B, C] : [A, B, D], t2 = dA ? [B, D, C] : [A, D, C];
+        for (var q = 0; q < 2; q++) {
+          var tri = q ? t2 : t1, sl = 3 + q * 2;
+          var stone = rk || soilHash(gj, k, 7 + q) < depthT * 0.95;
+          var pal = stone ? ROCK : (soilHash(gj, k, 50 + q) < patchT ? soilPatchPal(gj, k, q) : SOIL);
+          ctx.fillStyle = soilShade(pal[Math.floor(soilHash(gj, k, sl) * pal.length)], shade * (0.92 + 0.16 * soilHash(gj, k, sl + 1)), !stone && pal === SOIL ? depthT * 0.5 : 0);
+          poly(tri);
+          // Petit caillou : polygone clair pose au centre du triangle.
+          if (!stone && soilHash(gj, k, 20 + q) < 0.16 * patchT) {
+            var cx0 = (tri[0][0] + tri[1][0] + tri[2][0]) / 3, cy0 = (tri[0][1] + tri[1][1] + tri[2][1]) / 3;
+            var pr = stepX * (0.07 + 0.09 * soilHash(gj, k, 22 + q)), pa = soilHash(gj, k, 24 + q) * 6.28;
+            ctx.fillStyle = soilShade(PEBBLE[Math.floor(soilHash(gj, k, 26 + q) * PEBBLE.length)], shade, 0);
+            poly([[cx0 + Math.cos(pa) * pr, cy0 + Math.sin(pa) * pr * 0.75], [cx0 + Math.cos(pa + 2.2) * pr, cy0 + Math.sin(pa + 2.2) * pr * 0.75], [cx0 + Math.cos(pa + 4.1) * pr, cy0 + Math.sin(pa + 4.1) * pr * 0.75]]);
+          }
+        }
+      }
     }
+  }
+  var SOIL_DARK = ['#3a2618', '#2f1e14', '#44301f'];
+  var SOIL_CLAY = ['#8f5636', '#a0643f', '#7d4a30'];
+  var SOIL_SAND = ['#b89c6c', '#c7ad7c', '#a98e60'];
+  var PEBBLE = ['#9b9a92', '#b3b0a4', '#7f7d76', '#c4bfae'];
+  // Type de terre par plaque (cellules d'environ 2 colonnes x 2 rangees), avec un peu de bruit par triangle.
+  function soilPatchPal(gj, k, q) {
+    var r = soilHash((gj >> 1) + 500, k >> 1, 40);
+    if (soilHash(gj, k, 41 + q) < 0.18) r = soilHash(gj, k, 43 + q);
+    if (r < 0.40) return SOIL;
+    if (r < 0.58) return SOIL_DARK;
+    if (r < 0.77) return SOIL_CLAY;
+    return SOIL_SAND;
+  }
+  function soilHash(i, k, s) {
+    var v = Math.sin(i * 127.1 + k * 311.7 + s * 74.7) * 43758.5453;
+    return v - Math.floor(v);
+  }
+  var soilShadeCache = {};
+  function soilShade(hex, m, gray) {
+    gray = Math.round((gray || 0) * 10) / 10;
+    var key = hex + Math.round(m * 50) + '|' + gray, c = soilShadeCache[key];
+    if (c) return c;
+    var v = parseInt(hex.slice(1), 16), r = v >> 16, g = (v >> 8) & 255, b = v & 255;
+    if (gray) { r += (125 - r) * gray; g += (122 - g) * gray; b += (116 - b) * gray; }   // vers la pierre
+    return (soilShadeCache[key] = shadeRgb(r, g, b, Math.round(m * 50) / 50));
   }
 
   // Depots d'humus lessives (voir leach()) encore enfouis sous le plafond du compact : de
@@ -5470,7 +5668,7 @@
     if (!grassCover) return;
     var c0 = Math.max(0, Math.floor(camX / COL_W) - 1);
     var c1 = Math.min(grassCover.length - 1, Math.ceil((camX + W) / COL_W) + 1);
-    var maxH = H * GRASS_MAX_H_F;
+    var maxH = U * GRASS_MAX_H_F;
     for (var c = c0; c <= c1; c++) {
       var cov = grassCover[c];
       if (cov <= 0.03) continue;
@@ -5533,7 +5731,7 @@
   // fournis — la densite (k, 0..1) grandit avec floraLush pour un effet de pousse.
   function drawTuft(x, y, k, c) {
     if (k <= 0) return;
-    var maxH = H * FLORA_TUFT_H_F * k;
+    var maxH = U * FLORA_TUFT_H_F * k;
     for (var b = 0; b < 5; b++) {
       var seed = floraHash(c * 5 + b + 1);
       var lean = (-0.6 + (b / 4) * 1.2) * maxH;
@@ -5553,7 +5751,7 @@
   // courbee vers l'exterieur, avec des paires de folioles qui rapetissent vers la pointe.
   function drawFern(x, y, k, seedBase) {
     if (k <= 0) return;
-    var maxH = H * FLORA_FERN_H_F * k;
+    var maxH = U * FLORA_FERN_H_F * k;
     var fronds = 3 + (floraHash(seedBase + 2) < 0.5 ? 0 : 1);
     for (var fr = 0; fr < fronds; fr++) {
       var seed = floraHash(seedBase + fr + 3);
@@ -5587,7 +5785,7 @@
   // fichier), et parfois quelques minuscules baies/fleurs.
   function drawBush(x, y, k, seedBase) {
     if (k <= 0) return;
-    var r = H * FLORA_BUSH_R_F * k;
+    var r = U * FLORA_BUSH_R_F * k;
     if (r <= 0) return;
     var n = 5 + (floraHash(seedBase + 4) < 0.5 ? 0 : 2);
     var colors = ['#4d7f3a', '#5f9444', '#3d6b30'];
@@ -5675,8 +5873,8 @@
     var lean = f.lean + 0.6 * w * leanSign;
     var baseY = surfaceAt(f.x) + rise + FLORA_EMBED;
     var stemLocal = clamp(p / 0.35, 0, 1), stemG = easeOutBack(stemLocal);
-    var stemH = FLOWER_H_F * H * f.sizeK * stemG * (1 - 0.35 * w);
-    var stemW = Math.max(1.1, H * 0.0032 * f.sizeK);
+    var stemH = FLOWER_H_F * U * f.sizeK * stemG * (1 - 0.35 * w);
+    var stemW = Math.max(1.1, U * 0.0032 * f.sizeK);
     ctx.save();
     ctx.translate(f.x, baseY);
     ctx.rotate(lean);
@@ -5710,7 +5908,7 @@
       var budLocal = clamp((p - 0.35) / 0.2, 0, 1), budG = easeOutBack(budLocal);
       if (p < 0.55) {
         // Bouton : 2 sepales verts qui enserrent une goutte rose (3 triangles).
-        var budR = FLOWER_R_F * H * f.sizeK * 0.55 * budG;
+        var budR = FLOWER_R_F * U * f.sizeK * 0.55 * budG;
         if (budR > 0.4) {
           ctx.fillStyle = '#4c7d33';
           poly([[tipX, tipY], [tipX - budR * 0.55, tipY + budR * 0.15], [tipX - budR * 0.15, tipY - budR * 1.15]]);
@@ -5729,7 +5927,7 @@
         // La corolle et le coeur se dessinent autour de (0,0) : on se place au bout de la tige.
         ctx.translate(tipX, tipY);
         var petalLocal = clamp((p - 0.55) / 0.45, 0, 1), og = easeOutBack(petalLocal);
-        var maxRad = FLOWER_R_F * H * f.sizeK;
+        var maxRad = FLOWER_R_F * U * f.sizeK;
         var rad = maxRad * lerp(0.3, 1, og) * (1 - 0.5 * w);
         var upA = -Math.PI / 2, dropA = Math.PI / 2, i;
         var petals = [];
@@ -5860,7 +6058,7 @@
   // delegue a l'espece. Le bourdon pose ajoute un petit pietinement (+/-1.5px, purement
   // visuel, ne touche jamais ins.x/ins.y reels) tire de l'age ecoule, pas de Math.random.
   function drawInsect(ins) {
-    var size = H * INSECT_SIZE_F * ins.sizeMult;
+    var size = U * INSECT_SIZE_F * ins.sizeMult;
     var jx = 0, jy = 0;
     if (ins.species === 'bourdon' && ins.state === 'landed') {
       var jt = ins.age - ins.landAt;
@@ -6159,6 +6357,67 @@
     return x;
   }
 
+  // Poing fantome du repere : memes facettes que le poing ferme de drawHand (fist = 1), en SVG
+  // pour etre anime en CSS (.logo-explosion-hint-hand) sans faire tourner la boucle de rendu.
+  var HINT_FIST_SVG = '<svg viewBox="-13 -13 26 41" stroke="rgba(60,35,20,.5)" stroke-width=".7" stroke-linejoin="round">' +
+    '<polygon fill="#b57c58" points="-7,13 7,13 6,27 -6,27"/>' +
+    '<polygon fill="#e8b48a" points="-11,-8 11,-8 -9,14"/>' +
+    '<polygon fill="#cf9670" points="11,-8 9,14 -9,14"/>' +
+    '<polygon fill="#b57c58" points="-10.4,-10.6 -6.2,-10.6 -6.4,-0.6 -10.2,-0.6"/>' +
+    '<polygon fill="#cf9670" points="-4.9,-11.5 -0.7,-11.5 -0.9,-1.5 -4.7,-1.5"/>' +
+    '<polygon fill="#b57c58" points="0.7,-11.1 4.9,-11.1 4.7,-1.1 0.9,-1.1"/>' +
+    '<polygon fill="#cf9670" points="6.2,-10.1 10.4,-10.1 10.2,-0.1 6.4,-0.1"/>' +
+    '<polygon fill="#e8b48a" points="-11.6,1.8 0.5,-3.1 1.65,-0.8 -10,5"/>' +
+    '<polygon fill="#cf9670" points="-10,5 1.65,-0.8 2.8,1.6 -8.4,8.2"/>' +
+    '</svg>';
+  // Pelle fantome : memes facettes que drawShovelShape (pointe a gauche, manche vers +x), alterne avec le poing.
+  var HINT_SHOVEL_SVG = '<svg viewBox="122 152 154 30">' +
+    '<polygon fill="#b98352" points="215,166.9 262,162.7 262,166.9 215,171.1"/>' +
+    '<polygon fill="#8a5a30" points="215,171.1 262,166.9 262,170.4 215,174.6"/>' +
+    '<polygon fill="#7a4d28" points="262,154.3 274,154.3 274,166.9 262,166.9"/>' +
+    '<polygon fill="#5e3a1d" points="262,166.9 274,166.9 274,179.5 262,179.5"/>' +
+    '<polygon fill="#6b7378" points="182,166.9 216,166.9 216,171.2 182,171.6"/>' +
+    '<polygon fill="#4c5256" points="182,171.6 216,171.2 216,175.4 182,176.4"/>' +
+    '<g transform="translate(0 166.9) scale(1 .35) translate(0 -163)">' +
+    '<polygon fill="#7d858a" points="138,180 152,186 168,189 182,186"/>' +
+    '<polygon fill="#5f676c" points="152,186 168,189 168,193 152,190"/>' +
+    '<polygon fill="#7d858a" points="168,189 182,186 182,190 168,193"/>' +
+    '<polygon fill="#a9b1b5" points="124,166 138,180 152,186 140,172"/>' +
+    '<polygon fill="#c9cfd2" points="140,172 152,186 168,189 160,176"/>' +
+    '<polygon fill="#bcc3c7" points="160,176 168,189 182,186 178,175"/>' +
+    '<polygon fill="#d6dcde" points="178,175 182,186 182,178 182,163"/>' +
+    '<polygon fill="#8f979b" points="124,166 140,172 138,180"/>' +
+    '<polygon fill="#d8dee0" points="124,166 140,172 160,176 178,175 182,163 160,166 140,164"/>' +
+    '<polygon fill="#e4e9ea" points="124,166 140,164 140,172"/>' +
+    '</g></svg>';
+  // Un tresor enfoui : sa facette doree et son repere (halo + poing ou pelle fantome, en
+  // alternance), pose a la surface au-dessus de lui : il montre ou creuser meme quand le
+  // tresor est enfoui hors de la vue.
+  function buildTreasure(def) {
+    var glint = document.createElement('span');
+    glint.className = 'logo-explosion-glint';
+    glint.setAttribute('aria-hidden', 'true');
+    container.appendChild(glint);
+    var hint = document.createElement('div');
+    hint.className = 'logo-explosion-hint';
+    hint.setAttribute('aria-hidden', 'true');
+    hint.innerHTML = '<span class="logo-explosion-hint-halo"></span><span class="logo-explosion-hint-hand">' + HINT_FIST_SVG + '</span><span class="logo-explosion-hint-shovel">' + HINT_SHOVEL_SVG + '</span>';
+    container.appendChild(hint);
+    var depth = Math.max(0, parseFloat(def.depth) || 0);
+    // Borne : un DEPTH_MULT reduit (panneau de debug) ne doit pas laisser le tresor sous le fond du monde.
+    var ty = depth > 0 ? Math.min(groundY + depth * U, worldH - BEDROCK_MARGIN - 20) : 0;
+    // def.x est une fraction de la largeur du MONDE (pas du logo) : les tresors sont
+    // repartis sur toute la zone explorable, pas seulement sous le logo.
+    // Demo : la camera ne defile pas, le tresor est donc place dans la vue de depart.
+    return {
+      def: def, x: clearOfRock(DEMO ? camMargin + W * DEMO_TREASURE_X : def.x * worldW), y: ty, deep: depth > 0, dig: 0, revealed: false, ready: false,
+      mushroom: null, glint: glint, tip: null, hint: hint, nugget: null, nx: 0, sparks: null
+    };
+  }
+  // Demo : un seul tresor (la premiere souche), les autres attendent le jeu complet (endDemo).
+  function buriedDefs() {
+    return (DEMO ? treasureDefs.slice(0, 1) : treasureDefs).filter(function (def) { return skippedFound.indexOf(def.title) === -1; });
+  }
   function setupTreasures() {
     clearTreasures();
     // Tresors deja deterres (sauvegarde chargee avec la page) : ni glint ni champignon, ils
@@ -6167,30 +6426,8 @@
     restoredFound = [];
     treasuresFound = skippedFound.length;
     updateTreasureUI();
-    treasures = treasureDefs.filter(function (def) { return skippedFound.indexOf(def.title) === -1; }).map(function (def) {
-      var glint = document.createElement('span');
-      glint.className = 'logo-explosion-glint';
-      glint.setAttribute('aria-hidden', 'true');
-      container.appendChild(glint);
-      var depth = Math.max(0, parseFloat(def.depth) || 0);
-      // Borne : un DEPTH_MULT reduit (panneau de debug) ne doit pas laisser le tresor sous le fond du monde.
-      var ty = depth > 0 ? Math.min(groundY + depth * H, worldH - BEDROCK_MARGIN - 20) : 0;
-      // def.x est une fraction de la largeur du MONDE (pas du logo) : les tresors sont
-      // repartis sur toute la zone explorable, pas seulement sous le logo.
-      return {
-        def: def, x: clearOfRock(def.x * worldW), y: ty, deep: depth > 0, dig: 0, revealed: false, ready: false,
-        mushroom: null, glint: glint, tip: null, hint: null, nugget: null, nx: 0, sparks: null
-      };
-    });
-    // Le tout premier tresor porte un repere en plus (halo + fleche) pour inciter a creuser.
-    if (treasures.length) {
-      var first = treasures[0];
-      first.hint = document.createElement('div');
-      first.hint.className = 'logo-explosion-hint';
-      first.hint.setAttribute('aria-hidden', 'true');
-      first.hint.innerHTML = '<span class="logo-explosion-hint-halo"></span><span class="logo-explosion-hint-arrow"></span>';
-      container.appendChild(first.hint);
-    }
+    if (guideFlags.harvest) queueDemoEnd(); // demo deja finie avant un rechargement : l'ecran de fin revient
+    treasures = buriedDefs().map(buildTreasure);
     // On laisse la terre retomber avant de montrer ou creuser ; positionTreasureOverlays
     // decide ensuite, a chaque frame, si chaque repere est visible (t.ready).
     var mine = treasures;
@@ -6238,11 +6475,12 @@
     }
     // Horizontalement le badge suit le tresor (loin a gauche -> colle au bord gauche) ; en hauteur
     // il reste dans la bande basse de l'ecran (au plus COMPASS_RISE_FRAC x H au-dessus du bas).
-    var tx = 0, ty = 0, px = 0, py = 0;
+    // Tout ce bloc est en px CSS (ecran) : la boussole est un overlay HTML, d'ou les * ZOOM.
+    var tx = 0, ty = 0, px = 0, py = 0, cssW = W * ZOOM, cssH = H * ZOOM;
     if (best) {
-      tx = best.x - camX; ty = treasureY(best) - camY;
-      px = clamp(tx, 30, W - 30);
-      var pyMax = H - COMPASS_BOTTOM_PAD, pyMin = Math.min(H * (1 - COMPASS_RISE_FRAC), pyMax);
+      tx = (best.x - camX) * ZOOM; ty = (treasureY(best) - camY) * ZOOM;
+      px = clamp(tx, 30, cssW - 30);
+      var pyMax = cssH - COMPASS_BOTTOM_PAD, pyMin = Math.min(cssH * (1 - COMPASS_RISE_FRAC), pyMax);
       py = clamp(ty, pyMin, pyMax);
     }
     // Disparait quand le badge est tres pres du tresor.
@@ -6289,7 +6527,7 @@
     // Bulle au-dessus, sauf si elle sortirait par le haut ; decalee pour rester dans l'ecran.
     compass.classList.toggle('is-below', py < 110);
     var half = COMPASS_TIP_W / 2;
-    compass.style.setProperty('--lx', (clamp(px, half + 6, W - half - 6) - px) + 'px');
+    compass.style.setProperty('--lx', (clamp(px, half + 6, cssW - half - 6) - px) + 'px');
     compass.tabIndex = 0;
     compass.classList.add('is-visible');
   }
@@ -6321,6 +6559,56 @@
     a.textContent = 'Vous avez trouvé tous les trésors ! Voir la boutique';
     treasureCountEl.appendChild(a);
   }
+
+  // Ecran de fin de la demo (present seulement en mode demo, voir front-page.php) : sort a la
+  // premiere recolte (harvestAt), un peu apres pour laisser voir le champignon cueilli.
+  // "Continuer" debloque le jeu complet (endDemo) et enfouit les autres tresors.
+  var demoEndEl = document.getElementById('logo-explosion-end'), demoEndTimer = 0;
+  var DEMO_END_DELAY = 400;
+  function hideDemoEnd() {
+    clearTimeout(demoEndTimer);
+    if (demoEndEl) demoEndEl.classList.add('d-none');
+  }
+  // Sur l'accueil le header flotte par-dessus le haut de la boite et change de hauteur (etendu /
+  // compact) : le voile commence sous lui, et le suit (syncTick, defilement, redimensionnement).
+  function syncDemoEndTop() {
+    if (!demoEndEl || demoEndEl.classList.contains('d-none')) return;
+    var hb = siteHeader ? siteHeader.getBoundingClientRect().bottom - container.getBoundingClientRect().top : 0;
+    demoEndEl.style.top = Math.max(0, Math.min(hb, U * 0.55)) + 'px'; // px CSS : U = hauteur CSS de la boite
+  }
+  function queueDemoEnd() {
+    if (!DEMO || !demoEndEl) return;
+    clearTimeout(demoEndTimer);
+    demoEndTimer = setTimeout(function () {
+      if (mode !== 'exploded') return;
+      demoEndEl.classList.remove('d-none');
+      syncDemoEndTop();
+      var link = demoEndEl.querySelector('a');
+      if (link) link.focus({ preventScroll: true });
+    }, DEMO_END_DELAY);
+  }
+  function endDemo() {
+    hideDemoEnd();
+    DEMO = false;
+    container.classList.remove('is-demo');
+    try { localStorage.setItem(DEMO_KEY, '1'); } catch (e) { /* ignore */ }
+    updateMoneyUI();
+    updateChallengeUI();
+    updateStrainBar();
+    // Les tresors mis de cote pendant la demo (buriedDefs) sont enfouis maintenant.
+    buriedDefs().forEach(function (def) {
+      if (treasures.some(function (t) { return t.def === def; })) return;
+      var t = buildTreasure(def);
+      t.ready = true;
+      treasures.push(t);
+    });
+    positionTreasureOverlays();
+    updateTreasureUI();
+    startLoop();
+  }
+  if (demoEndEl) demoEndEl.addEventListener('click', function (evt) {
+    if (evt.target.closest('[data-demo-continue]')) endDemo();
+  });
 
   // Souches : le menu (boutons crees une fois, etat rafraichi apres chaque deblocage/choix).
   function buildStrainBar() {
@@ -6391,6 +6679,9 @@
   }
 
   // Retourne true si la souche vient d'etre debloquee (pas deja connue de cette page).
+  // Un clic sur le champignon d'un tresor selectionne sa souche pour l'outil mycelium.
+  function pickTreasureStrain(t) { if (t) t.tipClosed = false; if (t && t.strainId) setStrain(t.strainId); }
+
   function unlockStrain(id) {
     if (!strainById[id] || unlockedStrains.indexOf(id) !== -1) return false;
     unlockedStrains.push(id);
@@ -6416,6 +6707,19 @@
     return treasureY(t) - surfaceAt(t.x) < TREASURE_NEAR;
   }
 
+  // Tresor deterre saisi a la main : son champignon, sa pepite et sa bulle suivent le curseur.
+  var treasureGrab = null;
+  function grabTreasureAt(pos) {
+    var t = treasureNear(pos.x, pos.y);
+    if (!t || !t.revealed || !t.mushroom) return null;
+    return { t: t, dx: t.x - pos.x };
+  }
+  function moveTreasure(t, x) {
+    x = clamp(x, 30, worldW - 30);
+    var off = t.nx - t.x;
+    t.x = x; t.mushroom.x = x; t.nx = x + off;
+    t.deep = false; t.y = surfaceAt(x); // repose a la surface, comme s'il venait d'etre deterre
+  }
   function treasureNear(x, y) {
     for (var i = 0; i < treasures.length; i++) {
       var t = treasures[i];
@@ -6462,7 +6766,7 @@
     if (!t.deep) t.y = surfaceAt(t.x);
     digAt(t);
     // t negatif : le trou s'ouvre d'abord, le champignon sort ensuite.
-    t.mushroom = { x: t.x, size: H * 0.24, lean: 0, sp: SPECIES[shown.species] || SPECIES[0], t: -0.4, treasure: true };
+    t.mushroom = { x: t.x, size: U * 0.24, lean: 0, sp: SPECIES[shown.species] || SPECIES[0], t: -0.4, treasure: true };
     mushrooms.push(t.mushroom);
     if (window.sporaSfx) sporaSfx.play('pop', { min: 70 });
     // Pepite au pied du champignon (decalee de son pied), avec deux eclats qui pulsent en CSS.
@@ -6483,11 +6787,26 @@
     for (var sk = 0; sk < nDug && sk < strainOrder.length; sk++) {
       if (unlockStrain(strainOrder[sk].id) && strainOrder[sk] === st) fresh = true;
     }
+    t.strainId = strainOrder[nDug - 1] ? strainOrder[nDug - 1].id : null;
     if (!fresh) st = null;
     if (fresh && toolsArrow && guideCurrent()) toolsArrow.classList.remove('d-none');
     if (fresh && st.id === 'pleurote') pleuroteDug = true;
     t.tip = buildTip(shown);
     container.appendChild(t.tip);
+    // La main peut aussi deplacer le tresor en le saisissant par sa bulle (hors lien / bouton).
+    t.tip.style.touchAction = 'none';
+    t.tip.classList.add('is-reveal');
+    setTimeout(function () { if (t.tip) t.tip.classList.remove('is-reveal'); }, 1500);
+    // Bulle fermee avec la croix : le survol ne la rouvre plus, seul un clic sur le champignon le fait.
+    t.tip.querySelector('.logo-explosion-tip-close').addEventListener('click', function () { t.tipClosed = true; });
+    t.tip.addEventListener('pointerdown', function (evt) {
+      if (mode !== 'exploded' || tool !== 'hand' || evt.target.closest('a, button')) return;
+      var sp = getRelativePos(evt), wp = { x: sp.x + camX, y: sp.y + camY };
+      treasureGrab = { t: t, dx: t.x - wp.x };
+      pointerDown = wp; dragMoved = false; pressCaught = true;
+      try { canvas.setPointerCapture(evt.pointerId); } catch (e) { /* pas grave */ }
+      evt.preventDefault();
+    });
     // Pendant le tutoriel du mycelium, la bulle des tresors suivants ne s'ouvre pas seule (elle reste ouvrable au clic).
     if (nDug <= 1 || !guideCurrent()) openTip(t);
     treasuresFound++;
@@ -6503,7 +6822,7 @@
   // point central decale), teinte selon l'orientation de chaque facette par rapport a une
   // lumiere venant du haut-gauche. Points figes au reveal (pas de random au dessin).
   function makeNugget() {
-    var R = H * NUGGET_R, n = 5 + (Math.random() < 0.5 ? 1 : 0), ang = [], rad = [], i;
+    var R = U * NUGGET_R, n = 5 + (Math.random() < 0.5 ? 1 : 0), ang = [], rad = [], i;
     for (i = 0; i < n; i++) {
       ang.push((i + (Math.random() - 0.5) * 0.4) / n * Math.PI * 2);
       rad.push(R * (0.8 + Math.random() * 0.4));
@@ -6633,12 +6952,16 @@
   // - camX/- camY) ; partagee par les tresors deterres et la bulle mycelium.
   function positionTipOverMushroom(tipEl, m) {
     var g = easeOutBack(Math.max(0, Math.min(1, m.t)));
-    var capTop = surfaceAt(m.x) - camY + 6 - m.size * g * 1.45;
+    // Overlay HTML : positions en px CSS, donc * ZOOM (la taille de la bulle, elle, reste en px CSS).
+    var capTop = (surfaceAt(m.x) - camY + 6 - m.size * g * 1.45) * ZOOM;
     var half = tipEl.offsetWidth / 2;
-    var mScreenX = m.x - camX;
-    var left = Math.max(half + 8, Math.min(W - half - 8, mScreenX));
+    var mScreenX = (m.x - camX) * ZOOM;
+    var left = Math.max(half + 8, Math.min(W * ZOOM - half - 8, mScreenX));
     tipEl.style.left = left + 'px';
-    tipEl.style.top = (capTop - 16) + 'px';
+    // Champignon sorti trop haut (terre decompactee) : la bulle reste dans l'ecran, sans fleche.
+    var minTop = tipEl.offsetHeight + 8, top = Math.max(capTop - 6, minTop);
+    tipEl.classList.toggle('is-clamped', top !== capTop - 6);
+    tipEl.style.top = top + 'px';
     tipEl.style.setProperty('--arrow-dx', (mScreenX - left) + 'px');
   }
 
@@ -6686,13 +7009,19 @@
   function positionDigTip() {
     if (!digTipEl || !digTipTarget) return;
     if (digTipTarget.revealed) { hideDigTip(); return; }
-    var sx = digTipTarget.x - camX, sy = treasureY(digTipTarget) - camY;
+    var sx = (digTipTarget.x - camX) * ZOOM, sy = (treasureY(digTipTarget) - camY) * ZOOM;
     var half = digTipEl.offsetWidth / 2;
-    digTipEl.style.left = Math.max(half + 8, Math.min(W - half - 8, sx)) + 'px';
+    digTipEl.style.left = Math.max(half + 8, Math.min(W * ZOOM - half - 8, sx)) + 'px';
     digTipEl.style.top = Math.max(digTipEl.offsetHeight + 8, sy - 26) + 'px';
   }
 
   function positionTreasureOverlays() {
+    // Un seul repere a la fois : celui du tresor enfoui le plus pres du centre de l'ecran.
+    var hintT = null, hintD = W / 2 + 20;
+    for (var h = 0; h < treasures.length; h++) {
+      var dh = Math.abs(treasures[h].x - camX - W / 2);
+      if (!treasures[h].revealed && dh < hintD) { hintD = dh; hintT = treasures[h]; }
+    }
     for (var i = 0; i < treasures.length; i++) {
       var t = treasures[i];
       var screenX = t.x - camX;
@@ -6702,24 +7031,35 @@
         var sy = treasureY(t) - camY;
         var show = t.ready && sy > -20 && sy < H + 20 && screenX > -20 && screenX < W + 20;
         t.glint.classList.toggle('is-visible', show);
-        t.glint.style.left = screenX + 'px';
-        t.glint.style.top = (sy - 2) + 'px';
+        t.glint.style.left = screenX * ZOOM + 'px';
+        t.glint.style.top = (sy * ZOOM - 2) + 'px';
         if (t.hint) {
-          t.hint.classList.toggle('is-visible', show);
-          t.hint.style.left = screenX + 'px';
-          t.hint.style.top = (sy - 46) + 'px';
+          // A la surface (ou sur le tresor si on a creuse plus bas que lui). Cache pendant le
+          // tutoriel du mycelium, comme la boussole : il detournerait l'attention.
+          var hy = Math.min(sy, surfaceAt(t.x) - camY);
+          t.hint.classList.toggle('is-visible', t === hintT && t.ready && hy * ZOOM > 30 && hy < H + 20 && screenX > -20 && screenX < W + 20 && !(unlockedStrains.length && guideCurrent()));
+          t.hint.style.left = screenX * ZOOM + 'px';
+          t.hint.style.top = (hy * ZOOM - 34) + 'px';
         }
         continue;
       }
       if (t.sparks) {
         var ny = nuggetY(t) - camY, nsx = t.nx - camX, nr = t.nugget.r;
-        t.sparks[0].style.left = (nsx - nr * 0.35) + 'px';
-        t.sparks[0].style.top = (ny - nr * 0.7) + 'px';
-        t.sparks[1].style.left = (nsx + nr * 0.5) + 'px';
-        t.sparks[1].style.top = (ny - nr * 0.2) + 'px';
+        t.sparks[0].style.left = (nsx - nr * 0.35) * ZOOM + 'px';
+        t.sparks[0].style.top = (ny - nr * 0.7) * ZOOM + 'px';
+        t.sparks[1].style.left = (nsx + nr * 0.5) * ZOOM + 'px';
+        t.sparks[1].style.top = (ny - nr * 0.2) * ZOOM + 'px';
       }
       if (!t.tip) continue;
       positionTipOverMushroom(t.tip, t.mushroom);
+      // Champignon sorti de l'ecran : la bulle s'efface graduellement, puis se ferme.
+      var farX = t.mushroom.x - camX, off = farX < 0 ? -farX : farX > W ? farX - W : 0, fade = 1 - off / (W * 0.12);
+      if (t.tip.classList.contains('is-open') && off > 0) {
+        // Filet de securite : hors ecran depuis 2,5 s, elle se ferme meme si la distance ne suffit pas (bord du monde).
+        if (!t.farSince) t.farSince = performance.now();
+        if (fade <= 0 || performance.now() - t.farSince > 2500) { openTip(null); t.tip.style.opacity = ''; t.farSince = 0; }
+        else t.tip.style.opacity = Math.min(fade, 1 - (performance.now() - t.farSince) / 2500).toFixed(2);
+      } else { t.tip.style.opacity = ''; t.farSince = 0; }
     }
     if (mycTip && mycTipMushroom) positionTipOverMushroom(mycTip, mycTipMushroom);
     positionDigTip();
@@ -6732,7 +7072,7 @@
     mode = 'rebuilding';
     rebuildT = 0;
     camX = camMargin; // la camera revient au centre pendant que le logo se reconstruit
-    camY = 0;
+    camY = ZOOM === 1 ? 0 : camHomeY();
     mobileArrow = 0;
     mobileArrowY = 0;
     leaveHand(); // ce qu'on tenait/agrippait a la main ne survit pas a la reconstruction (rend aussi s.carried a false)
@@ -6756,12 +7096,13 @@
     clearTreasures();
     clearMycTip();
     hideMsgs();
+    hideDemoEnd();
     setCaption(CAPTION_BEFORE);
     if (rebuildBtn) rebuildBtn.classList.add('d-none');
     if (speedBtn) speedBtn.classList.add('d-none');
     if (debugToggleBtn) debugToggleBtn.classList.add('d-none');
     if (moneyEl) moneyEl.classList.add('d-none');
-    hideHeaderToggle();
+    releaseHeader();
     hideDebugPanel();
     if (toolsBar) toolsBar.classList.add('d-none');
     if (chBadgeEl) chBadgeEl.classList.add('d-none');
@@ -6814,7 +7155,7 @@
     if (speedBtn) speedBtn.classList.add('d-none');
     if (debugToggleBtn) debugToggleBtn.classList.add('d-none');
     if (moneyEl) moneyEl.classList.add('d-none');
-    hideHeaderToggle();
+    releaseHeader();
     hideDebugPanel();
     if (toolsBar) toolsBar.classList.add('d-none');
     if (chBadgeEl) chBadgeEl.classList.add('d-none');
@@ -6849,9 +7190,10 @@
   function getRelativePos(evt) {
     // container plutot que canvas : le canvas est en d-none (rect a 0) avant le clic.
     // Coordonnees ECRAN (relatives a la boite), pas encore converties en coord. monde.
+    // Divisees par ZOOM : px CSS -> px logiques (meme repere que W/H).
     var rect = container.getBoundingClientRect();
     var p = evt.touches ? evt.touches[0] : evt;
-    return { x: p.clientX - rect.left, y: p.clientY - rect.top };
+    return { x: (p.clientX - rect.left) / ZOOM, y: (p.clientY - rect.top) / ZOOM };
   }
 
   // Coordonnees monde (ajoute le decalage camera courant) : a utiliser pour toute la
@@ -6863,10 +7205,11 @@
 
   container.addEventListener('click', function (evt) {
     // Le bouton, les fleches et les infobulles sont dans la boite : leurs clics ne creusent pas.
-    // (bug corrige : le bouton plein ecran et celui du header manquaient ici, un clic
+    // (bug corrige : le bouton plein ecran manquait ici, un clic
     // dessus remontait jusqu'a ce listener et redeclenchait explode()/build() en plus
     // de l'action du bouton lui-meme.)
-    if (evt.target.closest('#logo-explosion-rebuild, #logo-explosion-fullscreen, #logo-explosion-header-toggle, .logo-explosion-scroll, .logo-explosion-tip, .logo-explosion-compass, .logo-explosion-tools, .logo-explosion-strains, .logo-explosion-treasures, .logo-explosion-challenges-badge, .logo-explosion-explain-locate, .logo-explosion-explain-close, .logo-explosion-explain-ack')) return;
+    if (evt.target.closest('#logo-explosion-rebuild, #logo-explosion-fullscreen, .logo-explosion-scroll, .logo-explosion-tip, .logo-explosion-compass, .logo-explosion-tools, .logo-explosion-strains, .logo-explosion-treasures, .logo-explosion-challenges-badge, .logo-explosion-explain-locate, .logo-explosion-explain-close, .logo-explosion-explain-ack, .logo-explosion-end')) return;
+    if (mode === 'assembled') updateZoom(); // le zoom du monde qui va etre construit, avant de convertir le clic
     var pos = getRelativePos(evt);
     if (mode === 'assembled') {
       // Seul un clic sur le logo (ou sa zone "play" juste en dessous) declenche
@@ -6874,13 +7217,72 @@
       // le faisait, ce qui ne correspond pas au curseur special affiche uniquement
       // au-dessus du logo.
       if (!evt.target.closest('#logo-explosion-fallback-wrap')) return;
+      if (holdTouch) return; // au doigt : appui maintenu, voir plus bas
       // camX vient d'etre (re)centre par build() : + camX donne la position monde de
       // l'origine de l'explosion, coherente avec les coord. monde des facettes.
-      if (imgReady && build()) explode(pos.x + camX, pos.y);
+      if (imgReady && build()) explode(pos.x + camX, pos.y + camY);
       return;
     }
     // Une fois explose, tout passe par les evenements pointer du canvas (pelle + taps).
   });
+
+  // Au doigt, un simple tap ne lance pas le jeu (trop facile a declencher en faisant
+  // defiler la page) : il faut maintenir HOLD_MS, pendant que l'anneau du badge "play"
+  // se remplit (.is-holding dans style.css). La souris garde le clic simple ci-dessus.
+  var HOLD_MS = 800;
+  var HOLD_HINT_MS = 2000; // duree du mot "Maintenez" apres un tap trop court
+  var HOLD_FOLLOW_EASE = 0.4; // lissage du badge qui suit le doigt (voir stepMagnet)
+  var HOLD_LIFT = 60;       // px, le badge se tient au-dessus du doigt pour rester visible
+  var holdWrap = document.getElementById('logo-explosion-fallback-wrap');
+  var holdTimer = null, holdHintTimer = null, holdTouch = false;
+  function cancelHold() {
+    clearTimeout(holdTimer);
+    holdTimer = null;
+    holdWrap.classList.remove('is-holding');
+    if (holdTouch) { magnetTx = 0; magnetTy = 0; } // le badge retourne a sa place
+  }
+  // Le badge vient sous le doigt et le suit : reutilise --mx/--my du magnetisme souris,
+  // sans la borne MAGNET_MAX (le doigt peut etre sur le logo, loin de la zone du badge).
+  function holdFollow(evt) {
+    if (!playBadge) return;
+    var zr = playBadge.parentElement.getBoundingClientRect();
+    magnetTx = evt.clientX - (zr.left + zr.width / 2);
+    magnetTy = evt.clientY - (zr.top + zr.height / 2) - HOLD_LIFT;
+  }
+  if (holdWrap) {
+    holdWrap.style.setProperty('--hold-ms', HOLD_MS + 'ms');
+    holdWrap.addEventListener('pointerdown', function (evt) {
+      holdTouch = evt.pointerType !== 'mouse';
+      if (!holdTouch || mode !== 'assembled' || !imgReady) return;
+      updateZoom();
+      var pos = getRelativePos(evt);
+      cancelHold();
+      clearTimeout(holdHintTimer);
+      holdWrap.classList.remove('is-hint');
+      holdWrap.classList.add('is-holding');
+      holdFollow(evt);
+      holdTimer = setTimeout(function () {
+        cancelHold();
+        if (mode === 'assembled' && build()) explode(pos.x + camX, pos.y + camY);
+      }, HOLD_MS);
+    });
+    holdWrap.addEventListener('pointermove', function (evt) { if (holdTimer) holdFollow(evt); });
+    // Doigt releve avant la fin : on explique le geste (sursaut + "Maintenez").
+    holdWrap.addEventListener('pointerup', function () {
+      if (holdTimer) {
+        holdWrap.classList.add('is-hint');
+        clearTimeout(holdHintTimer);
+        holdHintTimer = setTimeout(function () { holdWrap.classList.remove('is-hint'); }, HOLD_HINT_MS);
+      }
+      cancelHold();
+    });
+    // pointercancel : le doigt a commence a faire defiler la page, on abandonne sans rien dire.
+    ['pointercancel', 'pointerleave'].forEach(function (n) {
+      holdWrap.addEventListener(n, cancelHold);
+    });
+    // Appui long sur une image : pas de menu contextuel du navigateur.
+    holdWrap.addEventListener('contextmenu', function (evt) { if (holdTouch) evt.preventDefault(); });
+  }
 
   // Pointer events : meme code pour souris, doigt et stylet.
   // Souris : la pelle suit le survol, bouton maintenu = elle ralentit (mode precis). Le
@@ -6899,8 +7301,10 @@
     // Clic sur un tresor pas encore deterre : rappelle comment creuser.
     var hintT = treasureGlintAt(evt);
     if (hintT) showDigTip(hintT);
+    // Un clic sur la pelle plantee la prend quel que soit l'outil : la main se selectionne toute seule.
+    if (tool !== 'hand' && !shovel.on && shovelHit(pos.x, pos.y, evt.pointerType !== 'mouse')) setTool('hand');
     if (tool === 'hand') {
-      // La pelle plantee est prioritaire, mais seulement si le clic tombe sur elle.
+      // La pelle plantee est prioritaire, mais seulement si le clic tombe sur elle (voir aussi plus haut : ce clic selectionne la main).
       if (!shovel.on && shovelHit(pos.x, pos.y, evt.pointerType !== 'mouse')) {
         leaveHand();
         pressCaught = true;
@@ -6911,6 +7315,7 @@
         return;
       }
       if (!hand.on) enterHand(pos);
+      hand.touch = evt.pointerType !== 'mouse';
       hand.x = pos.x; hand.y = pos.y;
       // Un champignon a recolter sous le curseur est prioritaire sur tout : on ne saisit rien
       // derriere lui, le tap au relachement le recolte (harvestAt). Sinon feuille, branche, terre.
@@ -6921,11 +7326,14 @@
         dropHeldInsect(); // un seul a la fois (appui multi-pointeurs)
         heldSX = screenPos.x; heldSY = screenPos.y;
         catchInsect(bfly);
+      } else if ((treasureGrab = grabTreasureAt(pos))) {
+        pressCaught = true; // un tresor deterre se deplace a la main : le champignon et la bulle suivent
       } else if (harvestableNear(pos.x, pos.y)) {
         // Cueillette des l'appui (pas seulement au relachement) : maintenir le clic fait aussi sortir le champignon.
         harvestAt(pos);
         pressCaught = true;
       } else if (!handGrabTree(pos)) pickUpHand(pos);
+      if (pressCaught) hand.flash = performance.now();
       startLoop(); // le poing se ferme, meme sans rien dans la main
       return;
     }
@@ -6960,23 +7368,24 @@
     } else if (tool === 'hand') {
       if (shovel.on) {
         if (!shovel.released) { shovel.gx = pos.x; shovel.gy = pos.y; }
-      } else if (!hand.on && (evt.pointerType === 'mouse' || pointerDown)) enterHand(pos);
+      } else if (!hand.on && (evt.pointerType === 'mouse' || pointerDown)) { enterHand(pos); hand.touch = evt.pointerType !== 'mouse'; }
       hand.x = pos.x; hand.y = pos.y;
     } else if (tool === 'fertilizer' && pointerDown) {
       dropFertilizer(pos.x);
     } else if (tool === 'grass' && pointerDown) {
       seedGrass(pos.x);
     }
+    if (treasureGrab && pointerDown && dragMoved) { moveTreasure(treasureGrab.t, pos.x + treasureGrab.dx); }
     if (heldInsect && pointerDown) { heldSX = screenPos.x; heldSY = screenPos.y; }
     if (evt.pointerType === 'mouse') {
-      canvas.style.cursor = (tool === 'hand' && !shovel.on && shovelHit(pos.x, pos.y, false)) ? 'grab'
+      canvas.style.cursor = (!shovel.on && shovelHit(pos.x, pos.y, false)) ? 'grab'
         : (tool === 'hand' && insectAt(pos.x, pos.y)) ? 'pointer' : '';
     }
     if (evt.pointerType === 'mouse' && !pointerDown) {
       // Survoler un tresor deja deterre rouvre son infobulle sans avoir a cliquer.
       var hoverT = treasureNear(pos.x, pos.y);
       // Pas de survol tant qu'un saviez-vous est affiche : il ne reviendrait pas (le clic ouvre quand meme).
-      if (hoverT && hoverT.revealed && factShown < 0) openTip(hoverT);
+      if (hoverT && hoverT.revealed && !hoverT.tipClosed && factShown < 0) openTip(hoverT);
       // Survoler le scintillement d'un tresor enfoui ouvre la bulle "creusez..." (sans minuterie).
       var glintT = treasureGlintAt(evt);
       if (glintT) showDigTip(glintT, true); else if (digTipHover) hideDigTip();
@@ -6996,6 +7405,10 @@
       return;
     }
     if (tool === 'hand') {
+      if (treasureGrab) {
+        if (allowTap && !dragMoved) { openTip(treasureGrab.t); pickTreasureStrain(treasureGrab.t); }
+        treasureGrab = null;
+      }
       var hadGrip = !!hand.grip;
       hand.grip = null; // relachee avant de casser : la branche revient droite, rien d'autre
       if (handCarry.length) {
@@ -7020,7 +7433,7 @@
       // Au sac, un tap ne creuse pas : il rouvre seulement l'infobulle d'un tresor deja sorti.
       if (allowTap && !dragMoved) {
         var wp = getWorldPos(evt), t = treasureNear(wp.x, wp.y);
-        if (t && t.revealed) openTip(t); else openTip(null);
+        if (t && t.revealed) { openTip(t); pickTreasureStrain(t); } else openTip(null);
       }
       if (evt.pointerType !== 'mouse') leaveBag();
       pointerDown = null;
@@ -7059,59 +7472,82 @@
 
   if (rebuildBtn) rebuildBtn.addEventListener('click', resetAllAndRebuild); // la fleche remet tout a zero (sauvegarde incluse), avec l'animation
   // Reutilise le mecanisme de header compact expose par nav-compact.js (voir
-  // window.sporaHeaderCompact) plutot que d'en refaire un : simple bascule manuelle,
-  // en plus de celle au scroll. Verifie sa presence pour ne rien casser si ce script
-  // change ou ne s'est pas encore charge.
-  // Colle le bouton sous le bord bas du header, qui change de hauteur en mode compact
-  // (padding en transition 0.2s) : suivi image par image pendant la transition.
+  // window.sporaHeaderCompact) plutot que d'en refaire un. Verifie sa presence pour ne
+  // rien casser si ce script change ou ne s'est pas encore charge.
   var siteHeader = document.querySelector('.header');
-  function syncHeaderToggle() {
-    if (!headerToggleBtn || !siteHeader || !headerToggleBtn.offsetParent) return;
-    var parentTop = headerToggleBtn.offsetParent.getBoundingClientRect().top;
-    headerToggleBtn.style.top = (siteHeader.getBoundingClientRect().bottom - parentTop + 8) + 'px';
-  }
-  if (headerToggleBtn && siteHeader) {
+  // Le header change de hauteur en mode compact (padding en transition 0.2s) : l'ecran de
+  // fin de demo le suit image par image pendant la transition.
+  if (siteHeader) {
+    // Bas du header replie, mesure depuis le haut de la boite du jeu (page en haut), pour
+    // caler les controles du haut sur mobile (--game-ui-top, lu seulement dans la media
+    // query mobile de style.css). La boite ne commence pas tout en haut de la page (padding
+    // du hero) : on retire ce decalage, sinon les controles restent trop bas. Bornee a
+    // 150px : menu mobile ouvert, le header est tres haut et les pousserait hors de la boite.
+    var syncUiTop = function () {
+      var boxTop = container.getBoundingClientRect().top + window.scrollY;
+      var hb = siteHeader.getBoundingClientRect().height - boxTop;
+      container.style.setProperty('--game-ui-top', Math.round(Math.max(0, Math.min(hb, 150))) + 'px');
+      // Fleche "monter" (40px de haut) centree dans la bande du header replie, sur mobile.
+      container.style.setProperty('--game-arrow-top', Math.round(Math.max(0, hb - (hb + boxTop) / 2 - 20)) + 'px');
+    };
+    syncUiTop();
+    window.addEventListener('resize', syncUiTop);
+    window.addEventListener('load', syncUiTop); // le logo du header charge : sa hauteur change
     var syncUntil = 0;
     var syncTick = function () {
-      syncHeaderToggle();
+      syncDemoEndTop();
+      syncUiTop();
       if (performance.now() < syncUntil) requestAnimationFrame(syncTick);
     };
     new MutationObserver(function () {
       syncUntil = performance.now() + 450;
       requestAnimationFrame(syncTick);
     }).observe(siteHeader, { attributes: true, attributeFilter: ['class'] });
-    window.addEventListener('resize', syncHeaderToggle);
+    window.addEventListener('resize', syncDemoEndTop);
+    window.addEventListener('scroll', syncDemoEndTop, { passive: true });
   }
-  // Le clic sur le logo compacte le header d'office (voir explode) ; la fleche sert
-  // ensuite a le redescendre / le remonter.
-  function setHeaderToggleState(compact) {
-    if (!headerToggleBtn) return;
-    if (window.sporaHeaderCompact && typeof window.sporaHeaderCompact.set === 'function') window.sporaHeaderCompact.set(compact);
-    headerToggleBtn.classList.toggle('is-active', compact);
-    headerToggleBtn.setAttribute('aria-pressed', compact ? 'true' : 'false');
-    headerToggleBtn.setAttribute('aria-label', compact ? 'Déplier le menu' : 'Replier le menu');
-    headerToggleBtn.setAttribute('title', compact ? 'Déplier le menu' : 'Replier le menu');
-    syncHeaderToggle();
+  // Le clic sur le logo compacte le header d'office (voir explode) ; ensuite toute
+  // interaction dans le jeu le replie s'il s'est redeplie au defilement.
+  var headerCompactedByGame; // sans valeur initiale : explode peut passer avant cette ligne
+  function compactHeaderForGame() {
+    headerCompactedByGame = true;
+    if (window.sporaHeaderCompact && typeof window.sporaHeaderCompact.set === 'function') window.sporaHeaderCompact.set(true);
   }
-  if (headerToggleBtn) {
-    headerToggleBtn.addEventListener('click', function () {
-      if (!window.sporaHeaderCompact || typeof window.sporaHeaderCompact.set !== 'function') return;
-      setHeaderToggleState(!window.sporaHeaderCompact.isCompact());
+  container.addEventListener('pointerdown', function () {
+    if (mode === 'exploded') compactHeaderForGame();
+  });
+  // Jeu remis a zero : on redeplie le header que le jeu avait compacte. Pas sur mobile :
+  // deplie, il mange trop de l'ecran ; il se redepliera tout seul au defilement.
+  function releaseHeader() {
+    var narrow = window.matchMedia && window.matchMedia('(max-width: 767.98px)').matches;
+    if (!narrow && headerCompactedByGame && window.sporaHeaderCompact && typeof window.sporaHeaderCompact.set === 'function') window.sporaHeaderCompact.set(false);
+    headerCompactedByGame = false;
+    clearTimeout(headerLeaveTimer);
+    headerHover = false;
+  }
+  // Jeu actif : le header se deplie au survol (souris seulement) et se replie peu apres
+  // que la souris en sort. On mesure le rectangle plutot que d'ecouter mouseenter : le
+  // header de l'accueil est en pointer-events:none hors de ses liens.
+  var HEADER_HOVER_LEAVE = 250;           // delai (ms) avant de replier une fois la souris sortie
+  var headerHover = false, headerLeaveTimer = 0;
+  function setHeaderHover(over) {
+    if (over === headerHover) return;
+    headerHover = over;
+    clearTimeout(headerLeaveTimer);
+    if (!over) headerLeaveTimer = setTimeout(function () { if (mode === 'exploded') compactHeaderForGame(); }, HEADER_HOVER_LEAVE);
+    else if (window.sporaHeaderCompact && typeof window.sporaHeaderCompact.set === 'function') window.sporaHeaderCompact.set(false);
+  }
+  if (siteHeader) {
+    document.addEventListener('pointermove', function (evt) {
+      // evt.buttons : pas de depliage pendant qu'on joue (outil appuye) pres du haut.
+      if (evt.pointerType !== 'mouse' || evt.buttons || mode !== 'exploded') return;
+      var r = siteHeader.getBoundingClientRect();
+      // contains : le mini-panier ouvert deborde du rectangle du header.
+      setHeaderHover(siteHeader.contains(evt.target) || (evt.clientX >= r.left && evt.clientX <= r.right && evt.clientY >= r.top && evt.clientY <= r.bottom));
     });
-  }
-  // Redeplie le header si la demo l'a compacte, plutot que de laisser le visiteur
-  // avec un menu replie qui n'a plus de bouton visible pour le rouvrir une fois le
-  // jeu remis a zero (le bouton lui-meme redevient d-none).
-  function hideHeaderToggle() {
-    if (!headerToggleBtn) return;
-    headerToggleBtn.classList.add('d-none');
-    if (headerToggleBtn.classList.contains('is-active') && window.sporaHeaderCompact && typeof window.sporaHeaderCompact.set === 'function') {
-      window.sporaHeaderCompact.set(false);
-    }
-    headerToggleBtn.classList.remove('is-active');
-    headerToggleBtn.setAttribute('aria-pressed', 'false');
-    headerToggleBtn.setAttribute('aria-label', 'Replier le menu');
-    headerToggleBtn.setAttribute('title', 'Replier le menu');
+    document.documentElement.addEventListener('mouseleave', function () {
+      if (mode === 'exploded') setHeaderHover(false);
+    });
   }
   function hideDebugPanel() {
     if (debugToggleBtn) {
@@ -7132,7 +7568,7 @@
   function resizeGameHeight() {
     if (mode === 'assembled') return; // pas encore explose : build() lira la taille a jour au clic
     var rect = container.getBoundingClientRect();
-    if (Math.round(rect.width) !== Math.round(W)) {
+    if (Math.round(rect.width) !== Math.round(UW)) {
       // La largeur a aussi change (jamais le cas pour le bouton plein ecran lui-meme,
       // mais garde-fou si une barre de defilement s'en mele) : seul cas ou on doit
       // vraiment tout reconstruire, comme le fait deja le listener de resize plus bas.
@@ -7141,22 +7577,27 @@
       return;
     }
     var newH = rect.height;
-    if (Math.round(newH) === Math.round(H)) return;
-    H = newH;
+    if (Math.round(newH) === Math.round(U)) return;
+    H = newH / ZOOM; U = H * ZOOM;
     resetTiles();
-    canvas.width = W * dpr; canvas.height = H * dpr;
-    canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+    sizeCanvas();
     // groundY et le sol existant restent en coordonnees monde absolues, inchanges :
     // seule la fenetre visible (camY..camY+H) grandit ou retrecit.
-    worldH = Math.max(worldH, H + H * DEPTH_MULT);
+    worldH = Math.max(worldH, H + U * DEPTH_MULT);
     // Au sommet (camY <= 0) on colle la vue sur le sol en bas d'ecran, comme au depart :
     // la place gagnee sert a montrer plus de ciel, pas plus de sous-sol.
     var atTop = camY <= 0;
-    camY = clamp(atTop ? camMinY() : camY, camMinY(), worldH - H);
+    camY = clamp(atTop ? camHomeY() : camY, camMinY(), worldH - H);
   }
+  // Vue de depart : le sol au bas de l'ecran. 0 tant que la fenetre n'est pas plus haute que
+  // le monde de depart ; negatif en plein ecran ou en zoom arriere (H depasse groundY).
+  function camHomeY() { return Math.min(0, groundY - (H - 6)); }
   // Plus haut que 0 : en plein ecran H grandit mais groundY reste fixe, donc il faut pouvoir
   // remonter (camY negatif) jusqu'a ce que le sol soit de nouveau au bas de l'ecran.
-  function camMinY() { return Math.min(0, groundY - (H - 6)); }
+  // SKY_EXTRA : ciel en plus au-dessus, pour voir en entier les arbres tres hauts (TALL_SCALE_MAX).
+  var SKY_EXTRA = 0.5;
+  // Zoome : la vue de depart montre deja beaucoup de ciel au-dessus des arbres, pas de ciel en plus.
+  function camMinY() { return ZOOM === 1 ? Math.min(0, groundY - (H - 6)) - H * SKY_EXTRA : camHomeY(); }
   if (fullscreenBtn) {
     fullscreenBtn.addEventListener('click', function () {
       var next = !container.classList.contains('is-fullscreen');
@@ -7278,6 +7719,10 @@
     ['Arbres / racines', 'LEAF_UNLOCK_MIN', 'Feuilles à la naissance', 1, 40, 1],
     ['Arbres / racines', 'TREE_SCALE_MIN', 'Taille à la naissance', 0.05, 1, 0.01],
     ['Arbres / racines', 'TREE_SCALE_MAX', 'Taille à maturité', 0.5, 4, 0.05],
+    ['Arbres / racines', 'TALL_FULL', 'Nutriments pour hauteur max', 5, 200, 1],
+    ['Arbres / racines', 'TALL_SCALE_MAX', 'Hauteur bonus max', 0, 1, 0.05],
+    ['Arbres / racines', 'SMALL_WIND_MULT', 'Vent sur feuilles (petit arbre)', 0, 1, 0.05],
+    ['Arbres / racines', 'TALL_WIND_MULT', 'Vent sur feuilles (arbre haut)', 1, 4, 0.1],
     ['Arbres / racines', 'TREE_COST_STEP', 'Palier de coût d\'un arbre', 0, 500, 10],
     ['Arbres / racines', 'TREE_MIN_SPACING', 'Espacement min. plantation', 10, 400, 5],
     ['Arbres / racines', 'TREE_STARVE_MS', 'Délai avant famine', 2000, 300000, 1000],

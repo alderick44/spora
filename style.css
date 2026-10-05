@@ -7,7 +7,7 @@ Description:
 Requires at least: 6.7
 Tested up to: 6.9
 Requires PHP: 7.2
-Version: 1.11.9
+Version: 1.11.29
 License: GNU General Public License v2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: twentytwentyfive
@@ -15,6 +15,11 @@ Tags:
 */
 
 :root{
+    /* Hauteur du header etendu sur l'accueil, ou il flotte par-dessus le jeu du logo : les
+       controles du jeu se placent juste dessous et la boite gagne cette hauteur. A ajuster
+       si la hauteur de la nav change (le bouton de repli et l'ecran de fin, eux, la mesurent
+       en direct dans logo-explosion.js). */
+    --home-header-h: 150px;
     --color-red: #9A2C19;
     --color-red-dark: #701a0b;
     --color-red-light: #EE7C68;
@@ -129,7 +134,7 @@ Tags:
 .logo-explosion-explain-close:hover,
 .logo-explosion-explain-close:focus-visible{ color: #fff; }
 /* Accueil : la carte se pose juste au-dessus de la pastille des defis (meme colonne). */
-body.home .logo-explosion-explain{ top: 150px; left: 16px; transform: translateY(calc(-100% - 8px)); }
+body.home .logo-explosion-explain{ top: var(--home-header-h); left: 16px; transform: translateY(calc(-100% - 8px)); }
 body.home .logo-explosion-explain.is-visible{ transform: translateY(-100%); }
 .logo-explosion-fact{
     right: 12px;
@@ -182,6 +187,9 @@ body.home .logo-explosion-explain.is-visible{ transform: translateY(-100%); }
 .logo-explosion-inner{
     position: relative;
     width: 100%;
+    /* Pas de selection de texte (bleu) en jouant : clics rapides et glisses sur les bulles. */
+    -webkit-user-select: none;
+    user-select: none;
     /* Zone bien plus haute que le wordmark lui-meme : l'explosion et le creusage
        ont de la place pour se disperser sans se faire couper net par le bord de
        la boite (avant, la boite collait au ratio serre du wordmark). */
@@ -202,7 +210,7 @@ body.home .logo-explosion-inner{
        body.home .header) : plutot que de pousser la boite sous lui avec du padding
        vide (l'espace perdu d'avant), elle remonte carrement jusque sous le header
        transparent, avec la hauteur gagnee ajoutee a la boite plutot que jetee. */
-    height: clamp(430px, calc(45vh + 150px), 710px);
+    height: clamp(430px, calc(45vh + var(--home-header-h)), 710px);
 }
 /* Plein ecran "sur place" : la boite prend 100vh dans le flux normal de la page,
    pas une vraie Fullscreen API ni position fixed. Le reste du site n'est pas touche,
@@ -258,6 +266,7 @@ body.home .logo-explosion-inner.is-fullscreen{
 .logo-explosion-play-badge{
     /* Decale par --mx/--my (magnetisme vers le curseur, pilote en JS) autour du centre
        de la zone. Purement decoratif : la zone au-dessus gere le clic/hover reel. */
+    position: relative; /* ancre l'anneau de maintien (.logo-explosion-play-ring) */
     width: 36px;
     height: 36px;
     display: flex;
@@ -269,17 +278,112 @@ body.home .logo-explosion-inner.is-fullscreen{
     opacity: .55;
     box-shadow: 0 2px 6px rgba(0,0,0,.25);
     pointer-events: none;
-    transition: opacity .175s ease;
-    transform: translate(var(--mx, 0px), var(--my, 0px));
+    transition: opacity .175s ease, scale .2s ease-out;
+    /* Propriete "translate" a part, pas dans transform : elle s'applique avant "scale",
+       donc le grossissement pendant l'appui ne multiplie pas le decalage. */
+    translate: var(--mx, 0px) var(--my, 0px);
     animation: logo-explosion-badge-pulse 2.4s ease-in-out infinite;
 }
-#logo-explosion-fallback-wrap:hover .logo-explosion-play-badge,
-.logo-explosion-play-zone:hover .logo-explosion-play-badge{
+/* Seulement avec une vraie souris : au doigt le :hover reste colle apres un tap et
+   ferait disparaitre le badge pendant qu'on le maintient. */
+@media (hover: hover){
+    #logo-explosion-fallback-wrap:hover .logo-explosion-play-badge,
+    .logo-explosion-play-zone:hover .logo-explosion-play-badge{
+        opacity: 0;
+    }
+}
+/* Anneau autour du badge : se remplit pendant l'appui maintenu au doigt (.is-holding,
+   pose par logo-explosion.js qui fournit aussi la duree --hold-ms). */
+.logo-explosion-play-ring{
+    position: absolute;
+    inset: -9px;
+    width: calc(100% + 18px);
+    height: calc(100% + 18px);
+    transform: rotate(-90deg); /* le remplissage part du haut */
+}
+.logo-explosion-play-ring circle{
+    fill: none;
+    stroke: var(--color-red);
+    stroke-width: 3;
+}
+.logo-explosion-play-ring-track{
+    opacity: 0; /* visible au doigt seulement, voir plus bas */
+}
+.logo-explosion-play-ring-fill{
+    stroke-dasharray: 100;
+    stroke-dashoffset: 100;
+    transition: stroke-dashoffset .2s ease-out;
+}
+/* Tap trop court : le badge sursaute et le mot "Maintenez" apparait dessous (.is-hint,
+   pose ~2 s par logo-explosion.js). Rien d'affiche au repos. */
+.logo-explosion-play-hint{
+    position: absolute;
+    top: calc(50% + 46px);
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--color-red);
+    font-size: .8rem;
+    font-weight: 600;
+    letter-spacing: .04em;
+    white-space: nowrap;
     opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s ease;
+}
+#logo-explosion-fallback-wrap.is-hint .logo-explosion-play-hint{
+    opacity: 1;
+}
+#logo-explosion-fallback-wrap.is-hint .logo-explosion-play-badge{
+    opacity: 1;
+    animation: logo-explosion-badge-nudge .45s ease-out;
+}
+@keyframes logo-explosion-badge-nudge{
+    0%, 100% { transform: scale(1); }
+    35% { transform: scale(1.3); }
+    70% { transform: scale(.94); }
+}
+/* Des l'appui le badge grossit d'un coup (bien avant la fin de l'anneau). */
+#logo-explosion-fallback-wrap.is-holding .logo-explosion-play-badge{
+    opacity: 1;
+    animation: none;
+    scale: 1.6;
+    transition: opacity .175s ease, scale .18s ease-out;
+}
+#logo-explosion-fallback-wrap.is-holding .logo-explosion-play-ring-fill{
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset var(--hold-ms, 800ms) linear;
+}
+@media (hover: none){
+    /* Au doigt : badge plus gros (le doigt le cache sinon) et piste de l'anneau deja
+       visible, pour annoncer qu'il faut maintenir. Pas de menu "enregistrer l'image"
+       ni de selection pendant l'appui long. */
+    #logo-explosion-fallback-wrap,
+    #logo-explosion-fallback{
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
+        /* Le badge suit le doigt pendant l'appui : sans ca, bouger le doigt fait defiler
+           la page ou declenche le "tirer pour rafraichir" du telephone. Contrepartie :
+           un glissement qui part du logo ou du badge ne fait plus defiler la page. */
+        touch-action: none;
+    }
+    .logo-explosion-play-badge{
+        width: 52px;
+        height: 52px;
+        opacity: .8;
+    }
+    .logo-explosion-play-icon{
+        width: 24px;
+        height: 24px;
+    }
+    .logo-explosion-play-ring-track{
+        opacity: .3;
+    }
 }
 @keyframes logo-explosion-badge-pulse{
-    0%, 100% { transform: translate(var(--mx, 0px), var(--my, 0px)) scale(1); }
-    50% { transform: translate(var(--mx, 0px), var(--my, 0px)) scale(1.12); }
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.12); }
 }
 @media (max-width: 767.98px){
     #logo-explosion-fallback-wrap{
@@ -331,38 +435,7 @@ body.home .logo-explosion-tools{
     /* La boite remonte sous le header fixe (voir body.home .logo-explosion-inner) :
        ces controles doivent rester sous sa ligne, sinon ils sont caches derriere lui
        (le pointer-events:none du header laisse passer le clic, mais pas la visibilite). */
-    top: calc(150px + 8px);
-}
-/* Replie/deplie le header (reutilise .header.is-compact, voir nav-compact.js), juste
-   sous le bouton ↻ reconstruire. N'apparait qu'apres l'explosion, comme les autres
-   outils du jeu. */
-.logo-explosion-header-toggle{
-    position: absolute;
-    top: 8px;
-    left: 50%;
-    margin-left: -16px;
-    z-index: 1;
-    display: grid;
-    place-items: center;
-    width: 32px;
-    height: 32px;
-    padding: 0;
-    border: 0;
-    border-radius: 50%;
-    background: rgba(58, 42, 24, .35);
-    color: #fff;
-    opacity: .7;
-    transition: opacity .2s, transform .2s;
-}
-body.home .logo-explosion-header-toggle{
-    top: calc(150px + 8px);
-}
-.logo-explosion-header-toggle:hover,
-.logo-explosion-header-toggle:focus-visible{
-    opacity: 1;
-}
-.logo-explosion-header-toggle.is-active{
-    transform: rotate(180deg);
+    top: calc(var(--home-header-h) + 8px);
 }
 /* Engrenage : ouvre le panneau de parametres de simulation (voir DEBUG_FIELDS dans
    logo-explosion.js). Outil de debug/experimentation, comme .logo-explosion-speed. */
@@ -607,7 +680,7 @@ body.home .logo-explosion-header-toggle{
 .logo-explosion-scroll-down{ bottom: 8px; }
 body.home .logo-explosion-scroll-up{
     /* Meme raison que les outils : reste sous la ligne du header remonte par-dessus. */
-    top: calc(150px + 8px);
+    top: calc(var(--home-header-h) + 8px);
 }
 @media (min-width: 768px){
     .logo-explosion-scroll{
@@ -617,9 +690,10 @@ body.home .logo-explosion-scroll-up{
 /* Tresor enfoui : petite facette doree qui scintille a la surface de la terre. */
 .logo-explosion-glint{
     position: absolute;
-    width: 13px;
-    height: 13px;
-    margin: -6px 0 0 -6px;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    box-shadow: 0 0 10px 4px rgba(255, 214, 110, .8);
     background: linear-gradient(135deg, #fff4cf 50%, #e8b94a 50%);
     pointer-events: none;
     opacity: 0;
@@ -656,7 +730,7 @@ body.home .logo-explosion-scroll-up{
     0%, 100% { opacity: 0; transform: scale(.3) rotate(0deg); }
     45% { opacity: 1; transform: scale(1) rotate(45deg); }
 }
-/* Repere du tout premier tresor : halo + fleche pales qui invitent a creuser. */
+/* Repere de chaque tresor, pose a la surface : halo dore + poing ou pelle fantome qui montrent ou creuser. */
 .logo-explosion-hint{
     position: absolute;
     width: 1px;
@@ -672,32 +746,65 @@ body.home .logo-explosion-scroll-up{
     position: absolute;
     left: 50%;
     top: 18px;
-    width: 30px;
-    height: 30px;
-    margin: -15px 0 0 -15px;
+    width: 56px;
+    height: 56px;
+    margin: -28px 0 0 -28px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(255,255,255,.55) 0%, rgba(255,255,255,0) 70%);
+    background: radial-gradient(circle, rgba(255,226,140,.85) 0%, rgba(255,226,140,0) 70%);
     animation: logo-explosion-hint-halo 1.6s ease-in-out infinite;
 }
-.logo-explosion-hint-arrow{
+/* Poing fantome qui martele le sol (SVG pose par setupTreasures, memes facettes que le poing du
+   jeu). Retourne jointures vers le bas ; le pivot est le centre de la paume, et a l'impact
+   (translateY 0) les jointures touchent la surface, 34 px sous l'origine du repere. */
+.logo-explosion-hint-hand{
     position: absolute;
     left: 50%;
-    top: -18px;
-    width: 14px;
-    height: 14px;
-    margin-left: -7px;
-    border-right: 3px solid rgba(255,255,255,.75);
-    border-bottom: 3px solid rgba(255,255,255,.75);
-    transform: rotate(45deg);
-    animation: logo-explosion-hint-arrow 1.2s ease-in-out infinite;
+    top: -2px;
+    width: 39px;
+    height: 62px;
+    margin-left: -19px;
+    opacity: .7;
+    filter: drop-shadow(0 0 3px rgba(255, 226, 140, .95));
+    transform-origin: 50% 31.7%;
+    animation: logo-explosion-hint-hand 1s ease-in infinite, logo-explosion-hint-swap 6s linear infinite;
+}
+/* Pelle fantome, en alternance avec le poing (3 s chacun) : le pivot est la pointe de la lame,
+   posee a la surface ; elle plonge, fait levier, ressort. */
+.logo-explosion-hint-shovel{
+    position: absolute;
+    left: -1px;
+    top: 25px;
+    width: 85px;
+    height: 17px;
+    opacity: 0;
+    filter: drop-shadow(0 0 3px rgba(255, 226, 140, .95));
+    transform-origin: 1.3% 53%;
+    animation: logo-explosion-hint-shovel 1.5s ease-in-out infinite, logo-explosion-hint-swap 6s linear -3s infinite;
+}
+.logo-explosion-hint-hand svg,
+.logo-explosion-hint-shovel svg{
+    display: block;
+    width: 100%;
+    height: 100%;
 }
 @keyframes logo-explosion-hint-halo{
     0%, 100% { transform: scale(.8); opacity: .5; }
     50% { transform: scale(1.15); opacity: .9; }
 }
-@keyframes logo-explosion-hint-arrow{
-    0%, 100% { transform: rotate(45deg) translate(0, 0); }
-    50% { transform: rotate(45deg) translate(6px, 6px); }
+@keyframes logo-explosion-hint-hand{
+    0%, 100% { transform: translateY(-46px) rotate(140deg); }
+    45%, 58% { transform: translateY(0) rotate(180deg); }
+}
+@keyframes logo-explosion-hint-shovel{
+    0%, 100% { transform: translateY(-36px) rotate(-66deg); }
+    40% { transform: translateY(9px) rotate(-82deg); }
+    62% { transform: translateY(6px) rotate(-56deg); }
+}
+/* Visible la premiere moitie du cycle ; la pelle le joue decale d'un demi-cycle. */
+@keyframes logo-explosion-hint-swap{
+    0%, 46% { opacity: .7; }
+    50%, 96% { opacity: 0; }
+    100% { opacity: .7; }
 }
 .logo-explosion-tip{
     position: absolute;
@@ -764,11 +871,13 @@ body.home .logo-explosion-scroll-up{
     color: #3a2a18;
 }
 .logo-explosion-tip.is-open{
-    /* Delai : laisse le champignon sortir de terre avant l'infobulle. */
-    transition-delay: .5s;
     transform: translate(-50%, -100%);
     opacity: 1;
     pointer-events: auto;
+}
+/* Delai a la sortie de terre seulement : laisse le champignon pousser avant l'infobulle. */
+.logo-explosion-tip.is-open.is-reveal{
+    transition-delay: .5s;
 }
 .logo-explosion-tip::after{
     content: "";
@@ -780,6 +889,9 @@ body.home .logo-explosion-scroll-up{
     margin-left: -6px;
     background: #fffaf2;
     transform: rotate(45deg);
+}
+.logo-explosion-tip.is-clamped::after{
+    display: none;
 }
 .logo-explosion-tip img{
     flex: none;
@@ -1341,7 +1453,7 @@ body.home .header label{
     height: 40px;
 }
 body.home .logo-explosion-strains{
-    top: calc(150px + 8px);
+    top: calc(var(--home-header-h) + 8px);
 }
 .logo-explosion-strain{
     display: grid;
@@ -1468,7 +1580,7 @@ body.home .logo-explosion-strains{
     animation: logo-explosion-arrow-bounce .8s ease-in-out infinite;
 }
 body.home .logo-explosion-tools-arrow{
-    top: calc(150px + 8px);
+    top: calc(var(--home-header-h) + 8px);
 }
 @keyframes logo-explosion-arrow-bounce{
     0%, 100% { transform: translateX(0); }
@@ -1696,7 +1808,7 @@ body.home .logo-explosion-tools-arrow{
     cursor: pointer;
 }
 body.home .logo-explosion-challenges-badge{
-    top: calc(150px + 8px);
+    top: calc(var(--home-header-h) + 8px);
 }
 /* La pastille prend la place du haut : la barre d'outils et la rangee des souches descendent d'un cran. */
 .logo-explosion-tools,
@@ -1705,7 +1817,39 @@ body.home .logo-explosion-challenges-badge{
 }
 body.home .logo-explosion-tools,
 body.home .logo-explosion-strains{
-    top: calc(150px + 8px + 36px);
+    top: calc(var(--home-header-h) + 8px + 36px);
+}
+/* Mobile : le header replie pendant le jeu est bien plus court que --home-header-h (header
+   deplie du desktop), les controles du haut flottaient donc trop bas. Ils se calent sur sa
+   vraie hauteur, mesuree par logo-explosion.js (--game-ui-top). Pose sur les enfants, pas
+   sur la boite : sa hauteur a elle continue d'utiliser --home-header-h. */
+@media (max-width: 767.98px){
+    body.home .logo-explosion-inner > *{
+        --home-header-h: var(--game-ui-top, 150px);
+    }
+    /* La carte d'explication se posait au-dessus des controles : plus de place la-haut,
+       elle passe sous la pastille des defis et l'outil actif. */
+    body.home .logo-explosion-explain{
+        top: calc(var(--home-header-h) + 8px + 36px + 40px + 14px);
+        left: 8px;
+        transform: translateY(-8px);
+    }
+    body.home .logo-explosion-explain.is-visible{
+        transform: none;
+    }
+    /* La boite du jeu part du haut de l'ecran (plus de padding au-dessus) : sans ca la
+       fleche "monter" ne peut pas entrer dans la bande du header, la boite la coupe. */
+    body.home .logo-explosion-hero{
+        padding-top: 0;
+    }
+    /* Fleche "monter" : dans la bande du header replie, centree en hauteur (position mesuree
+       par logo-explosion.js), au lieu de la ligne sous le header pensee pour le desktop.
+       z-index au-dessus du .z-3 du header, sinon son flou la brouille. Menu mobile ouvert
+       (header deplie) : elle reste sous le header. */
+    body.home:has(.header.is-compact) .logo-explosion-scroll-up{
+        top: calc(var(--game-arrow-top, 8px) + 25px); /* + 25px : regle a l'oeil sur telephone */
+        z-index: 4;
+    }
 }
 .logo-explosion-challenges-badge:hover,
 .logo-explosion-challenges-badge.is-open,
@@ -1796,4 +1940,53 @@ body.home .logo-explosion-strains{
 }
 .logo-explosion-challenges-done li{
     padding: 2px 0;
+}
+
+/* Mode demo (accueil) : ce qui est coupe par rapport au jeu complet. Retirer une ligne pour la garder. */
+.logo-explosion-inner.is-demo .logo-explosion-challenges-badge,
+.logo-explosion-inner.is-demo .logo-explosion-money,
+.logo-explosion-inner.is-demo .logo-explosion-tool[data-tool="tree"],
+.logo-explosion-inner.is-demo .logo-explosion-tool[data-tool="fertilizer"],
+.logo-explosion-inner.is-demo .logo-explosion-strains,
+.logo-explosion-inner.is-demo .logo-explosion-speed-btn,
+.logo-explosion-inner.is-demo .logo-explosion-scroll-left,
+.logo-explosion-inner.is-demo .logo-explosion-scroll-right,
+.logo-explosion-inner.is-demo .logo-explosion-debug-toggle,
+.logo-explosion-inner.is-demo .logo-explosion-debug-panel{
+    display: none !important;
+}
+
+/* Ecran de fin de la demo */
+.logo-explosion-end{
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: rgba(30, 20, 10, .45);
+}
+.logo-explosion-end-box{
+    position: relative;
+    max-width: 24rem;
+    padding: 24px;
+    border-radius: 12px;
+    background: #f7efd9;
+    border: 1px solid #d9c9a0;
+    box-shadow: 2px 3px 14px rgba(0, 0, 0, .35);
+    color: #4a3a22;
+    text-align: center;
+}
+.logo-explosion-end-title{
+    display: block;
+    margin-bottom: 6px;
+    font-size: 1.35rem;
+}
+.logo-explosion-end-box p{ margin: 0 0 16px; }
+.logo-explosion-end-actions{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
 }

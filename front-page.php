@@ -13,11 +13,15 @@ $spora_treasures = [
     [ 'x' => 0.4, 'depth' => 0.14, 'strain' => [ 'id' => 'pleurote', 'label' => 'Pleurote huître', 'tint' => '#7fa9d4', 'perk' => 'couleurs variées, croissance normale', 'price' => 8 ], 'species' => 3, 'title' => 'Pleurote huître', 'text' => 'Le plus facile à cultiver : il pousse même dans la paille ou le carton.', 'img' => get_theme_file_uri( 'assets/img/produits/pleurote-huitre.jpg' ), 'url' => '/shop/' ],
     [ 'x' => 0.68, 'depth' => 0.3, 'strain' => [ 'id' => 'hydne', 'label' => 'Hydne hérisson', 'tint' => '#f0c860', 'perk' => 'pousse plus vite, moins résistante', 'price' => 12, 'grow' => 1.3, 'decay' => 1.4 ], 'species' => 2, 'title' => 'Hydne hérisson', 'text' => 'Texture de crabe, goût délicat. Il pousse sur le bois franc.', 'img' => get_theme_file_uri( 'assets/img/produits/hydne-herisson.jpg' ), 'url' => '/shop/' ],
 ];
+// Mode demo : meme jeu (logo-explosion.js), avec des outils en moins (voir .is-demo dans
+// style.css), un seul tresor (la premiere souche) et un ecran de fin a la premiere recolte : boutique, ou continuer
+// (le mode demo se desactive alors pour ce visiteur). false = jeu complet d'emblee.
+$spora_demo = true;
 ?>
 <?php get_header(); ?>
     <main class="bg-secondary">
       <section class="logo-explosion-hero">
-        <div id="logo-explosion" class="logo-explosion-inner">
+        <div id="logo-explosion" class="logo-explosion-inner<?php echo $spora_demo ? ' is-demo' : ''; ?>">
           <div id="logo-explosion-fallback-wrap" class="logo-explosion-fallback-wrap">
             <img
               id="logo-explosion-fallback"
@@ -26,8 +30,10 @@ $spora_treasures = [
             />
             <span class="logo-explosion-play-zone">
               <span class="logo-explosion-play-badge" aria-hidden="true">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="white"><path d="M8 5l12 7-12 7z"/></svg>
+                <svg class="logo-explosion-play-ring" viewBox="0 0 36 36" fill="none"><circle class="logo-explosion-play-ring-track" cx="18" cy="18" r="16"/><circle class="logo-explosion-play-ring-fill" cx="18" cy="18" r="16" pathLength="100"/></svg>
+                <svg class="logo-explosion-play-icon" viewBox="0 0 24 24" width="18" height="18" fill="white"><path d="M8 5l12 7-12 7z"/></svg>
               </span>
+              <span class="logo-explosion-play-hint" aria-hidden="true">Maintenez</span>
             </span>
           </div>
           <canvas
@@ -50,11 +56,6 @@ $spora_treasures = [
             <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M3 12a9 9 0 1 0 3-6.7"/>
               <path d="M3 4v5h5"/>
-            </svg>
-          </button>
-          <button type="button" id="logo-explosion-header-toggle" class="logo-explosion-header-toggle d-none" aria-label="Replier le menu" aria-pressed="false" title="Replier le menu">
-            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M18 15l-6-6-6 6"/>
             </svg>
           </button>
           <button type="button" id="logo-explosion-debug-toggle" class="logo-explosion-debug-toggle d-none" aria-label="Paramètres de simulation" aria-pressed="false" title="Paramètres de simulation">
@@ -139,7 +140,7 @@ $spora_treasures = [
               <path d="M6 9l6 6 6-6"/>
             </svg>
           </button>
-          <span id="logo-explosion-tools-arrow" class="logo-explosion-tools-arrow d-none" aria-hidden="true"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12H5"/><path d="M11 6l-6 6 6 6"/></svg></span>
+          <span id="logo-explosion-tools-arrow" class="logo-explosion-tools-arrow d-none" aria-hidden="true"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke-linecap="round" stroke-linejoin="round"><g stroke="#2b1d10" stroke-width="6.5"><path d="M20 12H5"/><path d="M11 6l-6 6 6 6"/></g><g stroke="#f3c94a" stroke-width="3"><path d="M20 12H5"/><path d="M11 6l-6 6 6 6"/></g></svg></span>
           <p id="logo-explosion-caption" class="logo-explosion-caption d-none" aria-live="polite"></p>
           <aside id="logo-explosion-explain" class="logo-explosion-explain" aria-live="polite" aria-hidden="true">
             <svg class="logo-explosion-explain-icon" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3C8 8.5 6 11.5 6 15a6 6 0 0 0 12 0c0-3.5-2-6.5-6-12z"/><path d="M9.5 15.5a2.6 2.6 0 0 0 2.5 2.2"/></svg>
@@ -150,6 +151,18 @@ $spora_treasures = [
             <div><strong class="logo-explosion-fact-title">Le saviez-vous ?</strong><p class="logo-explosion-fact-text"></p></div>
             <button type="button" class="logo-explosion-fact-close" aria-label="Fermer le saviez-vous">&times;</button>
           </aside>
+          <?php if ( $spora_demo ) : ?>
+          <div id="logo-explosion-end" class="logo-explosion-end d-none" role="dialog" aria-labelledby="logo-explosion-end-title">
+            <div class="logo-explosion-end-box">
+              <strong id="logo-explosion-end-title" class="logo-explosion-end-title">Démo terminée !</strong>
+              <p>Le jeu est en développement : continuez pour découvrir d'autres variétés.</p>
+              <div class="logo-explosion-end-actions">
+                <a class="btn btn-primary" href="/shop/">Voir les produits</a>
+                <button type="button" class="btn btn-outline-secondary" data-demo-continue>Continuer à jouer</button>
+              </div>
+            </div>
+          </div>
+          <?php endif; ?>
         </div>
         <h1 class="logo-explosion-tagline">Mycélium et substrats pour cultiver vos champignons</h1>
         <a class="btn btn-primary mt-3" href="/shop/">Visitez notre boutique!</a>
