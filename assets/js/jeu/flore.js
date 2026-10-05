@@ -21,7 +21,8 @@ import { demoGuard, treeScale } from './arbres.js';
 import { heldByMycelium } from './mycelium.js';
 import { updateMoneyUI } from './economie.js';
 import { hand } from './outils.js';
-import { leachTip, setCaption, startLoop, challengeDone } from './principal.js';
+import { leachTip, setCaption } from './messages.js';
+import { startLoop, challengeDone } from './principal.js';
 
 var fertLastAt = 0;                     // dernier depot de fertilisant (limite le rythme pendant un glissement)
 var grassLastAt = 0;                    // dernier semis de gazon (limite le rythme pendant un glissement)

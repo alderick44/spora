@@ -18,8 +18,9 @@ import { shovel, shovelPlant, setTool } from './outils.js';
 import {
   tipImgs, positionTreasureOverlays, hideDigTip, buildTip, tipIdle, tapTip, openTip, tipAway
 } from './cartes.js';
+import { setCaption } from './messages.js';
 import {
-  guideFlags, startLoop, setCaption, guideCurrent, siteHeader, updateChallengeUI, guideSet, getRelativePos
+  guideFlags, startLoop, guideCurrent, siteHeader, updateChallengeUI, guideSet, getRelativePos
 } from './principal.js';
 
 var treasuresFound = 0;                 // tresors deterres depuis la derniere explosion (repart a 0 au rebuild)

@@ -23,7 +23,8 @@ import {
   tryDig, treasureNear, digAt, queueDemoEnd, currentStrain, tintCol, updateStrainBar
 } from './tresors.js';
 import { openTip } from './cartes.js';
-import { guideSet, chUnlocked, challengeDone, setCaption, startLoop } from './principal.js';
+import { setCaption } from './messages.js';
+import { guideSet, chUnlocked, challengeDone, startLoop } from './principal.js';
 
 export var shovel = {
   on: false, held: false, pouring: false, hideWhenEmpty: false, released: false,

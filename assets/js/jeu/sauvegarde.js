@@ -10,7 +10,8 @@ import { makeTree, unlockedSlots, addLeaf } from './arbres.js';
 import { infect } from './mycelium.js';
 import { updateMoneyUI } from './economie.js';
 import { strainOrder, refreshStrainBar, strainById } from './tresors.js';
-import { FACTS, CHALLENGES, updateChallengeUI, guideReset, resetPatches, rebuild } from './principal.js';
+import { FACTS, resetPatches } from './messages.js';
+import { CHALLENGES, updateChallengeUI, guideReset, rebuild } from './principal.js';
 
 var playerSig = null;
 function knownTitle(t) { return typeof t === 'string' && partie.treasureDefs.some(function (d) { return d.title === t; }); }

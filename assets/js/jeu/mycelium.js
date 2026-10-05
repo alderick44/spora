@@ -10,7 +10,8 @@ import { vue, temps, monde, container, partie } from './etat.js';
 import { isRocky, isSubmerged, surfaceAt } from './terrain.js';
 import { weather } from './meteo.js';
 import { buildTip, openTip } from './cartes.js';
-import { setCaption, startLoop, snapshotPatches, notePatchDeath } from './principal.js';
+import { setCaption, snapshotPatches, notePatchDeath } from './messages.js';
+import { startLoop } from './principal.js';
 
 var mycNextDeathCheck = 0;
 var mycBusyUntil = 0;

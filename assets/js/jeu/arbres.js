@@ -20,7 +20,8 @@ import { isNutriRipe, spawnFlower, spawnNutrientShard, toEarthColor } from './fl
 import { sprout } from './mycelium.js';
 import { nextTreeCost, updateMoneyUI } from './economie.js';
 import { leafAgeOf, hand, handTension } from './outils.js';
-import { guideFlags, guideCurrent, startLoop, setCaption, guideSet } from './principal.js';
+import { setCaption } from './messages.js';
+import { guideFlags, guideCurrent, startLoop, guideSet } from './principal.js';
 
 var lastRainAt = -1e9;
 export function matureTrees() {

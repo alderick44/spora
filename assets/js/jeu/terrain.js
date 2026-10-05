@@ -11,7 +11,8 @@ import {
 import { buildHills, resetTiles, poly } from './rendu.js';
 import { restoreWorld } from './sauvegarde.js';
 import { weather, updateDroughtIndicator } from './meteo.js';
-import { setCaption, camHomeY } from './principal.js';
+import { setCaption } from './messages.js';
+import { camHomeY } from './principal.js';
 
 var img = new Image();
 
