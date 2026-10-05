@@ -9,9 +9,10 @@ import {
   INSECT_SIZE_F, PLEUROTE_SIZE, HYDNE_SIZE, PLEU_CAPS
 } from './config.js';
 import { vue, monde, ctx, partie, canvas, temps } from './etat.js';
+import { drawLakes, surfaceAt } from './terrain.js';
 import {
-  drawRoots, drawTree, drawLakes, drawNuggets, drawGoldBits, drawShovel, drawMycHalo, drawBag, drawHand,
-  drawRain, positionTreasureOverlays, shadeRgb, surfaceAt, strainOrder
+  drawRoots, drawTree, drawNuggets, drawGoldBits, drawShovel, drawMycHalo, drawBag, drawHand, drawRain,
+  positionTreasureOverlays, shadeRgb, strainOrder
 } from './principal.js';
 
 var hillRidges = [];
