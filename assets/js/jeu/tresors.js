@@ -86,8 +86,22 @@ function buildTreasure(def) {
 function buriedDefs() {
   return (partie.DEMO ? partie.treasureDefs.slice(0, 1) : partie.treasureDefs).filter(function (def) { return partie.skippedFound.indexOf(def.title) === -1; });
 }
+// Photos des infobulles : prechargees au lancement du jeu (l'infobulle s'affiche sans trou), pas
+// au chargement de la page, ou elles pesaient ~1 Mo pour un visiteur qui ne joue pas. Demo : la
+// seule souche enterree (voir buriedDefs).
+var tipImgsLoaded = {};
+function preloadTipImgs() {
+  (partie.DEMO ? partie.treasureDefs.slice(0, 1) : partie.treasureDefs).forEach(function (def) {
+    tipImgs(def).forEach(function (im) {
+      if (tipImgsLoaded[im.src]) return;
+      tipImgsLoaded[im.src] = true;
+      new Image().src = im.src;
+    });
+  });
+}
 export function setupTreasures() {
   clearTreasures();
+  preloadTipImgs();
   // Tresors deja deterres (sauvegarde chargee avec la page) : ni glint ni champignon, ils
   // ne reviennent pas enterres. Une seule fois : un rebuild en cours de page regenere tout.
   partie.skippedFound = partie.restoredFound;
@@ -264,6 +278,7 @@ function endDemo() {
   updateMoneyUI();
   updateChallengeUI();
   updateStrainBar();
+  preloadTipImgs(); // les photos des autres tresors, laissees de cote pendant la demo
   // Les tresors mis de cote pendant la demo (buriedDefs) sont enfouis maintenant.
   buriedDefs().forEach(function (def) {
     if (partie.treasures.some(function (t) { return t.def === def; })) return;
@@ -604,7 +619,6 @@ export function initTresors() {
     partie.treasureDefs = [];
   }
   partie.treasureDefs.forEach(function (def) {
-    tipImgs(def).forEach(function (im) { new Image().src = im.src; }); // prechargees : l'infobulle s'affiche sans trou
     var st = def.strain;
     if (!st || !st.id || strainById[st.id] || !/^#[0-9a-f]{6}$/i.test(st.tint || '')) return;
     var tint = hexToRgb(st.tint);
