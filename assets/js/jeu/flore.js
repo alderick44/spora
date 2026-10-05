@@ -18,9 +18,8 @@ import { monde, temps, vue, partie } from './etat.js';
 import { pileAdd, isSubmergedCol, surfaceAt, pileRemove, isRocky } from './terrain.js';
 import { weather, rainLeaf } from './meteo.js';
 import { demoGuard, treeScale } from './arbres.js';
-import {
-  leachTip, heldByMycelium, setCaption, updateMoneyUI, startLoop, challengeDone, hand
-} from './principal.js';
+import { heldByMycelium } from './mycelium.js';
+import { leachTip, setCaption, updateMoneyUI, startLoop, challengeDone, hand } from './principal.js';
 
 var fertLastAt = 0;                     // dernier depot de fertilisant (limite le rythme pendant un glissement)
 var grassLastAt = 0;                    // dernier semis de gazon (limite le rythme pendant un glissement)

@@ -7,9 +7,10 @@ import { partie, vue, monde, temps, DEMO_PAGE, container, moneyEl } from './etat
 import { resetTiles } from './rendu.js';
 import { surfaceAt, isRocky, isSubmerged, rebuildLakesFromRocky, pileRemove } from './terrain.js';
 import { makeTree, unlockedSlots, addLeaf } from './arbres.js';
+import { infect } from './mycelium.js';
 import {
   FACTS, CHALLENGES, updateChallengeUI, strainOrder, updateMoneyUI, guideReset, resetPatches,
-  refreshStrainBar, rebuild, infect, strainById
+  refreshStrainBar, rebuild, strainById
 } from './principal.js';
 
 var playerSig = null;
