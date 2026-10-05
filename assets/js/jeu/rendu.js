@@ -10,8 +10,9 @@ import {
 } from './config.js';
 import { vue, monde, ctx, partie, canvas, temps } from './etat.js';
 import { drawLakes, surfaceAt } from './terrain.js';
+import { drawRain } from './meteo.js';
 import {
-  drawRoots, drawTree, drawNuggets, drawGoldBits, drawShovel, drawMycHalo, drawBag, drawHand, drawRain,
+  drawRoots, drawTree, drawNuggets, drawGoldBits, drawShovel, drawMycHalo, drawBag, drawHand,
   positionTreasureOverlays, shadeRgb, strainOrder
 } from './principal.js';
 

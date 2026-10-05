@@ -10,7 +10,8 @@ import {
 } from './etat.js';
 import { buildHills, resetTiles, poly } from './rendu.js';
 import { restoreWorld } from './sauvegarde.js';
-import { setCaption, camHomeY, weather, updateDroughtIndicator } from './principal.js';
+import { weather, updateDroughtIndicator } from './meteo.js';
+import { setCaption, camHomeY } from './principal.js';
 
 var img = new Image();
 
