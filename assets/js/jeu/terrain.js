@@ -9,7 +9,8 @@ import {
   partie, caption, logoUrl, canvas, vue, dpr, monde, updateZoom, container, fallbackImg, ctx
 } from './etat.js';
 import { buildHills, resetTiles, poly } from './rendu.js';
-import { setCaption, camHomeY, weather, updateDroughtIndicator, restoreWorld } from './principal.js';
+import { restoreWorld } from './sauvegarde.js';
+import { setCaption, camHomeY, weather, updateDroughtIndicator } from './principal.js';
 
 var img = new Image();
 
