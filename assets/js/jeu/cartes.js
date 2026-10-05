@@ -4,7 +4,8 @@ import { TIP_AWAY_MS, NO_HOVER, TIP_IDLE_MS, DIG_TREASURE_MSG, DIG_TIP_MS } from
 import { shelfEl, container, partie, vue, shelfMq, monde } from './etat.js';
 import { surfaceAt } from './terrain.js';
 import { treasureY, nuggetY, updateCompass } from './tresors.js';
-import { siteHeader, guideCurrent } from './principal.js';
+import { guideCurrent } from './tutoriel.js';
+import { siteHeader } from './principal.js';
 
 // strainLabel : nom de la souche tout juste debloquee par ce tresor (sinon null).
 export function buildTip(def) {

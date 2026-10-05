@@ -21,7 +21,8 @@ import { sprout } from './mycelium.js';
 import { nextTreeCost, updateMoneyUI } from './economie.js';
 import { leafAgeOf, hand, handTension } from './outils.js';
 import { setCaption } from './messages.js';
-import { guideFlags, guideCurrent, startLoop, guideSet } from './principal.js';
+import { guideFlags, guideCurrent, guideSet } from './tutoriel.js';
+import { startLoop } from './principal.js';
 
 var lastRainAt = -1e9;
 export function matureTrees() {
