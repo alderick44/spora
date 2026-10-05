@@ -1,27 +1,27 @@
 // Jeu du logo (accueil) : point d'entree, charge par amorce.js. Lance le demarrage de chaque module.
 import { clamp, hexToRgb, mixRgb, rgbStr, shade, angleDiff, lerp, easeOutBack, easeInOut } from './utils.js';
 import {
-  DEMO_KEY, ZOOM_MAX_W, MYC_READY, LEACH_TIP_QUIET_MS, LEACH_TIP_GAP_MS, DEATH_ALERT_SHOW_MS, EXPLAIN_MS,
-  PATCH_SNAP_MS, PATCH_LINK, STRAIN_STD, PATCH_WINDOW_MS, PATCH_MIN_SIZE, PATCH_MIN_DEATHS, PATCH_SHARE,
-  PATCH_REARM_MS, DEATH_ALERT_STALE_MS, DEATH_ALERT_GAP_MS, DEATH_TEXTS, FACT_MS, FACT_AFTER_EXPLAIN_MS,
-  FACT_FIRST_MS, FACT_GAP_MS, CH_TREES_GOAL, CH_STRAINS_GOAL, CH_HARVEST_GOAL, CH_MAX_SHOWN, COL_W,
-  CH_STRAIN_BIOMASS, CH_ZONE_REACH, CH_COLONY_PCT, CH_COLONY_HOLD_MS, CAPTION_BEFORE, HOLD_FOLLOW_EASE,
-  GUIDE_KEY, TREE_EMBED, CAPTION_MYC_DROP, CAPTION_MYC_LEAVES, CAPTION_MYC_TREE_WAIT, CAPTION_MYC_TREE_NONE,
-  CAPTION_MYC_REPOUR, CAPTION_MYC_HARVEST, CAPTION_MYC_GROW, CAPTION_MYC_PLACE, CAPTION_MYC_HAND,
-  BAG_GRAINS, BAG_COST, TREE_COST_MAX_MULT, TREE_COST_STEP, MUSHROOM_PRICE, MYC, STRAIN_MIX, HYPHA_COLOR,
-  WORLD_MULT, DEPTH_MULT, EARTH, CELLS_ACROSS, ROCK_COVER_MIN, LAKE_EVAP_PER_S, MONEY_MAX, WORLD_KEY,
-  WORLD_VERSION, MYC_SAVE_MAX, TREES_SAVE_MAX, MATURE_NUTRIENTS, TALL_FULL, LEAF_LIFE_MS, ROCK_PATCH_MIN,
-  ROCK_PATCH_MAX, ROCK_BASIN_FRAC, ROCK_PATCH_COLS_MIN, ROCK_PATCH_COLS_MAX, ROCK_H_MIN, ROCK_H_MAX,
-  ROCK_BASIN_DEPTH, LOGO_BULK, LOG_BULK, LITTER_BULK, KERNEL, REPOSE, CAMERA_EDGE_TOUCH, CAMERA_EDGE,
-  CAMERA_MAX, CAMERA_TOP_DEADZONE, CAMERA_MAX_Y, EATEN_MS, WIND_STRENGTH, GRAVITY, AIR, BRANCH_LITTER_MS,
-  LITTER_MS, SOIL_RISE_FRAMES, FRUIT_W, MUSHROOM_STARVE_MS, BLADE_WIDTH, BOWL_SPAN, BOWL_T, PLANT_LEAN,
-  SLOW_FOLLOW, POUR_ANGLE, DIG_BITE, DIG_SPEED, DIG_SPEED_DOWN, BEDROCK_MARGIN, BLADE_FIELD, BLADE_PULL,
-  BLADE_ATTRACT, DECOMPACT_BULK, MIN_LEACH_TO_EAT, MYC_HOLD_MAX_MS, SHOVEL_TIP, SHOVEL_BOTTOM, HAND_RING_R,
-  CH_HARVEST_IDS, HAND_LEAF_MARGIN, HAND_LIMB_TOL, BRANCH_GROW_MS, HAND_BREAK_DIST, HAND_PUSH_MIN_V,
-  HAND_FIST_MIN_V, HAND_FIST_STEP, HAND_FIST_MAX_STRIKES, HAND_FIST_MAX_V, HAND_FIST_R, HAND_FIST_KICK,
-  HAND_FIST_SPREAD, HAND_FIST_LIFT, HAND_FIST_LOOSE, HAND_FIST_MAX_UP, HAND_FIST_DEPTH, HAND_FIST_SIZE,
-  HAND_FIST_SHARDS, HAND_PUSH_MAX_V, HAND_PUSH_R, HAND_PUSH_LEAF, HAND_PUSH_MAX_LOOSE, HAND_PUSH_DEPTH,
-  HAND_PUSH_P, HAND_PUSH_LOOSE, HAND_ZOOM_K, HAND_FLASH_MS, HAND_SKIN, HAND_GRAB_MAX, HAND_PICK_R, SPECIES,
+  MYC_READY, LEACH_TIP_QUIET_MS, LEACH_TIP_GAP_MS, DEATH_ALERT_SHOW_MS, EXPLAIN_MS, PATCH_SNAP_MS,
+  PATCH_LINK, STRAIN_STD, PATCH_WINDOW_MS, PATCH_MIN_SIZE, PATCH_MIN_DEATHS, PATCH_SHARE, PATCH_REARM_MS,
+  DEATH_ALERT_STALE_MS, DEATH_ALERT_GAP_MS, DEATH_TEXTS, FACT_MS, FACT_AFTER_EXPLAIN_MS, FACT_FIRST_MS,
+  FACT_GAP_MS, CH_TREES_GOAL, CH_STRAINS_GOAL, CH_HARVEST_GOAL, CH_MAX_SHOWN, COL_W, CH_STRAIN_BIOMASS,
+  CH_ZONE_REACH, CH_COLONY_PCT, CH_COLONY_HOLD_MS, CAPTION_BEFORE, HOLD_FOLLOW_EASE, GUIDE_KEY, TREE_EMBED,
+  CAPTION_MYC_DROP, CAPTION_MYC_LEAVES, CAPTION_MYC_TREE_WAIT, CAPTION_MYC_TREE_NONE, CAPTION_MYC_REPOUR,
+  CAPTION_MYC_HARVEST, CAPTION_MYC_GROW, CAPTION_MYC_PLACE, CAPTION_MYC_HAND, BAG_GRAINS, BAG_COST,
+  TREE_COST_MAX_MULT, TREE_COST_STEP, MUSHROOM_PRICE, MYC, STRAIN_MIX, HYPHA_COLOR, WORLD_MULT, DEPTH_MULT,
+  EARTH, CELLS_ACROSS, ROCK_COVER_MIN, LAKE_EVAP_PER_S, MONEY_MAX, WORLD_KEY, WORLD_VERSION, MYC_SAVE_MAX,
+  TREES_SAVE_MAX, MATURE_NUTRIENTS, TALL_FULL, LEAF_LIFE_MS, DEMO_KEY, ROCK_PATCH_MIN, ROCK_PATCH_MAX,
+  ROCK_BASIN_FRAC, ROCK_PATCH_COLS_MIN, ROCK_PATCH_COLS_MAX, ROCK_H_MIN, ROCK_H_MAX, ROCK_BASIN_DEPTH,
+  LOGO_BULK, LOG_BULK, LITTER_BULK, KERNEL, REPOSE, CAMERA_EDGE_TOUCH, CAMERA_EDGE, CAMERA_MAX,
+  CAMERA_TOP_DEADZONE, CAMERA_MAX_Y, EATEN_MS, WIND_STRENGTH, GRAVITY, AIR, BRANCH_LITTER_MS, LITTER_MS,
+  SOIL_RISE_FRAMES, FRUIT_W, MUSHROOM_STARVE_MS, BLADE_WIDTH, BOWL_SPAN, BOWL_T, PLANT_LEAN, SLOW_FOLLOW,
+  POUR_ANGLE, DIG_BITE, DIG_SPEED, DIG_SPEED_DOWN, BEDROCK_MARGIN, BLADE_FIELD, BLADE_PULL, BLADE_ATTRACT,
+  DECOMPACT_BULK, MIN_LEACH_TO_EAT, MYC_HOLD_MAX_MS, SHOVEL_TIP, SHOVEL_BOTTOM, HAND_RING_R, CH_HARVEST_IDS,
+  HAND_LEAF_MARGIN, HAND_LIMB_TOL, BRANCH_GROW_MS, HAND_BREAK_DIST, HAND_PUSH_MIN_V, HAND_FIST_MIN_V,
+  HAND_FIST_STEP, HAND_FIST_MAX_STRIKES, HAND_FIST_MAX_V, HAND_FIST_R, HAND_FIST_KICK, HAND_FIST_SPREAD,
+  HAND_FIST_LIFT, HAND_FIST_LOOSE, HAND_FIST_MAX_UP, HAND_FIST_DEPTH, HAND_FIST_SIZE, HAND_FIST_SHARDS,
+  HAND_PUSH_MAX_V, HAND_PUSH_R, HAND_PUSH_LEAF, HAND_PUSH_MAX_LOOSE, HAND_PUSH_DEPTH, HAND_PUSH_P,
+  HAND_PUSH_LOOSE, HAND_ZOOM_K, HAND_FLASH_MS, HAND_SKIN, HAND_GRAB_MAX, HAND_PICK_R, SPECIES,
   MYC_MUSHROOM_SCALE, MAX_MUSHROOMS, CAPTION_MYC, MYC_RANDOM_DEATH_CHECK_MS, MYC_RANDOM_DEATH_P,
   DROUGHT_SURFACE_DEPTH, DROUGHT_KILL_P, MYC_DROUGHT_DECAY, MYC_STARVE_MS, MYC_GROW, MYC_DECAY, MYC_DEAD,
   NUTRI, MYC_SPREAD_EVERY, MYC_RADIUS, MYC_SPREAD_P, MYC_ACTIVE_FEED_MS, FRUIT_MIN, CAPTION_BAG_EMPTY,
@@ -57,98 +57,46 @@ import {
   CAPTION_NEED_MONEY, CAPTION_MYC_CLOSER, CAPTION_MYC_NO_WOOD, HEADER_HOVER_LEAVE, SKY_EXTRA, DEBUG_FIELDS,
   getDebugVar, setDebugVar
 } from './config.js';
+import {
+  partie, monde, caption, vue, toolsBar, strainsBar, toolsArrow, container, moneyEl, moneyVal, canvas,
+  logoUrl, dpr, updateZoom, fallbackImg, ctx, temps, DEMO_PAGE, rebuildBtn, fullscreenBtn, speedBtn,
+  debugToggleBtn, treasureCountEl, scrollLeftBtn, scrollRightBtn, scrollUpBtn, scrollDownBtn,
+  droughtIndicator, stormIndicator, toolBtns, shelfEl, isMobile, shelfMq, debugPanel, speedWrap, speedInput,
+  speedVal, rainInput, droughtInput, stormInput, initEtat
+} from './etat.js';
 
-var container = document.getElementById('logo-explosion');
-var DEMO_PAGE = container.classList.contains('is-demo'), DEMO = DEMO_PAGE;
-
-var canvas = container.querySelector('#logo-explosion-canvas');
-var fallbackImg = container.querySelector('#logo-explosion-fallback');
-var rebuildBtn = document.getElementById('logo-explosion-rebuild');
-var debugToggleBtn = document.getElementById('logo-explosion-debug-toggle');
-var debugPanel = document.getElementById('logo-explosion-debug-panel');
-var fullscreenBtn = document.getElementById('logo-explosion-fullscreen');
-var scrollLeftBtn = document.getElementById('logo-explosion-scroll-left');
-var scrollRightBtn = document.getElementById('logo-explosion-scroll-right');
-var scrollUpBtn = document.getElementById('logo-explosion-scroll-up');
-var scrollDownBtn = document.getElementById('logo-explosion-scroll-down');
-var toolsBar = document.getElementById('logo-explosion-tools');
-var toolBtns = toolsBar ? toolsBar.querySelectorAll('[data-tool]') : [];
-var speedWrap = document.getElementById('logo-explosion-speed-wrap');
-var speedInput = document.getElementById('logo-explosion-speed');
-var speedVal = document.getElementById('logo-explosion-speed-val');
-var rainInput = document.getElementById('logo-explosion-rain');
-var droughtInput = document.getElementById('logo-explosion-drought');
-var droughtIndicator = document.getElementById('logo-explosion-drought-indicator');
-var stormInput = document.getElementById('logo-explosion-storm');
-var stormIndicator = document.getElementById('logo-explosion-storm-indicator');
-var caption = document.getElementById('logo-explosion-caption');
-// Essai mobile ($spora_tip_shelf dans front-page.php) : sur ecran etroit, la carte du tresor
-// selectionne se range dans cette boite, sous le bouton de la boutique (voir openTip).
-var shelfEl = document.getElementById('logo-explosion-shelf');
-var shelfMq = shelfEl && window.matchMedia ? window.matchMedia('(max-width: 767.98px)') : null;
-var speedBtn = document.getElementById('logo-explosion-speed-btn');
-var toolsArrow = document.getElementById('logo-explosion-tools-arrow');
-var moneyEl = document.getElementById('logo-explosion-money');
-var moneyVal = document.getElementById('logo-explosion-money-val');
-var treasureCountEl = document.getElementById('logo-explosion-treasures');
-var strainsBar = document.getElementById('logo-explosion-strains');
-
-var logoUrl = canvas.getAttribute('data-logo-url');
-
-var ctx = canvas.getContext('2d');
-var dpr = Math.min(window.devicePixelRatio || 1, 2);
-var isMobile = window.innerWidth < 768;
-
-// Zoom arriere sur ecran etroit : tout se dessine a MOBILE_ZOOM de sa taille, donc on voit
-// environ 1/MOBILE_ZOOM fois plus de monde. Le jeu raisonne en px LOGIQUES : W/H = la fenetre
-// visible (CSS / ZOOM), U = l'unite de taille des objets (hauteur CSS de la boite). A
-// 768 px et plus, ZOOM vaut exactement 1 : W/H = taille CSS, U = H, RS = dpr (rien ne change).
-// ?zoom=0.4 dans l'URL remplace MOBILE_ZOOM (essais, borne entre 0.3 et 1).
-var MOBILE_ZOOM = 0.55;                 // le reglage : plus petit = plus de monde visible, objets plus petits
-var zoomParam = /[?&]zoom=([0-9.]+)/.exec(window.location.search);
-var ZOOM = 1, RS = dpr;                 // RS : echelle de rendu du canvas (dpr x ZOOM)
-function updateZoom() {
-  ZOOM = container.getBoundingClientRect().width < ZOOM_MAX_W ? MOBILE_ZOOM : 1;
-  RS = dpr * ZOOM;
-}
 var captionTimer = null;
-var leachTipSeen = 0;            // bit 1 = lessivage, 2 = retenue, 4 = mort de faim, 8 = mort de secheresse, 16 = gazon arrache (persistant ; masque de restauration = 31)
 var leachTipAt = -1e9;
-var tipOpen = false, tipChangeAt = -1e9;
 var explainEl = document.getElementById('logo-explosion-explain');
 var explainText = explainEl && explainEl.querySelector('.logo-explosion-explain-text');
 var factEl = document.getElementById('logo-explosion-fact');
 var factText = factEl && factEl.querySelector('.logo-explosion-fact-text');
 var factClose = factEl && factEl.querySelector('.logo-explosion-fact-close');
 var explainTimer = null, factTimer = null, explainEndAt = -1e9, factAt = -1e9, factShownAt = 0;
-var factShown = -1;
-var branchTorn = false;          // une branche a ete arrachee a la main (non persiste)
-var factSeen = 0;                // bit i = saviez-vous FACTS[i] deja vu (persistant)
-var explodedAt = 0, harvestCount = 0, fertDropped = false, pleuroteDug = false;
 var rainSince = null, rainCount = 0, msgTickAt = 0;
 var FACTS = [
   { text: 'Un sol nu est lessivé : la pluie emporte l\'humus et ses nutriments vers les cours d\'eau.', when: function () { return rainSince !== null && performance.now() - rainSince > 20000 && !mycAlive(); } },
   { text: 'Les filaments du mycélium agrègent les particules de sol, qui résistent mieux à l\'érosion.', when: function () { return weather.raining && mycAlive(); } },
-  { text: 'Le champignon que vous cueillez n\'est que le fruit : le vrai organisme, le mycélium, vit sous terre.', when: function () { return harvestCount >= 1; } },
-  { text: 'Le champignon apporte à la plante de l\'eau et des minéraux, surtout du phosphore, et reçoit des sucres en échange.', when: function () { return trees.length > 0 && mycAlive(); } },
-  { text: 'Champignons et bactéries sont les principaux décomposeurs : sans eux, le bois mort s\'accumulerait.', when: function () { return litter.length > 0 && mycAlive(); } },
-  { text: 'La pluie lessive surtout les nutriments solubles, comme les nitrates.', when: function () { return rainCount >= 2 || fertDropped; } },
-  { text: 'Un champignon libère des millions de spores, invisibles à l\'œil nu.', when: function () { return harvestCount >= 1; } },
-  { text: 'Le pleurote pousse sur la paille ou le marc de café : il recycle des déchets.', when: function () { return pleuroteDug || harvestCount >= 2; } },
+  { text: 'Le champignon que vous cueillez n\'est que le fruit : le vrai organisme, le mycélium, vit sous terre.', when: function () { return partie.harvestCount >= 1; } },
+  { text: 'Le champignon apporte à la plante de l\'eau et des minéraux, surtout du phosphore, et reçoit des sucres en échange.', when: function () { return monde.trees.length > 0 && mycAlive(); } },
+  { text: 'Champignons et bactéries sont les principaux décomposeurs : sans eux, le bois mort s\'accumulerait.', when: function () { return monde.litter.length > 0 && mycAlive(); } },
+  { text: 'La pluie lessive surtout les nutriments solubles, comme les nitrates.', when: function () { return rainCount >= 2 || partie.fertDropped; } },
+  { text: 'Un champignon libère des millions de spores, invisibles à l\'œil nu.', when: function () { return partie.harvestCount >= 1; } },
+  { text: 'Le pleurote pousse sur la paille ou le marc de café : il recycle des déchets.', when: function () { return partie.pleuroteDug || partie.harvestCount >= 2; } },
   { text: 'L\'humus retient l\'eau comme une éponge et limite le ruissellement.', when: function () { return weather.raining && humusPresent(); } },
-  { text: 'Un champignon n\'est ni une plante ni un animal : c\'est un règne à part, plus proche des animaux.', when: function () { return performance.now() - explodedAt > 240000; } }
-  ,{ text: 'Certaines espèces ne se cultivent que sur le bois dur : inoculez le bois avec de l\'hydne hérisson.', now: true, when: function () { return branchTorn && unlockedStrains.indexOf('hydne') !== -1; } }
+  { text: 'Un champignon n\'est ni une plante ni un animal : c\'est un règne à part, plus proche des animaux.', when: function () { return performance.now() - partie.explodedAt > 240000; } }
+  ,{ text: 'Certaines espèces ne se cultivent que sur le bois dur : inoculez le bois avec de l\'hydne hérisson.', now: true, when: function () { return partie.branchTorn && partie.unlockedStrains.indexOf('hydne') !== -1; } }
 ];
 function mycAlive() {
-  for (var i = 0; i < colonised.length; i++) if (colonised[i].myc > MYC_READY) return true;
+  for (var i = 0; i < monde.colonised.length; i++) if (monde.colonised[i].myc > MYC_READY) return true;
   return false;
 }
 function humusPresent() {
-  for (var i = 0; i < shards.length; i++) if (shards[i].nutri && shards[i].settled) return true;
+  for (var i = 0; i < monde.shards.length; i++) if (monde.shards[i].nutri && monde.shards[i].settled) return true;
   return false;
 }
 function msgBlocked(t) {
-  return mode !== 'exploded' || tipOpen || t - tipChangeAt < LEACH_TIP_QUIET_MS || (caption && caption.classList.contains('is-visible'));
+  return partie.mode !== 'exploded' || partie.tipOpen || t - partie.tipChangeAt < LEACH_TIP_QUIET_MS || (caption && caption.classList.contains('is-visible'));
 }
 function setCard(el, on) {
   if (!el) return;
@@ -157,11 +105,11 @@ function setCard(el, on) {
 }
 // ack : le conseil revient tant que le joueur n a pas clique "Compris" (sinon une seule fois).
 function leachTip(bit, text, ack) {
-  if (leachTipSeen & bit) return;
+  if (partie.leachTipSeen & bit) return;
   var t = performance.now();
   // Pendant la demo, et tant que le tutoriel n'est pas fini : ni conseil vert ni saviez-vous (voir aussi flushDeathAlert, msgTick).
-  if (!explainEl || msgBlocked(t) || t - leachTipAt < LEACH_TIP_GAP_MS || DEMO || guideCurrent()) return;
-  if (!ack) leachTipSeen |= bit;
+  if (!explainEl || msgBlocked(t) || t - leachTipAt < LEACH_TIP_GAP_MS || partie.DEMO || guideCurrent()) return;
+  if (!ack) partie.leachTipSeen |= bit;
   leachTipAt = t;
   showExplain(text, null, ack ? bit : 0);
   return true;
@@ -178,18 +126,16 @@ function showExplain(text, locate, ackBit) {
   setCard(explainEl, true);
   explainTimer = setTimeout(hideExplain, locate ? DEATH_ALERT_SHOW_MS : EXPLAIN_MS);
 }
-var patches = {};
 var patchSeq = 0, patchSnapAt = -1e9;
 var pLive = [], pTKey = null, pTHead = null, pTMask = 0, pUf = null, pNext = null, pComp = null;
 var deathPending = null, deathLocate = null, deathAlertAt = -1e9;
-var camGoal = null;
 var explainClose = explainEl && explainEl.querySelector('.logo-explosion-explain-close');
 var explainAck = explainEl && explainEl.querySelector('.logo-explosion-explain-ack');
 var deathBtn = explainEl && explainEl.querySelector('.logo-explosion-explain-locate');
 function makePatch(pid) {
-  return (patches[pid] = { alive: 0, deaths: [], alertedAt: -1e9, peak: 0, emptySince: null });
+  return (partie.patches[pid] = { alive: 0, deaths: [], alertedAt: -1e9, peak: 0, emptySince: null });
 }
-function resetPatches() { patches = {}; patchSeq = 0; patchSnapAt = -1e9; deathPending = null; }
+function resetPatches() { partie.patches = {}; patchSeq = 0; patchSnapAt = -1e9; deathPending = null; }
 function ufFind(x) {
   while (pUf[x] !== x) { pUf[x] = pUf[pUf[x]]; x = pUf[x]; }
   return x;
@@ -214,7 +160,7 @@ function snapshotPatches(now) {
   patchSnapAt = now;
   var i, j, k, c, o, comp, pid0, L2 = PATCH_LINK * PATCH_LINK;
   pLive.length = 0;
-  for (i = 0; i < colonised.length; i++) { c = colonised[i]; if (c.myc > 0 && !c.deadMyc) pLive.push(c); }
+  for (i = 0; i < monde.colonised.length; i++) { c = monde.colonised[i]; if (c.myc > 0 && !c.deadMyc) pLive.push(c); }
   var n = pLive.length;
   if (!pUf || pUf.length < n) { pUf = new Int32Array(Math.max(256, n * 2)); pNext = new Int32Array(pUf.length); pComp = new Int32Array(pUf.length); }
   var tsz = 16;
@@ -265,7 +211,7 @@ function snapshotPatches(now) {
     comp = comps[k];
     var best = 0, bv = 0;
     compEach(comp, function (v, pid) { if (v > bv) { bv = v; best = pid; } });
-    if (best && !claimed[best] && patches[best]) comp.pid = best;
+    if (best && !claimed[best] && partie.patches[best]) comp.pid = best;
     else { comp.pid = ++patchSeq; makePatch(comp.pid); } // scission (ou 1re fois) : historique vide
     claimed[comp.pid] = true;
   }
@@ -273,36 +219,36 @@ function snapshotPatches(now) {
   for (k = 0; k < comps.length; k++) {
     comp = comps[k];
     compEach(comp, function (v, pid) {
-      if (pid === comp.pid || claimed[pid] || remap[pid] || !patches[pid]) return;
-      var w = patches[comp.pid], l = patches[pid];
+      if (pid === comp.pid || claimed[pid] || remap[pid] || !partie.patches[pid]) return;
+      var w = partie.patches[comp.pid], l = partie.patches[pid];
       w.deaths = w.deaths.concat(l.deaths);
       w.peak += l.peak;
       w.alertedAt = Math.max(w.alertedAt, l.alertedAt);
       remap[pid] = comp.pid;
-      delete patches[pid];
+      delete partie.patches[pid];
     });
   }
-  for (pid0 in patches) patches[pid0].alive = 0;
+  for (pid0 in partie.patches) partie.patches[pid0].alive = 0;
   for (i = 0; i < n; i++) {
     c = pLive[i];
     if (c.settled) c.pid = comps[pComp[ufFind(i)]].pid;
     else if (c.pid && remap[c.pid]) c.pid = remap[c.pid];
     if (!c.pid) continue;
-    (patches[c.pid] || makePatch(c.pid)).alive++;
+    (partie.patches[c.pid] || makePatch(c.pid)).alive++;
   }
-  for (pid0 in patches) {
-    var p = patches[pid0];
+  for (pid0 in partie.patches) {
+    var p = partie.patches[pid0];
     if (p.alive > p.peak) p.peak = p.alive;
     while (p.deaths.length && now - p.deaths[0].t > PATCH_WINDOW_MS) p.deaths.shift();
     if (p.alive > 0) p.emptySince = null;
     else if (p.emptySince === null) p.emptySince = now; // gardé PATCH_WINDOW_MS : "tout le patch est mort" peut encore partir
-    else if (now - p.emptySince > PATCH_WINDOW_MS) delete patches[pid0];
+    else if (now - p.emptySince > PATCH_WINDOW_MS) delete partie.patches[pid0];
   }
 }
 // Appelee AVANT le splice de la facette c. Seules les morts de faim/secheresse comptent au
 // numerateur ; une mort aleatoire baisse juste l'effectif du patch.
 function notePatchDeath(c, cause) {
-  var p = c.pid && patches[c.pid];
+  var p = c.pid && partie.patches[c.pid];
   if (!p) return;
   if (p.alive > 0) p.alive--;
   if (cause !== 'drought' && cause !== 'starve') return;
@@ -330,7 +276,7 @@ function flushDeathAlert() {
   if (!deathPending) return;
   var t = performance.now();
   if (t - deathPending.t > DEATH_ALERT_STALE_MS) { deathPending = null; return; }
-  if (!explainEl || !explainText || msgBlocked(t) || t - deathAlertAt < DEATH_ALERT_GAP_MS || DEMO || guideCurrent()) return;
+  if (!explainEl || !explainText || msgBlocked(t) || t - deathAlertAt < DEATH_ALERT_GAP_MS || partie.DEMO || guideCurrent()) return;
   if (explainEl.classList.contains('is-visible')) return; // jamais empile
   var d = deathPending;
   deathPending = null;
@@ -349,15 +295,15 @@ function hideExplain() {
 // n'a pas eu le temps de le lire (moins de 5 s), il sera retente plus tard.
 function hideFact(interrupted) {
   clearTimeout(factTimer);
-  if (factShown < 0) return;
-  if (interrupted && performance.now() - factShownAt < 5000) factSeen &= ~(1 << factShown);
-  factShown = -1;
+  if (partie.factShown < 0) return;
+  if (interrupted && performance.now() - factShownAt < 5000) partie.factSeen &= ~(1 << partie.factShown);
+  partie.factShown = -1;
   setCard(factEl, false);
 }
 function showFact(i) {
   var t = performance.now();
-  factShown = i; factShownAt = t; factAt = t;
-  factSeen |= 1 << i;
+  partie.factShown = i; factShownAt = t; factAt = t;
+  partie.factSeen |= 1 << i;
   factText.textContent = FACTS[i].text;
   setCard(factEl, true);
   factTimer = setTimeout(function () { hideFact(false); }, FACT_MS);
@@ -370,11 +316,11 @@ function msgTick() {
   msgTickAt = t;
   if (weather.raining) { if (rainSince === null) { rainSince = t; rainCount++; } } else rainSince = null;
   challengeTick(t);
-  if (!factEl || factShown >= 0 || msgBlocked(t) || DEMO || guideCurrent()) return;
+  if (!factEl || partie.factShown >= 0 || msgBlocked(t) || partie.DEMO || guideCurrent()) return;
   if ((explainEl && explainEl.classList.contains('is-visible')) || t - explainEndAt < FACT_AFTER_EXPLAIN_MS) return;
-  var slow = t - explodedAt >= FACT_FIRST_MS && t - factAt >= FACT_GAP_MS; // delais normaux ; les faits "now" les ignorent
+  var slow = t - partie.explodedAt >= FACT_FIRST_MS && t - factAt >= FACT_GAP_MS; // delais normaux ; les faits "now" les ignorent
   for (var i = 0; i < FACTS.length; i++) {
-    if (!(factSeen & (1 << i)) && (slow || FACTS[i].now) && FACTS[i].when()) { showFact(i); return; }
+    if (!(partie.factSeen & (1 << i)) && (slow || FACTS[i].now) && FACTS[i].when()) { showFact(i); return; }
   }
 }
 
@@ -386,30 +332,28 @@ function msgTick() {
 // ET de validation (un defi ne se coche que s'il est debloque).
 var CHALLENGES = [
   { label: 'Arracher une branche à la main', unlocked: function () { return chIsDone(2); } },   // apres la maturite d'un arbre
-  { label: 'Planter 8 arbres', unlocked: function () { return true; }, progress: function () { return Math.min(chPlanted, CH_TREES_GOAL) + '/' + CH_TREES_GOAL; } },
-  { label: 'Voir un arbre atteindre sa pleine maturité', unlocked: function () { return chPlanted >= 1; } },
+  { label: 'Planter 8 arbres', unlocked: function () { return true; }, progress: function () { return Math.min(partie.chPlanted, CH_TREES_GOAL) + '/' + CH_TREES_GOAL; } },
+  { label: 'Voir un arbre atteindre sa pleine maturité', unlocked: function () { return partie.chPlanted >= 1; } },
   { label: 'Avoir 3 souches de mycélium vivantes', unlocked: function () { return chIsDone(5); }, progress: function () { return chStrainsOk + '/' + CH_STRAINS_GOAL; } },
   { label: 'Réunir arbre, mycélium et gazon vivants', unlocked: function () { return chIsDone(2); } },
   { label: 'Coloniser 10 % du monde', unlocked: function () { return true; }, progress: function () { return Math.round(chPctNow * 100) + ' %'; } },
   { label: 'Coloniser 25 % du monde', unlocked: function () { return chIsDone(5); }, progress: function () { return Math.round(chPctNow * 100) + ' %'; } },
   { label: 'Coloniser 50 % du monde', unlocked: function () { return chIsDone(6); }, progress: function () { return Math.round(chPctNow * 100) + ' %'; } },
-  { label: 'Récolter 10 strophaires', unlocked: function () { return true; }, progress: function () { return Math.min(chHarv[0], CH_HARVEST_GOAL) + '/' + CH_HARVEST_GOAL; }, gift: true },
-  { label: 'Récolter 10 pleurotes', unlocked: function () { return chIsDone(8); }, progress: function () { return Math.min(chHarv[1], CH_HARVEST_GOAL) + '/' + CH_HARVEST_GOAL; }, gift: true },
-  { label: 'Récolter 10 hydnes', unlocked: function () { return chIsDone(9); }, progress: function () { return Math.min(chHarv[2], CH_HARVEST_GOAL) + '/' + CH_HARVEST_GOAL; }, gift: true },
+  { label: 'Récolter 10 strophaires', unlocked: function () { return true; }, progress: function () { return Math.min(partie.chHarv[0], CH_HARVEST_GOAL) + '/' + CH_HARVEST_GOAL; }, gift: true },
+  { label: 'Récolter 10 pleurotes', unlocked: function () { return chIsDone(8); }, progress: function () { return Math.min(partie.chHarv[1], CH_HARVEST_GOAL) + '/' + CH_HARVEST_GOAL; }, gift: true },
+  { label: 'Récolter 10 hydnes', unlocked: function () { return chIsDone(9); }, progress: function () { return Math.min(partie.chHarv[2], CH_HARVEST_GOAL) + '/' + CH_HARVEST_GOAL; }, gift: true },
   { label: 'Attraper un papillon', unlocked: function () { return true; } }   // a la main ; sans recompense
 ];
-function chIsDone(k) { return !!(chDone & (1 << k)); }
-var chHarv = [0, 0, 0], freeTrees = 0;
+function chIsDone(k) { return !!(partie.chDone & (1 << k)); }
 var chPctNow = 0, chStrainsOk = 0;      // valeurs courantes affichees dans la progression (mises a jour a 1 Hz)
 var chBadgeEl = document.getElementById('logo-explosion-challenges');
-var chDone = 0, chPlanted = 0, chPending = [], chHoldSince = [0, 0, 0];
 var chListEl = null, chHeadEl = null, chDoneListEl = null, chDoneHeadEl = null;
-function chCount() { var n = 0; for (var i = 0; i < CHALLENGES.length; i++) if (chDone & (1 << i)) n++; return n; }
+function chCount() { var n = 0; for (var i = 0; i < CHALLENGES.length; i++) if (partie.chDone & (1 << i)) n++; return n; }
 function challengeDone(i) {
-  if (DEMO || chDone & (1 << i)) return;
-  chDone |= 1 << i;
-  if (CHALLENGES[i].gift) freeTrees++;
-  chPending.push(i);
+  if (partie.DEMO || partie.chDone & (1 << i)) return;
+  partie.chDone |= 1 << i;
+  if (CHALLENGES[i].gift) partie.freeTrees++;
+  partie.chPending.push(i);
   updateChallengeUI();
   savePlayerIfChanged();
 }
@@ -422,7 +366,7 @@ function updateChallengeUI() {
   var shown = 0;
   for (var i = 0; i < chListEl.children.length; i++) {
     var li = chListEl.children[i];
-    var vis = !(chDone & (1 << i)) && chUnlocked(i) && shown < CH_MAX_SHOWN;
+    var vis = !(partie.chDone & (1 << i)) && chUnlocked(i) && shown < CH_MAX_SHOWN;
     if (vis) shown++;
     if (li.hidden === vis) li.hidden = !vis;
     if (vis) {
@@ -434,11 +378,11 @@ function updateChallengeUI() {
   if (chListEl.parentNode) chListEl.parentNode.classList.toggle('is-empty', shown === 0);
   if (chDoneListEl) {
     var doneKey = '', dn = 0;
-    for (i = 0; i < CHALLENGES.length; i++) if (chDone & (1 << i)) { doneKey += i + ','; dn++; }
+    for (i = 0; i < CHALLENGES.length; i++) if (partie.chDone & (1 << i)) { doneKey += i + ','; dn++; }
     if (chDoneListEl.dataset.key !== doneKey) {
       chDoneListEl.dataset.key = doneKey;
       chDoneListEl.textContent = '';
-      for (i = 0; i < CHALLENGES.length; i++) if (chDone & (1 << i)) {
+      for (i = 0; i < CHALLENGES.length; i++) if (partie.chDone & (1 << i)) {
         var dli = document.createElement('li');
         dli.textContent = '☑ ' + CHALLENGES[i].label;
         chDoneListEl.appendChild(dli);
@@ -450,47 +394,47 @@ function updateChallengeUI() {
   }
 }
 function challengeTick(t) {
-  if (mode !== 'exploded') return;
+  if (partie.mode !== 'exploded') return;
   var i, j, c, all = CHALLENGES.length;
   updateChallengeUI(); // deblocage progressif (arbres plantes...), 1 fois par seconde
-  if (chPending.length && !msgBlocked(t)) {
-    var k = chPending.shift();
+  if (partie.chPending.length && !msgBlocked(t)) {
+    var k = partie.chPending.shift();
     var gift = CHALLENGES[k].gift ? ' — un arbre offert !' : '';
-    setCaption(chCount() >= all && !chPending.length ? 'Tous les défis sont réussis, bravo !' + gift : 'Défi réussi : ' + CHALLENGES[k].label + gift);
+    setCaption(chCount() >= all && !partie.chPending.length ? 'Tous les défis sont réussis, bravo !' + gift : 'Défi réussi : ' + CHALLENGES[k].label + gift);
   }
-  if (chDone === (1 << all) - 1) return;
-  if (!(chDone & 2) && chUnlocked(1) && chPlanted >= CH_TREES_GOAL) challengeDone(1);
-  if (!(chDone & 4) && chUnlocked(2)) {
-    for (i = 0; i < trees.length; i++) {
-      if (trees[i].growth < 1) trees[i].seenGrowing = true;
-      else if (trees[i].seenGrowing) { challengeDone(2); break; }
+  if (partie.chDone === (1 << all) - 1) return;
+  if (!(partie.chDone & 2) && chUnlocked(1) && partie.chPlanted >= CH_TREES_GOAL) challengeDone(1);
+  if (!(partie.chDone & 4) && chUnlocked(2)) {
+    for (i = 0; i < monde.trees.length; i++) {
+      if (monde.trees[i].growth < 1) monde.trees[i].seenGrowing = true;
+      else if (monde.trees[i].seenGrowing) { challengeDone(2); break; }
     }
   }
   var need = false; // rien a verifier si les defis 3 a 7 sont faits ou verrouilles
-  for (i = 3; i <= 7; i++) if (!(chDone & (1 << i)) && chUnlocked(i)) { need = true; break; }
+  for (i = 3; i <= 7; i++) if (!(partie.chDone & (1 << i)) && chUnlocked(i)) { need = true; break; }
   if (!need) return;
-  var bio = {}, cols = {}, nCols = heights.length - 1, nAlive = 0, live = [];
-  for (i = 0; i < colonised.length; i++) {
-    c = colonised[i];
+  var bio = {}, cols = {}, nCols = monde.heights.length - 1, nAlive = 0, live = [];
+  for (i = 0; i < monde.colonised.length; i++) {
+    c = monde.colonised[i];
     if (!(c.myc > MYC_READY) || c.deadMyc) continue;
     live.push(c);
     var sid = c.strain || 'standard';
     bio[sid] = (bio[sid] || 0) + c.myc;
     cols[Math.max(0, Math.min(nCols - 1, Math.floor(c.x / COL_W)))] = 1;
   }
-  if (!(chDone & 8) && chUnlocked(3)) {
+  if (!(partie.chDone & 8) && chUnlocked(3)) {
     var ok = 0;
     for (var id in bio) if (bio[id] >= CH_STRAIN_BIOMASS) ok++;
     chStrainsOk = ok;
     if (ok >= CH_STRAINS_GOAL) challengeDone(3);
   }
-  if (!(chDone & 16) && chUnlocked(4) && live.length && trees.length) {
-    var reach = UW * CH_ZONE_REACH, cr = Math.ceil(reach / COL_W);
-    for (i = 0; i < trees.length; i++) {
-      var hasMyc = false, hasGrass = false, tc = Math.floor(trees[i].x / COL_W);
-      for (j = 0; j < live.length; j++) if (Math.abs(live[j].x - trees[i].x) < reach) { hasMyc = true; break; }
+  if (!(partie.chDone & 16) && chUnlocked(4) && live.length && monde.trees.length) {
+    var reach = vue.UW * CH_ZONE_REACH, cr = Math.ceil(reach / COL_W);
+    for (i = 0; i < monde.trees.length; i++) {
+      var hasMyc = false, hasGrass = false, tc = Math.floor(monde.trees[i].x / COL_W);
+      for (j = 0; j < live.length; j++) if (Math.abs(live[j].x - monde.trees[i].x) < reach) { hasMyc = true; break; }
       if (!hasMyc) continue;
-      for (j = Math.max(0, tc - cr); j <= Math.min(grassCover.length - 1, tc + cr); j++) if (grassCover[j] > 0.5) { hasGrass = true; break; }
+      for (j = Math.max(0, tc - cr); j <= Math.min(monde.grassCover.length - 1, tc + cr); j++) if (monde.grassCover[j] > 0.5) { hasGrass = true; break; }
       if (hasGrass) { challengeDone(4); break; }
     }
   }
@@ -498,11 +442,11 @@ function challengeTick(t) {
   var pct = nCols > 0 ? nAlive / nCols : 0;
   chPctNow = pct;
   for (i = 0; i < 3; i++) {
-    if ((chDone & (32 << i)) || !chUnlocked(5 + i)) { chHoldSince[i] = 0; continue; }
+    if ((partie.chDone & (32 << i)) || !chUnlocked(5 + i)) { partie.chHoldSince[i] = 0; continue; }
     if (pct >= CH_COLONY_PCT[i]) {
-      if (!chHoldSince[i]) chHoldSince[i] = t;
-      else if (t - chHoldSince[i] >= CH_COLONY_HOLD_MS) challengeDone(5 + i);
-    } else chHoldSince[i] = 0;
+      if (!partie.chHoldSince[i]) partie.chHoldSince[i] = t;
+      else if (t - partie.chHoldSince[i] >= CH_COLONY_HOLD_MS) challengeDone(5 + i);
+    } else partie.chHoldSince[i] = 0;
   }
 }
 function hideMsgs() { hideExplain(); hideFact(true); }
@@ -540,7 +484,7 @@ function guideSet(flag) {
 // Remise a zero du tutoriel (reset du jeu) : drapeaux, sauvegarde, messages deja montres.
 function guideReset() {
   for (var k in guideFlags) guideFlags[k] = false;
-  mycFedOnce = false;
+  partie.mycFedOnce = false;
   guideLastId = null; guideMsgShown = {}; guideStickyText = null;
   try { localStorage.removeItem(GUIDE_KEY); } catch (e) { /* rien a effacer */ }
 }
@@ -554,73 +498,73 @@ function guideElTarget(getEl) {
 }
 // Cibles du monde : px logiques * cr.width / W (= * ZOOM) -> px CSS ; les marges (40, 90, 20) sont en px CSS, d'ou / ZOOM.
 // -1 / 1 si la cible est hors ecran a gauche / a droite (la fleche pointe alors droit vers ce cote), sinon 0.
-function guideOff(sx) { return sx < 40 / ZOOM ? -1 : sx > W - 40 / ZOOM ? 1 : 0; }
+function guideOff(sx) { return sx < 40 / vue.ZOOM ? -1 : sx > vue.W - 40 / vue.ZOOM ? 1 : 0; }
 function guideTreeTarget(cr) {
   var list = matureTrees(), best = null, bd = Infinity, i;
   for (i = 0; i < list.length; i++) {
-    var d = Math.abs(list[i].x - (camX + W / 2));
+    var d = Math.abs(list[i].x - (vue.camX + vue.W / 2));
     if (d < bd) { bd = d; best = list[i]; }
   }
   if (!best) return null;
-  return { x: clamp(best.x - camX, 40 / ZOOM, W - 40 / ZOOM) * cr.width / W, y: clamp(surfaceAt(best.x) - camY - 12, 90 / ZOOM, H - 20 / ZOOM) * cr.height / H, off: guideOff(best.x - camX) };
+  return { x: clamp(best.x - vue.camX, 40 / vue.ZOOM, vue.W - 40 / vue.ZOOM) * cr.width / vue.W, y: clamp(surfaceAt(best.x) - vue.camY - 12, 90 / vue.ZOOM, vue.H - 20 / vue.ZOOM) * cr.height / vue.H, off: guideOff(best.x - vue.camX) };
 }
 function guideCanopyTarget(cr) {
   var list = matureTrees(), best = null, bd = Infinity, i;
-  if (!list.length) list = trees;
+  if (!list.length) list = monde.trees;
   for (i = 0; i < list.length; i++) {
-    var d = Math.abs(list[i].x - (camX + W / 2));
+    var d = Math.abs(list[i].x - (vue.camX + vue.W / 2));
     if (d < bd) { bd = d; best = list[i]; }
   }
   if (!best) return null;
   var tg = treeScale(best), by = best.by !== undefined ? best.by : surfaceAt(best.x) + TREE_EMBED;
-  return { x: clamp(best.x - camX, 40 / ZOOM, W - 40 / ZOOM) * cr.width / W, y: clamp(by - best.h * tg - camY, 90 / ZOOM, H - 20 / ZOOM) * cr.height / H, off: guideOff(best.x - camX) };
+  return { x: clamp(best.x - vue.camX, 40 / vue.ZOOM, vue.W - 40 / vue.ZOOM) * cr.width / vue.W, y: clamp(by - best.h * tg - vue.camY, 90 / vue.ZOOM, vue.H - 20 / vue.ZOOM) * cr.height / vue.H, off: guideOff(best.x - vue.camX) };
 }
 // Centre du mycelium vivant (la ou deposer le bois), ou null s'il n'y en a pas.
 function guideMycTarget(cr) {
   var n = 0, mx = 0, my = 0;
-  for (var i = 0; i < colonised.length; i++) if (colonised[i].myc > 0) { n++; mx += colonised[i].x; my += colonised[i].y; }
+  for (var i = 0; i < monde.colonised.length; i++) if (monde.colonised[i].myc > 0) { n++; mx += monde.colonised[i].x; my += monde.colonised[i].y; }
   if (!n) return null;
   mx /= n; my /= n;
-  return { x: clamp(mx - camX, 40 / ZOOM, W - 40 / ZOOM) * cr.width / W, y: clamp(my - camY - 10, 90 / ZOOM, H - 20 / ZOOM) * cr.height / H, off: guideOff(mx - camX) };
+  return { x: clamp(mx - vue.camX, 40 / vue.ZOOM, vue.W - 40 / vue.ZOOM) * cr.width / vue.W, y: clamp(my - vue.camY - 10, 90 / vue.ZOOM, vue.H - 20 / vue.ZOOM) * cr.height / vue.H, off: guideOff(mx - vue.camX) };
 }
 // Le bois est en main : on pointe le mycelium ; lache au mauvais endroit, on repointe l'arbre.
 function guideLeavesTarget(cr) {
-  return (handCarry.length && guideMycTarget(cr)) || guideCanopyTarget(cr);
+  return (vue.handCarry.length && guideMycTarget(cr)) || guideCanopyTarget(cr);
 }
 function guideLeavesHint() {
-  return handCarry.length ? CAPTION_MYC_DROP : CAPTION_MYC_LEAVES;
+  return vue.handCarry.length ? CAPTION_MYC_DROP : CAPTION_MYC_LEAVES;
 }
 // Champignon mur issu du mycelium le plus proche du centre de l'ecran, ou null.
 function guideMushroomTarget(cr) {
   var best = null, bd = Infinity, i;
-  for (i = 0; i < mushrooms.length; i++) {
-    var m = mushrooms[i];
+  for (i = 0; i < monde.mushrooms.length; i++) {
+    var m = monde.mushrooms[i];
     if (!m.myc || m.treasure || m.dying || m.t < 0.9) continue;
-    var d = Math.abs(m.x - (camX + W / 2));
+    var d = Math.abs(m.x - (vue.camX + vue.W / 2));
     if (d < bd) { bd = d; best = m; }
   }
   if (!best) return guideMycTarget(cr);
-  return { x: clamp(best.x - camX, 40 / ZOOM, W - 40 / ZOOM) * cr.width / W, y: clamp(surfaceAt(best.x) - best.size * 0.8 - camY, 90 / ZOOM, H - 20 / ZOOM) * cr.height / H, off: guideOff(best.x - camX) };
+  return { x: clamp(best.x - vue.camX, 40 / vue.ZOOM, vue.W - 40 / vue.ZOOM) * cr.width / vue.W, y: clamp(surfaceAt(best.x) - best.size * 0.8 - vue.camY, 90 / vue.ZOOM, vue.H - 20 / vue.ZOOM) * cr.height / vue.H, off: guideOff(best.x - vue.camX) };
 }
 function guideTreeHint() {
   if (matureTrees().length) return null;
-  return trees.length ? CAPTION_MYC_TREE_WAIT : CAPTION_MYC_TREE_NONE;
+  return monde.trees.length ? CAPTION_MYC_TREE_WAIT : CAPTION_MYC_TREE_NONE;
 }
 function livingMyc() {
-  for (var i = 0; i < colonised.length; i++) if (colonised[i].myc > 0) return true;
+  for (var i = 0; i < monde.colonised.length; i++) if (monde.colonised[i].myc > 0) return true;
   return false;
 }
 function guideHarvestHint() {
-  if (!livingMyc() && !mushrooms.some(function (m) { return m.myc && !m.treasure && !m.dying && m.t >= 0.9; })) return CAPTION_MYC_REPOUR;
-  return mushrooms.some(function (m) { return m.myc && !m.treasure && !m.dying && m.t >= 0.9; }) ? CAPTION_MYC_HARVEST : CAPTION_MYC_GROW;
+  if (!livingMyc() && !monde.mushrooms.some(function (m) { return m.myc && !m.treasure && !m.dying && m.t >= 0.9; })) return CAPTION_MYC_REPOUR;
+  return monde.mushrooms.some(function (m) { return m.myc && !m.treasure && !m.dying && m.t >= 0.9; }) ? CAPTION_MYC_HARVEST : CAPTION_MYC_GROW;
 }
 var GUIDE = [
   { id: 'tools', done: function () { return guideFlags.tools; }, magnet: true,
     target: guideElTarget(function () { return toolsBar; }) },
-  { id: 'myc', done: function () { return guideFlags.myc && unlockedStrains.length > 0; }, dir: 'right',
+  { id: 'myc', done: function () { return guideFlags.myc && partie.unlockedStrains.length > 0; }, dir: 'right',
     target: guideElTarget(function () { return toolsBar.querySelector('[data-tool="mycelium"]'); }) },
-  { id: 'strain', done: function () { return DEMO || guideFlags.strain || guideFlags.poured; }, dir: 'down', // demo : une seule souche, menu cache
-    target: guideElTarget(function () { return strainsBar && (strainsBar.querySelector('[data-strain="' + bagStrain + '"]') || strainsBar.querySelector('[data-strain]')); }) },
+  { id: 'strain', done: function () { return partie.DEMO || guideFlags.strain || guideFlags.poured; }, dir: 'down', // demo : une seule souche, menu cache
+    target: guideElTarget(function () { return strainsBar && (strainsBar.querySelector('[data-strain="' + partie.bagStrain + '"]') || strainsBar.querySelector('[data-strain]')); }) },
   { id: 'tree', done: function () { return guideFlags.poured && (guideFlags.fed || livingMyc()); }, dir: 'up', magnet: true, halo: 'tree', hint: guideTreeHint,
     target: guideTreeTarget, msg: function () { return CAPTION_MYC_PLACE; } },
   { id: 'hand', done: function () { return guideFlags.hand; }, dir: 'right', hint: CAPTION_MYC_HAND,
@@ -636,177 +580,102 @@ function guideCurrent() {
 }
 var lastRainAt = -1e9;
 var mycNextDeathCheck = 0;
-var tool = 'hand';                  // 'hand' | 'mycelium' | 'tree' | 'fertilizer' | 'grass'
-var grassNutriMult = 1;                 // multiplicateur de production de nutriments du gazon ordinaire (1 = normal, 0 = aucun)
-var grassMycNutriMult = 1;              // idem pour le gazon long avec champignons (grassMyc)
 var fertLastAt = 0;                     // dernier depot de fertilisant (limite le rythme pendant un glissement)
 var grassLastAt = 0;                    // dernier semis de gazon (limite le rythme pendant un glissement)
-var colonised = [], fruited = {}, frame = 0;
 var mycBusyUntil = 0;
-// Mycelium mort de secheresse (voir stepMycelium) : contrairement a la necromasse de faim
-// (immediate, voir MYC_STARVE_MS), il reste visible tel quel — ni vivant ni nutriment —
-// jusqu'a une decomposition par l'humidite (voir decomposeDeadMyc, uniquement pendant la
-// pluie). Etape 2 (pas encore faite) : sous une pluie trop longue il pourrait plutot se
-// faire contaminer, et la contamination pourrait s'en prendre a un mycelium vivant affaibli
-// a proximite.
-var deadMyc = [];
-var grassLost = 0, grassTipFrom = 0;    // pas de conseil avant grassTipFrom (ms) : la chute du logo dans la terre n est pas de l arrachage
-var grassCover = null, grassPrevH = null, grassMyc = null, grassLastNow = null, grassNutriAt = 0;
-var floraLush = null, floraTarget = null;
-var insects = [];
-var insectNextAt = null, insectLastT = null;
-var money = 0, moneyRevealed = false, usedFreeBag = false, bagGrainsLeft = 0;
 function updateMoneyUI() {
-  if (moneyRevealed && moneyEl) moneyEl.classList.remove('d-none');
-  if (moneyVal) moneyVal.textContent = money;
+  if (partie.moneyRevealed && moneyEl) moneyEl.classList.remove('d-none');
+  if (moneyVal) moneyVal.textContent = partie.money;
 }
 function earn(amount) {
   // En demo l'argent est cache (mycelium gratuit, voir ensureBag) mais s'accumule en
   // silence : le joueur le retrouve quand le jeu complet se debloque.
-  money += amount;
-  if (!DEMO && window.sporaSfx) sporaSfx.play('coin'); 
-  moneyRevealed = true;
+  partie.money += amount;
+  if (!partie.DEMO && window.sporaSfx) sporaSfx.play('coin'); 
+  partie.moneyRevealed = true;
   updateMoneyUI();
   savePlayerIfChanged();
 }
 // Assure qu'un sac est pret a verser : offre le tout premier, sinon facture BAG_COST
 // si les fonds le permettent. Retourne false (et ne change rien) si on ne peut pas payer.
 function ensureBag() {
-  if (bagGrainsLeft > 0) return true;
-  if (DEMO || !usedFreeBag) { usedFreeBag = true; bagGrainsLeft = BAG_GRAINS; return true; }
-  if (money < BAG_COST) return false;
-  money -= BAG_COST;
-  bagGrainsLeft = BAG_GRAINS;
+  if (partie.bagGrainsLeft > 0) return true;
+  if (partie.DEMO || !partie.usedFreeBag) { partie.usedFreeBag = true; partie.bagGrainsLeft = BAG_GRAINS; return true; }
+  if (partie.money < BAG_COST) return false;
+  partie.money -= BAG_COST;
+  partie.bagGrainsLeft = BAG_GRAINS;
   updateMoneyUI();
   return true;
 }
-
-// Horloge virtuelle : tout le "temps reel" (ms) du cycle bois/mycelium/arbres (litiere,
-// faim du mycelium, pousse des feuilles...) passe par vTime plutot que
-// performance.now() directement, pour pouvoir l'accelerer avec le slider de debug
-// (#logo-explosion-speed) sans toucher a la physique image par image (gravite, pelle).
-var timeScale = 1, vTime = 0;
 var lastRealNow = null;
-var rainLevel = 0.3;                    // 0..1, lu depuis le curseur Pluie ; 0 = ne pleut jamais
-var droughtLevel = 0.3;                 // 0..1, lu depuis le curseur Secheresse ; 0 = ne seche jamais
-var stormLevel = 0.2;                   // 0..1, lu depuis le curseur Tempetes ; 0 = jamais de tempete
 function nextTreeCost() {
   var planted = 0;
-  for (var i = 0; i < trees.length; i++) if (trees[i].planted) planted++;
+  for (var i = 0; i < monde.trees.length; i++) if (monde.trees[i].planted) planted++;
   return Math.min(planted, TREE_COST_MAX_MULT) * TREE_COST_STEP;
 }
-var trees = [], litter = [], treeLife = false;
 var slowTimer = null;
-var goldBits = [];                      // eclats en vol : {x, y, vx, vy, rot, vr, r, c, life}
 var treasuresFound = 0;                 // tresors deterres depuis la derniere explosion (repart a 0 au rebuild)
-var tintedMyc = false;                  // vrai des qu'une facette de souche non standard est colonisee (sinon drawHyphae garde son trait unique)
-var worldW = 0, camMargin = 0, camX = 0;
-var worldH = 0, camY = 0;
-var hoverScreenX = null, hoverScreenY = null; // position souris (coord. ecran), pour le defilement aux bords
-var edgeTouch = false;                  // hoverScreenX/Y viennent d'un doigt appuye qui glisse, pas d'une souris
-var mobileArrow = 0;                    // -1/0/1 : fleches tactiles mobiles maintenues (horizontal)
-var mobileArrowY = 0;                   // -1/0/1 : fleches tactiles mobiles maintenues (vertical)
-
-// "Tresors" enfouis dans le tas : un champignon + une infobulle (produit, conseil...).
-// x = position en fraction de la LARGEUR DU MONDE ; species = index dans SPECIES.
-var treasureDefs = [];
 var strainById = { standard: STRAIN_STD };
 var strainOrder = [STRAIN_STD];         // ordre du menu : standard, puis dans l'ordre des tresors
-var unlockedStrains = [];
-var bagStrain = 'standard';
-var treasures = [];
-// Bulle produit sur le premier champignon issu du mycelium verse (pas un tresor : pas
-// de def.x/species, juste une infobulle qui suit ce champignon-la). Voir sprout().
-var mycTip = null, mycTipMushroom = null;
 var mycTipShown = false;
-
-// W/H : fenetre visible en px logiques. U/UW : unite de taille (hauteur/largeur CSS de la
-// boite, en px logiques) pour tout ce qui ne doit pas changer quand la fenetre s'agrandit.
-var W = 0, H = 0, U = 0, UW = 0, groundY = 0;
-var shards = [], heights = [], mushrooms = [];
-// compactY[c] est le sommet (y monde) de la couche compacte a la colonne c : ne peut que
-// descendre (la pelle la decompacte, voir cutCompact), jamais remonter au-dessus du
-// niveau d'origine (groundY). heights[c] reste l'epaisseur de terre MEUBLE posee dessus
-// (son plancher a 0 ne bouge pas, voir pileAdd) ; la surface reelle d'une colonne est
-// donc compactY[c] - heights[c] (voir surfaceAt).
-var compactY = [];
-// Colonnes de roche-mere (voir buildRockyPatches) : un vrai bloc, souleve dans compactY,
-// que la pelle ne peut pas creuser (cutCompact). Ni mycelium, ni gazon, ni arbre ne s'y
-// installent tant qu'elle est exposee ; l'enterrer sous assez de terre (ROCK_COVER_MIN)
-// la rend a nouveau fertile.
-var rocky = [];
-// Lacs : une entree par cuvette rocheuse (voir buildRockyPatches) {p0,p1 (plaque entiere,
-// capte la pluie), c0,c1 (de bord a bord de la cuvette, la ou l'eau tient), vol (px2 d'eau),
-// level (y monde de la surface de l'eau, Infinity = vide)}. lakeOf[c] = index+1 du lac dont
-// la plaque couvre la colonne c (0 = aucun). Le niveau se deduit du volume a chaque frame
-// (voir updateLakes), donc suit la terre meuble ajoutee/enlevee dans la cuvette.
-var lakes = [], lakeOf = [], lakeLastT = null;
-// Depots d'humus lessives jusque dans la couche compacte (voir leach()) : chacun
-// {x, y, color}, y en coord. MONDE. Distinct de shards (facettes) pour rester leger :
-// ils ne participent a aucune physique, juste a un lent enfoncement pendant la pluie.
-var compactNutri = [];
-var mode = 'assembled';                 // 'assembled' | 'exploded' | 'rebuilding'
-var rafId = null;
 var speciesIdx = 0;
 var rebuildT = 0;
 var paused = false, wasRunningBeforeHide = false; // en pause : hors viewport ou onglet cache
 
 var img = new Image();
-var imgReady = false;
 function tintCol(hex, strain) { return strain ? rgbStr(mixRgb(hexToRgb(hex), strain.tintRgb, STRAIN_MIX).map(Math.round)) : hex; }
-function currentStrain() { return strainById[bagStrain] || STRAIN_STD; }
-var soilRiseT = 1, soilDepth = 0;       // soilRiseT < 1 : le lit est en train de monter
+function currentStrain() { return strainById[partie.bagStrain] || STRAIN_STD; }
 
 // Toile a sa vraie resolution (px CSS x dpr) ; le style garde la taille CSS de la boite.
 function sizeCanvas() {
-  canvas.width = ZOOM === 1 ? W * dpr : Math.round(W * RS);
-  canvas.height = ZOOM === 1 ? H * dpr : Math.round(H * RS);
-  canvas.style.width = W * ZOOM + 'px'; canvas.style.height = H * ZOOM + 'px';
+  canvas.width = vue.ZOOM === 1 ? vue.W * dpr : Math.round(vue.W * vue.RS);
+  canvas.height = vue.ZOOM === 1 ? vue.H * dpr : Math.round(vue.H * vue.RS);
+  canvas.style.width = vue.W * vue.ZOOM + 'px'; canvas.style.height = vue.H * vue.ZOOM + 'px';
 }
 
 function setupSoil(rect) {
-  W = rect.width / ZOOM; H = rect.height / ZOOM;
-  U = H * ZOOM; UW = W * ZOOM;
+  vue.W = rect.width / vue.ZOOM; vue.H = rect.height / vue.ZOOM;
+  vue.U = vue.H * vue.ZOOM; vue.UW = vue.W * vue.ZOOM;
   sizeCanvas();
   // Le monde deborde de la boite ; la boite est centree dedans au depart.
-  worldW = W * WORLD_MULT;
-  camMargin = (worldW - W) / 2;
-  camX = camMargin;
+  vue.worldW = vue.W * WORLD_MULT;
+  vue.camMargin = (vue.worldW - vue.W) / 2;
+  vue.camX = vue.camMargin;
   // Zoome, la fenetre (H) depasse U : le monde doit rester plus haut qu'elle (bornes de camY jamais inversees).
-  worldH = Math.max(U + U * DEPTH_MULT, H + U * 0.5);
-  groundY = U - 6;
-  camY = camHomeY(); // 0 sans zoom ; zoome, remonte pour poser le sol au bas de l'ecran
+  vue.worldH = Math.max(vue.U + vue.U * DEPTH_MULT, vue.H + vue.U * 0.5);
+  vue.groundY = vue.U - 6;
+  vue.camY = camHomeY(); // 0 sans zoom ; zoome, remonte pour poser le sol au bas de l'ecran
   buildHills();
-  heights = new Float32Array(Math.ceil(worldW / COL_W) + 1);
-  compactY = new Float32Array(heights.length);
-  compactY.fill(groundY);
-  compactNutri = [];
-  lakes = []; lakeOf = []; lakeLastT = null;
-  drops = [];
-  nextLeachAt = 0;
+  monde.heights = new Float32Array(Math.ceil(vue.worldW / COL_W) + 1);
+  monde.compactY = new Float32Array(monde.heights.length);
+  monde.compactY.fill(vue.groundY);
+  monde.compactNutri = [];
+  monde.lakes = []; monde.lakeOf = []; monde.lakeLastT = null;
+  monde.drops = [];
+  monde.nextLeachAt = 0;
   weather.raining = false; weather.clouds = []; weather.lastNow = null; weather.changeAt = 0;
   weather.drought = false; weather.droughtChangeAt = 0;
   updateDroughtIndicator();
 
   // Profil : couche de base ondulee + bosse centrale sous le logo (au centre du monde).
-  var base = U * 0.07, bump = U * 0.08, phase = Math.random() * 10;
+  var base = vue.U * 0.07, bump = vue.U * 0.08, phase = Math.random() * 10;
   function profile(x) {
-    var u = x / worldW;
+    var u = x / vue.worldW;
     var mound = Math.exp(-Math.pow((u - 0.5) / 0.3, 2));
     var wave = Math.sin(u * 9 + phase) * 0.25 + Math.sin(u * 23 + phase * 2) * 0.12;
     return base * (1 + wave) + bump * mound;
   }
   // Profil provisoire, seulement pour trier les triangles sous la crete ; la vraie
   // carte de hauteurs est ensuite reconstruite a partir des facettes gardees.
-  for (var c = 0; c < heights.length; c++) heights[c] = profile(c * COL_W);
-  soilDepth = base * 1.4 + bump + 10;
+  for (var c = 0; c < monde.heights.length; c++) monde.heights[c] = profile(c * COL_W);
+  monde.soilDepth = base * 1.4 + bump + 10;
 
   // Maillage low-poly (sommets partages et decales) sur toute la largeur du MONDE,
   // puis on ne garde que les triangles sous la crete : leurs pointes forment une
   // crete dentelee. Coordonnees x en px monde (0..worldW), pas de decalage camera ici.
-  var cell = Math.max(6, UW / 160);
-  var rows = Math.ceil((base * 1.4 + bump + 6) / cell), cols = Math.ceil(worldW / cell);
-  var top = U - rows * cell;
+  var cell = Math.max(6, vue.UW / 160);
+  var rows = Math.ceil((base * 1.4 + bump + 6) / cell), cols = Math.ceil(vue.worldW / cell);
+  var top = vue.U - rows * cell;
   var verts = [];
   for (var j = 0; j <= rows; j++) {
     verts[j] = [];
@@ -818,7 +687,7 @@ function setupSoil(rect) {
       ];
     }
   }
-  shards = [];
+  monde.shards = [];
   resetTiles();
   for (j = 0; j < rows; j++) {
     for (i = 0; i < cols; i++) {
@@ -828,26 +697,26 @@ function setupSoil(rect) {
       addSoilShard(tris[1]);
     }
   }
-  heights.fill(0);
-  shards.forEach(pileAdd);
-  soilRiseT = 0;
+  monde.heights.fill(0);
+  monde.shards.forEach(pileAdd);
+  monde.soilRiseT = 0;
   buildRockyPatches();
 
   // Gazon : couche initiale pleine partout (voir section "Gazon" plus haut). Le suivi de
   // hauteur precedente demarre APRES l'empilement pour ne pas confondre "la terre vient
   // d'etre posee" avec "la terre a ete remuee".
-  grassCover = new Float32Array(heights.length);
-  grassCover.fill(1);
-  for (var rc = 0; rc < rocky.length; rc++) if (rocky[rc]) grassCover[rc] = 0;
-  grassPrevH = new Float32Array(heights);
-  grassMyc = new Uint8Array(heights.length);
-  grassLastNow = null;
-  grassNutriAt = 0;
+  monde.grassCover = new Float32Array(monde.heights.length);
+  monde.grassCover.fill(1);
+  for (var rc = 0; rc < monde.rocky.length; rc++) if (monde.rocky[rc]) monde.grassCover[rc] = 0;
+  monde.grassPrevH = new Float32Array(monde.heights);
+  monde.grassMyc = new Uint8Array(monde.heights.length);
+  monde.grassLastNow = null;
+  monde.grassNutriAt = 0;
 
   // Flore (voir section "Flore (cosmetique)" plus haut) : demarre a 0 partout, elle
   // pousse ensuite d'elle-meme pres des arbres/du mycelium au fil d'updateGrass.
-  floraLush = new Float32Array(heights.length);
-  floraTarget = new Float32Array(heights.length);
+  monde.floraLush = new Float32Array(monde.heights.length);
+  monde.floraTarget = new Float32Array(monde.heights.length);
 }
 
 function addSoilShard(tri) {
@@ -856,10 +725,10 @@ function addSoilShard(tri) {
   var surf = surfaceAt(cx);
   if (cy < surf) return;
   // Plus sombre en profondeur : la terre "fraiche" se voit quand on creuse.
-  var depth = Math.min(1, (cy - surf) / Math.max(1, U - surf));
+  var depth = Math.min(1, (cy - surf) / Math.max(1, vue.U - surf));
   var k = (Math.random() - 0.5) * 0.2 - depth * 0.3;
   var color = shade(hexToRgb(EARTH[(Math.random() * EARTH.length) | 0]), k);
-  shards.push({
+  monde.shards.push({
     pts: tri.map(function (p) { return [p[0] - cx, p[1] - cy]; }),
     ox: cx, oy: cy, x: cx, y: cy, vx: 0, vy: 0, rot: 0, vr: 0,
     from: color, to: color, mix: 1, area: triArea(tri),
@@ -884,7 +753,7 @@ function build() {
   // la vue de depart est remontee (camHomeY), sans ca le logo du jeu apparaitrait plus bas
   // que celui de la page.
   var fr = fallbackImg.getBoundingClientRect();
-  var lx = (fr.left - rect.left) / ZOOM + camMargin, oy = (fr.top - rect.top) / ZOOM + camY, lw = fr.width / ZOOM, lh = fr.height / ZOOM;
+  var lx = (fr.left - rect.left) / vue.ZOOM + vue.camMargin, oy = (fr.top - rect.top) / vue.ZOOM + vue.camY, lw = fr.width / vue.ZOOM, lh = fr.height / vue.ZOOM;
   var CELL = Math.max(5, lw / CELLS_ACROSS);
   var cols = Math.ceil(lw / CELL), rows = Math.ceil(lh / CELL);
 
@@ -928,7 +797,7 @@ function build() {
     }
   }
 
-  mushrooms = [];
+  monde.mushrooms = [];
   return true;
 }
 
@@ -939,7 +808,7 @@ function addShard(tri, sample, lx, oy, lw, lh) {
   if (s[3] < 110) return;
   var k = (Math.random() - 0.5) * 0.22;
   var area = triArea(tri);
-  shards.push({
+  monde.shards.push({
     pts: tri.map(function (p) { return [p[0] - cx, p[1] - cy]; }),
     ox: cx, oy: cy, x: cx, y: cy, vx: 0, vy: 0, rot: 0, vr: 0,
     from: shade([s[0], s[1], s[2]], k),
@@ -949,33 +818,33 @@ function addShard(tri, sample, lx, oy, lw, lh) {
 }
 
 function surfaceAt(x) {
-  var c = Math.max(0, Math.min(heights.length - 1, Math.round(x / COL_W)));
-  return compactY[c] - heights[c];
+  var c = Math.max(0, Math.min(monde.heights.length - 1, Math.round(x / COL_W)));
+  return monde.compactY[c] - monde.heights[c];
 }
 // Vrai tant que la roche est exposee a cette colonne (pas assez de terre meuble
 // par-dessus, voir ROCK_COVER_MIN) : rien ne pousse la, mais l'empiler sous du terreau
 // (a la pelle) l'enterre et la rend a nouveau fertile, comme demande.
 function isRocky(x) {
-  var c = Math.max(0, Math.min(rocky.length - 1, Math.round(x / COL_W)));
-  return !!rocky[c] && heights[c] < ROCK_COVER_MIN;
+  var c = Math.max(0, Math.min(monde.rocky.length - 1, Math.round(x / COL_W)));
+  return !!monde.rocky[c] && monde.heights[c] < ROCK_COVER_MIN;
 }
 // Vrai si la colonne c est sous l'eau d'un lac (entre les bords de sa cuvette, surface du
 // sol sous le niveau de l'eau) : ni gazon, ni mycelium, ni arbre. `level` est tenu a jour
 // par updateLakes ; y monde, donc "sous l'eau" = surface plus grande que le niveau.
 function isSubmergedCol(c) {
-  var li = lakeOf[c];
+  var li = monde.lakeOf[c];
   if (!li) return false;
-  var lk = lakes[li - 1];
-  return c >= lk.c0 && c <= lk.c1 && compactY[c] - heights[c] > lk.level + 0.5;
+  var lk = monde.lakes[li - 1];
+  return c >= lk.c0 && c <= lk.c1 && monde.compactY[c] - monde.heights[c] > lk.level + 0.5;
 }
 function isSubmerged(x) {
-  return isSubmergedCol(Math.max(0, Math.min(heights.length - 1, Math.round(x / COL_W))));
+  return isSubmergedCol(Math.max(0, Math.min(monde.heights.length - 1, Math.round(x / COL_W))));
 }
 // Volume (px2) que la cuvette contient quand l'eau monte jusqu'au niveau y.
 function lakeCapacity(lk, y) {
   var v = 0;
   for (var c = lk.c0; c <= lk.c1; c++) {
-    var d = compactY[c] - heights[c] - y;
+    var d = monde.compactY[c] - monde.heights[c] - y;
     if (d > 0) v += d;
   }
   return v * COL_W;
@@ -985,18 +854,18 @@ function lakeCapacity(lk, y) {
 // deux bords : le surplus deborde et est perdu. Recalcule a chaque frame (quelques
 // dizaines de colonnes par lac), donc suit la terre ajoutee/enlevee a la pelle.
 function updateLakes(now) {
-  var dt = lakeLastT === null ? 0 : Math.max(0, now - lakeLastT);
-  lakeLastT = now;
-  for (var li = 0; li < lakes.length; li++) {
-    var lk = lakes[li];
+  var dt = monde.lakeLastT === null ? 0 : Math.max(0, now - monde.lakeLastT);
+  monde.lakeLastT = now;
+  for (var li = 0; li < monde.lakes.length; li++) {
+    var lk = monde.lakes[li];
     if (!weather.raining && lk.vol > 0) lk.vol = Math.max(0, lk.vol - LAKE_EVAP_PER_S * (weather.drought ? 3 : 1) * dt / 1000);
     if (lk.vol <= 0) { lk.level = Infinity; continue; }
     // Bord le plus bas = le plus grand y des deux sommets (y monde : plus grand = plus bas).
-    var rim = Math.max(compactY[lk.c0] - heights[lk.c0], compactY[lk.c1] - heights[lk.c1]);
+    var rim = Math.max(monde.compactY[lk.c0] - monde.heights[lk.c0], monde.compactY[lk.c1] - monde.heights[lk.c1]);
     var cap = lakeCapacity(lk, rim);
     if (lk.vol >= cap) { lk.vol = cap; lk.level = rim; continue; }
     var lo = rim, hi = rim, c;
-    for (c = lk.c0; c <= lk.c1; c++) hi = Math.max(hi, compactY[c] - heights[c]);
+    for (c = lk.c0; c <= lk.c1; c++) hi = Math.max(hi, monde.compactY[c] - monde.heights[c]);
     for (var it = 0; it < 12; it++) {
       var mid = (lo + hi) / 2;
       if (lakeCapacity(lk, mid) > lk.vol) lo = mid; else hi = mid;
@@ -1008,19 +877,19 @@ function updateLakes(now) {
 // facettes plus claires/sombres par-dessus pour le grain low-poly, et une mince bande plus
 // claire en surface.
 function drawLakes() {
-  for (var li = 0; li < lakes.length; li++) {
-    var lk = lakes[li];
+  for (var li = 0; li < monde.lakes.length; li++) {
+    var lk = monde.lakes[li];
     if (lk.level === Infinity || lk.vol < 0.5) continue;
     var x0 = lk.c0 * COL_W, x1 = lk.c1 * COL_W, yw = lk.level, c, sa, sb;
-    if (x1 < camX - 20 || x0 > camX + W + 20) continue;
+    if (x1 < vue.camX - 20 || x0 > vue.camX + vue.W + 20) continue;
     ctx.fillStyle = 'rgba(58,132,190,0.55)';
     ctx.beginPath();
     ctx.moveTo(x0, yw); ctx.lineTo(x1, yw);
-    for (c = lk.c1; c >= lk.c0; c--) ctx.lineTo(c * COL_W, Math.max(yw, compactY[c] - heights[c]));
+    for (c = lk.c1; c >= lk.c0; c--) ctx.lineTo(c * COL_W, Math.max(yw, monde.compactY[c] - monde.heights[c]));
     ctx.closePath();
     ctx.fill();
     for (c = lk.c0; c < lk.c1; c++) {
-      sa = Math.max(yw, compactY[c] - heights[c]); sb = Math.max(yw, compactY[c + 1] - heights[c + 1]);
+      sa = Math.max(yw, monde.compactY[c] - monde.heights[c]); sb = Math.max(yw, monde.compactY[c + 1] - monde.heights[c + 1]);
       if (sa <= yw && sb <= yw) continue;
       ctx.fillStyle = c % 2 ? 'rgba(255,255,255,0.10)' : 'rgba(0,40,90,0.12)';
       poly([[c * COL_W, yw], [(c + 1) * COL_W, yw], c % 2 ? [(c + 1) * COL_W, sb] : [c * COL_W, sa]]);
@@ -1028,48 +897,44 @@ function drawLakes() {
     ctx.fillStyle = 'rgba(190,230,250,0.55)';
     ctx.beginPath();
     ctx.moveTo(x0, yw); ctx.lineTo(x1, yw);
-    for (c = lk.c1; c >= lk.c0; c--) ctx.lineTo(c * COL_W, Math.min(yw + 3, Math.max(yw, compactY[c] - heights[c])));
+    for (c = lk.c1; c >= lk.c0; c--) ctx.lineTo(c * COL_W, Math.min(yw + 3, Math.max(yw, monde.compactY[c] - monde.heights[c])));
     ctx.closePath();
     ctx.fill();
   }
 }
-var worldSig = null, worldSigPrev = null, worldSaveOff = false;
-var restoredFound = [];   // titres deterres lus dans la sauvegarde, consommes par setupTreasures
-var foundFx = {};         // titre -> position x (fraction de worldW) des tresors deterres : ils reviennent la ou ils etaient
-var skippedFound = [];    // titres ecartes de la generation du monde en cours (deja deterres)
 var playerSig = null;
-function knownTitle(t) { return typeof t === 'string' && treasureDefs.some(function (d) { return d.title === t; }); }
+function knownTitle(t) { return typeof t === 'string' && partie.treasureDefs.some(function (d) { return d.title === t; }); }
 function foundList() {
-  var out = skippedFound.concat(restoredFound);
-  treasures.forEach(function (t) { if (t.revealed && out.indexOf(t.def.title) === -1) out.push(t.def.title); });
+  var out = partie.skippedFound.concat(partie.restoredFound);
+  partie.treasures.forEach(function (t) { if (t.revealed && out.indexOf(t.def.title) === -1) out.push(t.def.title); });
   return out;
 }
 function playerState() {
-  treasures.forEach(function (t) { if (t.revealed && worldW > 0) foundFx[t.def.title] = Math.round(t.x / worldW * 1000) / 1000; });
-  return { money: Math.min(MONEY_MAX, Math.max(0, Math.floor(money) || 0)), revealed: moneyRevealed ? 1 : 0, freeBag: usedFreeBag ? 1 : 0, strains: unlockedStrains.slice(), bag: bagStrain, found: foundList(), leachTips: leachTipSeen, facts: factSeen, ch: chDone, chTrees: chPlanted, chHarv: chHarv.slice(), freeTrees: freeTrees, fx: foundFx };
+  partie.treasures.forEach(function (t) { if (t.revealed && vue.worldW > 0) partie.foundFx[t.def.title] = Math.round(t.x / vue.worldW * 1000) / 1000; });
+  return { money: Math.min(MONEY_MAX, Math.max(0, Math.floor(partie.money) || 0)), revealed: partie.moneyRevealed ? 1 : 0, freeBag: partie.usedFreeBag ? 1 : 0, strains: partie.unlockedStrains.slice(), bag: partie.bagStrain, found: foundList(), leachTips: partie.leachTipSeen, facts: partie.factSeen, ch: partie.chDone, chTrees: partie.chPlanted, chHarv: partie.chHarv.slice(), freeTrees: partie.freeTrees, fx: partie.foundFx };
 }
 function playerSigOf(p) { return p.money + '|' + p.revealed + '|' + p.freeBag + '|' + p.strains.join() + '|' + p.bag + '|' + p.found.join('/') + '|' + p.leachTips + '|' + p.facts + '|' + p.ch + '|' + p.chTrees + '|' + p.chHarv.join() + '|' + p.freeTrees + '|' + JSON.stringify(p.fx); }
 function restorePlayer() {
   try {
     var d = JSON.parse(localStorage.getItem(WORLD_KEY)), p = d && d.v === WORLD_VERSION ? d.player : null;
     if (!p || typeof p !== 'object') return;
-    if (typeof p.money === 'number' && isFinite(p.money)) money = Math.min(MONEY_MAX, Math.max(0, Math.floor(p.money)));
-    moneyRevealed = !!p.revealed || money > 0;
-    usedFreeBag = !!p.freeBag;
-    leachTipSeen = (p.leachTips | 0) & 31;
-    factSeen = (p.facts | 0) & ((1 << FACTS.length) - 1);
-    chDone = (p.ch | 0) & ((1 << CHALLENGES.length) - 1);
-    chPlanted = Math.max(0, Math.min(999, p.chTrees | 0));
-    for (var hi = 0; hi < 3; hi++) chHarv[hi] = Array.isArray(p.chHarv) ? Math.max(0, Math.min(CH_HARVEST_GOAL, p.chHarv[hi] | 0)) : 0;
-    freeTrees = Math.max(0, Math.min(99, p.freeTrees | 0));
+    if (typeof p.money === 'number' && isFinite(p.money)) partie.money = Math.min(MONEY_MAX, Math.max(0, Math.floor(p.money)));
+    partie.moneyRevealed = !!p.revealed || partie.money > 0;
+    partie.usedFreeBag = !!p.freeBag;
+    partie.leachTipSeen = (p.leachTips | 0) & 31;
+    partie.factSeen = (p.facts | 0) & ((1 << FACTS.length) - 1);
+    partie.chDone = (p.ch | 0) & ((1 << CHALLENGES.length) - 1);
+    partie.chPlanted = Math.max(0, Math.min(999, p.chTrees | 0));
+    for (var hi = 0; hi < 3; hi++) partie.chHarv[hi] = Array.isArray(p.chHarv) ? Math.max(0, Math.min(CH_HARVEST_GOAL, p.chHarv[hi] | 0)) : 0;
+    partie.freeTrees = Math.max(0, Math.min(99, p.freeTrees | 0));
     updateChallengeUI();
-    if (p.fx && typeof p.fx === 'object') Object.keys(p.fx).forEach(function (k) { if (knownTitle(k) && typeof p.fx[k] === 'number' && isFinite(p.fx[k])) foundFx[k] = Math.max(0, Math.min(1, p.fx[k])); });
+    if (p.fx && typeof p.fx === 'object') Object.keys(p.fx).forEach(function (k) { if (knownTitle(k) && typeof p.fx[k] === 'number' && isFinite(p.fx[k])) partie.foundFx[k] = Math.max(0, Math.min(1, p.fx[k])); });
     // Les souches suivent le NOMBRE de tresors deterres (1er = strophaire, 2e = pleurote...) : on ignore
     // la liste sauvee, qui pouvait contenir le strophaire d'office (ancienne version).
     // On ne compte que les titres CONNUS et uniques (un ancien titre, ex. 'Mycélium en vrac', decalait l'ordre).
-    if (Array.isArray(p.found)) restoredFound = p.found.filter(function (t, i) { return knownTitle(t) && p.found.indexOf(t) === i; });
-    unlockedStrains = strainOrder.slice(0, restoredFound.length).map(function (st) { return st.id; });
-    bagStrain = unlockedStrains.indexOf(p.bag) !== -1 ? p.bag : (unlockedStrains[0] || 'standard');
+    if (Array.isArray(p.found)) partie.restoredFound = p.found.filter(function (t, i) { return knownTitle(t) && p.found.indexOf(t) === i; });
+    partie.unlockedStrains = strainOrder.slice(0, partie.restoredFound.length).map(function (st) { return st.id; });
+    partie.bagStrain = partie.unlockedStrains.indexOf(p.bag) !== -1 ? p.bag : (partie.unlockedStrains[0] || 'standard');
     updateMoneyUI();
     playerSig = playerSigOf(playerState());
   } catch (e) { /* sauvegarde illisible : on repart d'un joueur neuf */ }
@@ -1081,12 +946,12 @@ function restorePlayer() {
 var worldKeyHeld = false;
 function wipedElsewhere() {
   try {
-    if (worldKeyHeld && localStorage.getItem(WORLD_KEY) === null) worldSaveOff = true;
+    if (worldKeyHeld && localStorage.getItem(WORLD_KEY) === null) partie.worldSaveOff = true;
   } catch (e) { /* stockage indisponible */ }
-  return worldSaveOff;
+  return partie.worldSaveOff;
 }
 function savePlayerIfChanged() {
-  if (worldSaveOff || wipedElsewhere()) return;
+  if (partie.worldSaveOff || wipedElsewhere()) return;
   var p = playerState(), sig = playerSigOf(p);
   if (sig === playerSig) return;
   try {
@@ -1101,8 +966,8 @@ function savePlayerIfChanged() {
 }
 // Signature bon marche de l'etat du terrain et du mycelium, pour detecter qu'il a change.
 function terrainSig() {
-  var s = colonised.length * 0.37 + trees.length * 1.13;
-  for (var c = 0; c < heights.length; c++) s += heights[c] * (c % 7 + 1) + compactY[c] * (c % 5 + 2);
+  var s = monde.colonised.length * 0.37 + monde.trees.length * 1.13;
+  for (var c = 0; c < monde.heights.length; c++) s += monde.heights[c] * (c % 7 + 1) + monde.compactY[c] * (c % 5 + 2);
   return s;
 }
 // Tableau plat [x, profondeur sous la surface, myc*100, indice de souche] par facette
@@ -1110,8 +975,8 @@ function terrainSig() {
 // et champignons ne sont pas gardes (ils se regenerent depuis le mycelium restaure).
 function saveMycelium() {
   var flat = [], strains = [];
-  for (var i = 0; i < colonised.length && flat.length < MYC_SAVE_MAX * 4; i++) {
-    var s = colonised[i];
+  for (var i = 0; i < monde.colonised.length && flat.length < MYC_SAVE_MAX * 4; i++) {
+    var s = monde.colonised[i];
     if (!s.settled || s.deadMyc || !(s.myc > 0)) continue;
     var id = s.strain && s.strain.id !== 'standard' ? s.strain.id : '', si = strains.indexOf(id);
     if (si < 0) si = strains.push(id) - 1;
@@ -1120,10 +985,9 @@ function saveMycelium() {
   return { myc: flat, strains: strains };
 }
 var worldEaten = 0;         // somme des nutriments manges a la derniere sauvegarde (croissance seule ne declenche pas la sauvegarde, sauf a la fermeture)
-function eatenSum() { var n = 0; for (var i = 0; i < trees.length; i++) n += trees[i].eaten; return n; }
-var restoredTrees = null;   // arbres lus dans la sauvegarde, consommes par explode()
+function eatenSum() { var n = 0; for (var i = 0; i < monde.trees.length; i++) n += monde.trees[i].eaten; return n; }
 function saveTrees() {
-  return trees.slice(0, TREES_SAVE_MAX).map(function (t) {
+  return monde.trees.slice(0, TREES_SAVE_MAX).map(function (t) {
     return { x: Math.round(t.x), e: Math.min(MATURE_NUTRIENTS, Math.max(0, Math.round(t.eaten) || 0)), s: Math.min(TALL_FULL, Math.max(0, Math.round(t.surplus) || 0)), p: t.planted ? 1 : 0, g: t.tuto ? 1 : 0 };
   });
 }
@@ -1133,7 +997,7 @@ function nearestTreeX(x) {
   for (var k = 0; k <= 15; k++) {
     for (var sg = -1; sg <= 1; sg += 2) {
       var cx = x + sg * k * COL_W;
-      if (cx >= 0 && cx <= (heights.length - 1) * COL_W && !isRocky(cx) && !isSubmerged(cx)) return cx;
+      if (cx >= 0 && cx <= (monde.heights.length - 1) * COL_W && !isRocky(cx) && !isSubmerged(cx)) return cx;
     }
   }
   return null;
@@ -1144,7 +1008,7 @@ function makeSavedTrees(list) {
   var out = [];
   list.slice(0, TREES_SAVE_MAX).forEach(function (o) {
     if (!o || typeof o.x !== 'number' || !isFinite(o.x) || typeof o.e !== 'number' || !isFinite(o.e)) return;
-    var x = Math.max(0, Math.min((heights.length - 1) * COL_W, o.x)), planted = !!o.p;
+    var x = Math.max(0, Math.min((monde.heights.length - 1) * COL_W, o.x)), planted = !!o.p;
     if (isRocky(x) || isSubmerged(x)) {
       var nx = nearestTreeX(x);
       if (nx === null && !planted) return;
@@ -1157,7 +1021,7 @@ function makeSavedTrees(list) {
     t.growth = Math.min(1, t.eaten / MATURE_NUTRIENTS);
     t.surplus = typeof o.s === 'number' && isFinite(o.s) ? Math.min(TALL_FULL, Math.max(0, Math.round(o.s))) : 0;
     // Les 8 feuilles de depart suffiraient pour un arbre neuf ; un arbre grand en veut plus.
-    for (var k = 8; k < Math.round(unlockedSlots(t) * 0.7); k++) addLeaf(t, vTime - Math.random() * LEAF_LIFE_MS[0] * 0.6);
+    for (var k = 8; k < Math.round(unlockedSlots(t) * 0.7); k++) addLeaf(t, temps.vTime - Math.random() * LEAF_LIFE_MS[0] * 0.6);
     ageSomeLeaves(t);
     out.push(t);
   });
@@ -1168,23 +1032,23 @@ function makeSavedTrees(list) {
 // le mycelium restaure au pied de l'arbre, avant que sa faim (MYC_STARVE_MS) ne l'eteigne.
 function ageSomeLeaves(t) {
   var leaves = [];
-  t.slots.forEach(function (sl) { if (sl.leaf && vTime >= sl.leaf.born) leaves.push(sl.leaf); });
+  t.slots.forEach(function (sl) { if (sl.leaf && temps.vTime >= sl.leaf.born) leaves.push(sl.leaf); });
   var n = Math.min(leaves.length, Math.max(4, Math.round(4 + 4 * t.growth)));
-  for (var i = 0; i < n; i++) leaves[i].born = vTime - leaves[i].life * (0.8 + 0.18 * i / n);
+  for (var i = 0; i < n; i++) leaves[i].born = temps.vTime - leaves[i].life * (0.8 + 0.18 * i / n);
 }
 function saveWorld() {
   if (wipedElsewhere()) return;
   try {
-    var n = heights.length, h = new Array(n), cy = new Array(n), r = new Array(n);
+    var n = monde.heights.length, h = new Array(n), cy = new Array(n), r = new Array(n);
     for (var c = 0; c < n; c++) {
-      h[c] = Math.round(heights[c] * 10) / 10;
-      cy[c] = Math.round(compactY[c] * 10) / 10;
-      r[c] = rocky[c] ? 1 : 0;
+      h[c] = Math.round(monde.heights[c] * 10) / 10;
+      cy[c] = Math.round(monde.compactY[c] * 10) / 10;
+      r[c] = monde.rocky[c] ? 1 : 0;
     }
     var m = saveMycelium(), p = playerState();
-    localStorage.setItem(WORLD_KEY, JSON.stringify({ v: WORLD_VERSION, zoom: ZOOM, cols: n, heights: h, compactY: cy, rocky: r, myc: m.myc, strains: m.strains, trees: saveTrees(), player: p }));
+    localStorage.setItem(WORLD_KEY, JSON.stringify({ v: WORLD_VERSION, zoom: vue.ZOOM, cols: n, heights: h, compactY: cy, rocky: r, myc: m.myc, strains: m.strains, trees: saveTrees(), player: p }));
     worldKeyHeld = true;
-    worldSig = terrainSig();
+    partie.worldSig = terrainSig();
     worldEaten = eatenSum();
     playerSig = playerSigOf(p);
   } catch (e) { /* stockage indisponible (mode prive, quota) : on joue sans */ }
@@ -1192,27 +1056,27 @@ function saveWorld() {
 // Sauve si le terrain a change depuis la derniere sauvegarde. Appelee toutes les 1,5 s :
 // on attend que la signature soit stable d'un passage a l'autre (pause d'activite).
 function saveWorldIfIdle(force) {
-  if (worldSaveOff || mode !== 'exploded' || !heights.length) return;
+  if (partie.worldSaveOff || partie.mode !== 'exploded' || !monde.heights.length) return;
   var sig = terrainSig();
-  if ((sig !== worldSig && (force || sig === worldSigPrev)) || (force && eatenSum() !== worldEaten)) saveWorld();
-  worldSigPrev = sig;
+  if ((sig !== partie.worldSig && (force || sig === partie.worldSigPrev)) || (force && eatenSum() !== worldEaten)) saveWorld();
+  partie.worldSigPrev = sig;
 }
 function saveAll(force) { saveWorldIfIdle(force); savePlayerIfChanged(); }
 // Fleche de reconstruction : efface la sauvegarde ET l'etat du joueur en memoire, puis joue
 // l'animation de reconstruction du logo (le prochain monde repart de zero, pas de la cle).
 function resetAllAndRebuild() {
   try { localStorage.removeItem(DEMO_KEY); } catch (e) { /* rien a effacer */ }
-  DEMO = DEMO_PAGE;
-  container.classList.toggle('is-demo', DEMO);
+  partie.DEMO = DEMO_PAGE;
+  container.classList.toggle('is-demo', partie.DEMO);
   try { localStorage.removeItem(WORLD_KEY); } catch (e) { /* rien a effacer */ }
   guideReset();
   worldKeyHeld = false;
-  money = 0; moneyRevealed = false; usedFreeBag = false; bagGrainsLeft = 0;
-  unlockedStrains = []; bagStrain = 'standard';
+  partie.money = 0; partie.moneyRevealed = false; partie.usedFreeBag = false; partie.bagGrainsLeft = 0;
+  partie.unlockedStrains = []; partie.bagStrain = 'standard';
   resetPatches();
-  leachTipSeen = 0; grassLost = 0; factSeen = 0; branchTorn = false; chDone = 0; chPlanted = 0; chHarv = [0, 0, 0]; freeTrees = 0; chPending = []; chHoldSince = [0, 0, 0];
+  partie.leachTipSeen = 0; monde.grassLost = 0; partie.factSeen = 0; partie.branchTorn = false; partie.chDone = 0; partie.chPlanted = 0; partie.chHarv = [0, 0, 0]; partie.freeTrees = 0; partie.chPending = []; partie.chHoldSince = [0, 0, 0];
   updateChallengeUI();
-  restoredFound = []; skippedFound = []; foundFx = {}; restoredTrees = null;
+  partie.restoredFound = []; partie.skippedFound = []; partie.foundFx = {}; partie.restoredTrees = null;
   playerSig = playerSigOf(playerState());
   if (moneyEl) moneyEl.classList.add("d-none");
   updateMoneyUI();
@@ -1223,19 +1087,19 @@ function resetAllAndRebuild() {
 // Recree les lacs (cuvettes vides) a partir des plaques rocheuses restaurees : une plaque
 // est une cuvette si son interieur descend sous ses deux bords (comme dans buildRockyPatches).
 function rebuildLakesFromRocky() {
-  lakes = []; lakeOf = new Uint16Array(heights.length);
-  var c = 0, n = rocky.length;
+  monde.lakes = []; monde.lakeOf = new Uint16Array(monde.heights.length);
+  var c = 0, n = monde.rocky.length;
   while (c < n) {
-    if (!rocky[c]) { c++; continue; }
+    if (!monde.rocky[c]) { c++; continue; }
     var start = c, k;
-    while (c < n && rocky[c]) c++;
-    var end = c - 1, mid = (start + end) >> 1, cl = start, cr = end, low = compactY[start];
-    for (k = start; k <= mid; k++) if (compactY[k] < compactY[cl]) cl = k;
-    for (k = mid; k <= end; k++) if (compactY[k] < compactY[cr]) cr = k;
-    for (k = cl; k <= cr; k++) low = Math.max(low, compactY[k]);
-    if (cr - cl < 2 || low <= Math.max(compactY[cl], compactY[cr]) + 2) continue;
-    lakes.push({ p0: start, p1: end, c0: cl, c1: cr, vol: 0, level: Infinity });
-    for (k = start; k <= end; k++) lakeOf[k] = lakes.length;
+    while (c < n && monde.rocky[c]) c++;
+    var end = c - 1, mid = (start + end) >> 1, cl = start, cr = end, low = monde.compactY[start];
+    for (k = start; k <= mid; k++) if (monde.compactY[k] < monde.compactY[cl]) cl = k;
+    for (k = mid; k <= end; k++) if (monde.compactY[k] < monde.compactY[cr]) cr = k;
+    for (k = cl; k <= cr; k++) low = Math.max(low, monde.compactY[k]);
+    if (cr - cl < 2 || low <= Math.max(monde.compactY[cl], monde.compactY[cr]) + 2) continue;
+    monde.lakes.push({ p0: start, p1: end, c0: cl, c1: cr, vol: 0, level: Infinity });
+    for (k = start; k <= end; k++) monde.lakeOf[k] = monde.lakes.length;
   }
 }
 // Recolonise, a peu pres au meme endroit, les facettes du lit de terre (les seules qui
@@ -1245,15 +1109,15 @@ function rebuildLakesFromRocky() {
 function restoreMycelium(d) {
   if (!Array.isArray(d.myc) || d.myc.length % 4) return;
   var strains = Array.isArray(d.strains) ? d.strains : [], byCol = {}, i;
-  for (i = 0; i < shards.length; i++) {
-    var s = shards[i];
+  for (i = 0; i < monde.shards.length; i++) {
+    var s = monde.shards[i];
     if (s.settled && s.soil) (byCol[s.col] = byCol[s.col] || []).push(s);
   }
   for (i = 0; i < d.myc.length; i += 4) {
     var x = d.myc[i], dep = d.myc[i + 1], v = d.myc[i + 2] / 100;
     if (!isFinite(x) || !isFinite(dep) || !isFinite(v)) continue;
     var col = Math.round(x / COL_W);
-    if (col < 0 || col >= heights.length || rocky[col]) continue;
+    if (col < 0 || col >= monde.heights.length || monde.rocky[col]) continue;
     var ty = surfaceAt(x) + dep, best = null, bd = 12;
     for (var k = col - 1; k <= col + 1; k++) {
       var list = byCol[k];
@@ -1265,44 +1129,44 @@ function restoreMycelium(d) {
     }
     if (!best) continue;
     var id = strains[d.myc[i + 3]];
-    infect(best, best.x, best.y, Math.max(0.05, Math.min(1, v)), vTime, vTime, null, strainById[id || 'standard'] || STRAIN_STD);
+    infect(best, best.x, best.y, Math.max(0.05, Math.min(1, v)), temps.vTime, temps.vTime, null, strainById[id || 'standard'] || STRAIN_STD);
   }
 }
 // Appelee a la place de la generation des roches. Retourne true si un terrain sauve valide
 // (meme version, meme nombre de colonnes) a ete applique ; sinon ne touche a rien.
 function restoreWorld() {
   resetTiles();
-  var n = heights.length;
+  var n = monde.heights.length;
   try {
     var d = JSON.parse(localStorage.getItem(WORLD_KEY));
     // Positions en px logiques : valables seulement pour le meme zoom (sans champ = ancienne sauvegarde, zoom 1).
-    if (!d || d.v !== WORLD_VERSION || d.cols !== n || (d.zoom === undefined ? 1 : d.zoom) !== ZOOM) return false;
+    if (!d || d.v !== WORLD_VERSION || d.cols !== n || (d.zoom === undefined ? 1 : d.zoom) !== vue.ZOOM) return false;
     var arrs = [d.heights, d.compactY, d.rocky];
     for (var a = 0; a < 3; a++) {
       if (!Array.isArray(arrs[a]) || arrs[a].length !== n) return false;
       for (var i = 0; i < n; i++) if (typeof arrs[a][i] !== 'number' || !isFinite(arrs[a][i])) return false;
     }
-    rocky = new Uint8Array(n);
+    monde.rocky = new Uint8Array(n);
     for (var c = 0; c < n; c++) {
-      rocky[c] = d.rocky[c] ? 1 : 0;
-      compactY[c] = d.compactY[c];
+      monde.rocky[c] = d.rocky[c] ? 1 : 0;
+      monde.compactY[c] = d.compactY[c];
     }
     rebuildLakesFromRocky();
     // heights n'est PAS restaure : il vient des facettes de terre fraichement recreees par
     // setupSoil (sinon de la terre fantome sans facette a ramasser). On retire donc
     // proprement (pileRemove) les facettes du lit posees sur la roche.
-    shards = shards.filter(function (s) {
-      if (s.soil && rocky[s.col]) { pileRemove(s); return false; }
+    monde.shards = monde.shards.filter(function (s) {
+      if (s.soil && monde.rocky[s.col]) { pileRemove(s); return false; }
       return true;
     });
     // Colonnes creusees : les facettes du lit qui flottent au-dessus du sol restaure
     // retombent (meme logique que le balayage des facettes posees).
-    shards.forEach(function (s) {
+    monde.shards.forEach(function (s) {
       if (s.soil && s.settled && s.kcol && s.y < surfaceAt(s.x) - 6) { pileRemove(s); s.settled = false; }
     });
     try { restoreMycelium(d); } catch (e2) { /* mycelium illisible : le terrain reste restaure */ }
-    restoredTrees = Array.isArray(d.trees) && d.trees.length ? d.trees : null;
-    worldSig = worldSigPrev = terrainSig();
+    partie.restoredTrees = Array.isArray(d.trees) && d.trees.length ? d.trees : null;
+    partie.worldSig = partie.worldSigPrev = terrainSig();
     return true;
   } catch (e) {
     return false;
@@ -1313,42 +1177,42 @@ function restoreWorld() {
 // dans cutCompact), pas juste une histoire de surface.
 function buildRockyPatches() {
   if (restoreWorld()) return;
-  rocky = new Uint8Array(heights.length);
-  lakes = []; lakeOf = new Uint16Array(heights.length);
+  monde.rocky = new Uint8Array(monde.heights.length);
+  monde.lakes = []; monde.lakeOf = new Uint16Array(monde.heights.length);
   var n = ROCK_PATCH_MIN + ((Math.random() * (ROCK_PATCH_MAX - ROCK_PATCH_MIN + 1)) | 0);
   // Une partie des plaques (au moins une, jamais toutes s'il y en a plusieurs) sont des
   // cuvettes qui retiendront l'eau de pluie (voir updateLakes) au lieu de simples bosses.
   var nBasin = Math.max(1, Math.min(n - 1, Math.round(n * ROCK_BASIN_FRAC)));
   for (var p = 0; p < n; p++) {
     var w = ROCK_PATCH_COLS_MIN + ((Math.random() * (ROCK_PATCH_COLS_MAX - ROCK_PATCH_COLS_MIN + 1)) | 0);
-    var start = (Math.random() * Math.max(1, rocky.length - w)) | 0;
+    var start = (Math.random() * Math.max(1, monde.rocky.length - w)) | 0;
     // Bosse (comme le mound du profil general) : un vrai bloc qui depasse du sol, pas
     // une simple tache plate — pointe au milieu de la plaque, s'efface sur les bords.
-    var peak = U * (ROCK_H_MIN + Math.random() * (ROCK_H_MAX - ROCK_H_MIN));
-    var basin = p < nBasin, dip = U * ROCK_BASIN_DEPTH;
-    for (var c = start; c < start + w && c < rocky.length; c++) {
-      rocky[c] = 1;
+    var peak = vue.U * (ROCK_H_MIN + Math.random() * (ROCK_H_MAX - ROCK_H_MIN));
+    var basin = p < nBasin, dip = vue.U * ROCK_BASIN_DEPTH;
+    for (var c = start; c < start + w && c < monde.rocky.length; c++) {
+      monde.rocky[c] = 1;
       var t = (c - start) / w, edge = Math.sin(Math.PI * t);
-      compactY[c] -= peak * edge;
+      monde.compactY[c] -= peak * edge;
       // Cuvette : on garde la bosse (bords releves) mais on la creuse au centre par une
       // gaussienne etroite, dosee pour que le fond tombe a `dip` SOUS le sol general
       // (compactY = groundY au repos) : l'eau y tient. Pente douce (sigma ~0.16 w).
-      if (basin) compactY[c] += (peak + dip) * Math.exp(-Math.pow((t - 0.5) / 0.16, 2));
+      if (basin) monde.compactY[c] += (peak + dip) * Math.exp(-Math.pow((t - 0.5) / 0.16, 2));
     }
     if (basin) {
-      var end = Math.min(start + w, rocky.length) - 1, mid = start + (w >> 1), cl = start, cr = end, k;
+      var end = Math.min(start + w, monde.rocky.length) - 1, mid = start + (w >> 1), cl = start, cr = end, k;
       // Les bords de la cuvette = points les plus hauts (y le plus petit) de chaque moitie.
-      for (k = start; k <= mid; k++) if (compactY[k] < compactY[cl]) cl = k;
-      for (k = mid; k <= end; k++) if (compactY[k] < compactY[cr]) cr = k;
-      lakes.push({ p0: start, p1: end, c0: cl, c1: cr, vol: 0, level: Infinity });
-      for (k = start; k <= end; k++) lakeOf[k] = lakes.length;
+      for (k = start; k <= mid; k++) if (monde.compactY[k] < monde.compactY[cl]) cl = k;
+      for (k = mid; k <= end; k++) if (monde.compactY[k] < monde.compactY[cr]) cr = k;
+      monde.lakes.push({ p0: start, p1: end, c0: cl, c1: cr, vol: 0, level: Infinity });
+      for (k = start; k <= end; k++) monde.lakeOf[k] = monde.lakes.length;
     }
   }
   // Degage la terre meuble deposee par l'explosion sur ces colonnes : la roche doit
   // affleurer des le depart (sinon elle resterait cachee sous le tas initial jusqu'au
   // premier coup de pelle).
-  shards = shards.filter(function (s) {
-    if (!s.soil || !rocky[s.col]) return true;
+  monde.shards = monde.shards.filter(function (s) {
+    if (!s.soil || !monde.rocky[s.col]) return true;
     pileRemove(s);
     return false;
   });
@@ -1362,26 +1226,26 @@ function pileAdd(s) {
     var t = s.col + k - 3;
     // Hors limites, ou de l'autre cote d'un pas de compact (trou/paroi) : ce partage
     // reste sur la colonne de la facette au lieu de "traverser" le pas.
-    if (t < 0 || t >= heights.length || Math.abs(compactY[t] - compactY[s.col]) > REPOSE) t = s.col;
+    if (t < 0 || t >= monde.heights.length || Math.abs(monde.compactY[t] - monde.compactY[s.col]) > REPOSE) t = s.col;
     var amt = s.dep * KERNEL[k];
     s.kcol[k] = t;
     s.kdep[k] = amt;
-    heights[t] = Math.max(0, heights[t] + amt);
+    monde.heights[t] = Math.max(0, monde.heights[t] + amt);
   }
 }
 function pileRemove(s) {
   if (!s.kcol) return; // jamais empilee (ne devrait pas arriver)
-  for (var k = 0; k < KERNEL.length; k++) heights[s.kcol[k]] = Math.max(0, heights[s.kcol[k]] - s.kdep[k]);
+  for (var k = 0; k < KERNEL.length; k++) monde.heights[s.kcol[k]] = Math.max(0, monde.heights[s.kcol[k]] - s.kdep[k]);
 }
 
 // Comme du sable : une facette qui tombe sur une pente trop raide roule vers la
 // colonne voisine la plus basse, au lieu de s'empiler en aiguille.
 function restColumn(x) {
-  var c = Math.max(0, Math.min(heights.length - 1, Math.round(x / COL_W)));
+  var c = Math.max(0, Math.min(monde.heights.length - 1, Math.round(x / COL_W)));
   for (var n = 0; n < 60; n++) {
-    var sc = compactY[c] - heights[c];
-    var sl = c > 0 ? compactY[c - 1] - heights[c - 1] : -Infinity;
-    var sr = c < heights.length - 1 ? compactY[c + 1] - heights[c + 1] : -Infinity;
+    var sc = monde.compactY[c] - monde.heights[c];
+    var sl = c > 0 ? monde.compactY[c - 1] - monde.heights[c - 1] : -Infinity;
+    var sr = c < monde.heights.length - 1 ? monde.compactY[c + 1] - monde.heights[c + 1] : -Infinity;
     // Surface = y monde : plus grand = plus bas. On roule vers le voisin le plus bas.
     var lowSurf = Math.max(sl, sr);
     if (lowSurf === -Infinity || lowSurf - sc <= REPOSE) break;
@@ -1392,14 +1256,14 @@ function restColumn(x) {
 
 // --- Physique ----------------------------------------------------------------------
 function explode(px, py) {
-  grassTipFrom = performance.now() + 8000;
+  monde.grassTipFrom = performance.now() + 8000;
   if (window.sporaSfx) sporaSfx.play('thud'); 
   fallbackImg.classList.add('d-none');
   canvas.classList.remove('d-none');
-  mode = 'exploded';
-  explodedAt = performance.now();
-  for (var i = 0; i < shards.length; i++) {
-    var s = shards[i];
+  partie.mode = 'exploded';
+  partie.explodedAt = performance.now();
+  for (var i = 0; i < monde.shards.length; i++) {
+    var s = monde.shards[i];
     if (s.soil) continue; // le lit de terre ne bouge pas, il recoit
     var dx = s.ox - px, dy = s.oy - py, d = Math.hypot(dx, dy) || 1;
     var sp = 2 + Math.random() * 5 + 40 / (d + 20);
@@ -1418,7 +1282,7 @@ function explode(px, py) {
   updateMoneyUI();
   updateStrainBar();
   // Le compteur ne vit que dans le panneau : montre seulement une fois range dedans (buildDebugPanel).
-  if (treasureCountEl && treasureDefs.length && debugBuilt) treasureCountEl.classList.remove('d-none');
+  if (treasureCountEl && partie.treasureDefs.length && partie.debugBuilt) treasureCountEl.classList.remove('d-none');
   if (scrollLeftBtn) scrollLeftBtn.classList.remove('d-none');
   if (scrollRightBtn) scrollRightBtn.classList.remove('d-none');
   if (scrollUpBtn) scrollUpBtn.classList.remove('d-none');
@@ -1426,25 +1290,25 @@ function explode(px, py) {
   setupTreasures();
   // Un arbre visible a gauche du logo, un autre plus loin a droite dans le monde.
   var savedTrees = null;
-  try { if (restoredTrees) savedTrees = makeSavedTrees(restoredTrees); } catch (e) { savedTrees = null; }
-  restoredTrees = null;
-  trees = savedTrees && savedTrees.length ? savedTrees : [makeTree(camMargin + W * 0.14), makeStartTree(camMargin + W * 0.93, 10), makeTree(camMargin + W * 1.35)];
-  if (savedTrees && savedTrees.length) worldSig = worldSigPrev = terrainSig();
-  litter = [];
-  if (toolsArrow && unlockedStrains.length) toolsArrow.classList.remove('d-none');
+  try { if (partie.restoredTrees) savedTrees = makeSavedTrees(partie.restoredTrees); } catch (e) { savedTrees = null; }
+  partie.restoredTrees = null;
+  monde.trees = savedTrees && savedTrees.length ? savedTrees : [makeTree(vue.camMargin + vue.W * 0.14), makeStartTree(vue.camMargin + vue.W * 0.93, 10), makeTree(vue.camMargin + vue.W * 1.35)];
+  if (savedTrees && savedTrees.length) partie.worldSig = partie.worldSigPrev = terrainSig();
+  monde.litter = [];
+  if (toolsArrow && partie.unlockedStrains.length) toolsArrow.classList.remove('d-none');
   startLoop();
 }
 
 // Vitesse de defilement selon la position ecran du curseur : nulle au centre, augmente
 // en approchant des CAMERA_EDGE derniers % de chaque bord de la boite.
 function cameraSpeed(screenX) {
-  var edge = W * (edgeTouch ? CAMERA_EDGE_TOUCH : CAMERA_EDGE);
+  var edge = vue.W * (vue.edgeTouch ? CAMERA_EDGE_TOUCH : CAMERA_EDGE);
   if (screenX < edge) {
     var k = 1 - screenX / edge;
     return -CAMERA_MAX * k * k;
   }
-  if (screenX > W - edge) {
-    var k2 = 1 - (W - screenX) / edge;
+  if (screenX > vue.W - edge) {
+    var k2 = 1 - (vue.W - screenX) / edge;
     return CAMERA_MAX * k2 * k2;
   }
   return 0;
@@ -1453,15 +1317,15 @@ function cameraSpeed(screenX) {
 // Meme logique, axe vertical : pres du haut de la boite ca remonte (camY vers 0), pres
 // du bas ca descend (camY vers worldH - H, plus profond).
 function cameraSpeedY(screenY) {
-  var edge = H * (edgeTouch ? CAMERA_EDGE_TOUCH : CAMERA_EDGE);
-  var y = Math.max(0, screenY - CAMERA_TOP_DEADZONE / ZOOM); // la zone cachee par le header est en px CSS
+  var edge = vue.H * (vue.edgeTouch ? CAMERA_EDGE_TOUCH : CAMERA_EDGE);
+  var y = Math.max(0, screenY - CAMERA_TOP_DEADZONE / vue.ZOOM); // la zone cachee par le header est en px CSS
   if (y < edge) {
     var k = 1 - y / edge;
     return -CAMERA_MAX_Y * k * k;
   }
   // Le bas de la boite peut depasser l'ecran (100vh sur mobile, barre du navigateur) : la
   // zone part du bas VISIBLE, sinon le doigt ne l'atteint presque pas.
-  var bottom = edgeTouch ? Math.min(H, (window.innerHeight - canvas.getBoundingClientRect().top) / ZOOM) : H;
+  var bottom = vue.edgeTouch ? Math.min(vue.H, (window.innerHeight - canvas.getBoundingClientRect().top) / vue.ZOOM) : vue.H;
   if (screenY > bottom - edge) {
     var k2 = Math.min(1, 1 - (bottom - screenY) / edge);
     return CAMERA_MAX_Y * k2 * k2;
@@ -1471,58 +1335,58 @@ function cameraSpeedY(screenY) {
 
 function step() {
   var camMoving = false;
-  if (mode === 'exploded') {
+  if (partie.mode === 'exploded') {
     // La souris ne bouge pas forcement pendant qu'on defile : on garde sa derniere
     // position ecran connue et on la reconvertit en coord. monde a chaque frame, pour
     // que la pelle reste sous le curseur meme quand le monde glisse dessous.
-    if (hoverScreenX !== null) {
+    if (vue.hoverScreenX !== null) {
       if (!shovel.released) { // pelle lachee : elle verse sur place, elle ne suit plus
-        shovel.gx = hoverScreenX + camX;
-        shovel.gy = hoverScreenY + camY;
+        shovel.gx = vue.hoverScreenX + vue.camX;
+        shovel.gy = vue.hoverScreenY + vue.camY;
       }
-      bag.x = hand.x = hoverScreenX + camX;
-      bag.y = hand.y = hoverScreenY + camY;
+      bag.x = hand.x = vue.hoverScreenX + vue.camX;
+      bag.y = hand.y = vue.hoverScreenY + vue.camY;
     }
     // Demo : le monde tient dans l'ecran, aucun defilement horizontal (bords, fleches, glissement).
-    var camV = DEMO ? 0 : mobileArrow ? mobileArrow * CAMERA_MAX : (hoverScreenX !== null ? cameraSpeed(hoverScreenX) : 0);
+    var camV = partie.DEMO ? 0 : vue.mobileArrow ? vue.mobileArrow * CAMERA_MAX : (vue.hoverScreenX !== null ? cameraSpeed(vue.hoverScreenX) : 0);
     if (camV) {
-      var newCamX = clamp(camX + camV, 0, worldW - W);
-      if (newCamX !== camX) camMoving = true;
-      camX = newCamX;
+      var newCamX = clamp(vue.camX + camV, 0, vue.worldW - vue.W);
+      if (newCamX !== vue.camX) camMoving = true;
+      vue.camX = newCamX;
     }
-    if (camGoal) { // glissement vers une alerte ; tout defilement manuel l'annule
-      if (DEMO) camGoal.x = camX;
-      if (camV || mobileArrowY) camGoal = null;
+    if (vue.camGoal) { // glissement vers une alerte ; tout defilement manuel l'annule
+      if (partie.DEMO) vue.camGoal.x = vue.camX;
+      if (camV || vue.mobileArrowY) vue.camGoal = null;
       else {
-        var gdx = camGoal.x - camX, gdy = camGoal.y - camY;
-        if (Math.abs(gdx) < 1 && Math.abs(gdy) < 1) { camX = camGoal.x; camY = camGoal.y; camGoal = null; }
-        else { camX += gdx * 0.12; camY += gdy * 0.12; }
+        var gdx = vue.camGoal.x - vue.camX, gdy = vue.camGoal.y - vue.camY;
+        if (Math.abs(gdx) < 1 && Math.abs(gdy) < 1) { vue.camX = vue.camGoal.x; vue.camY = vue.camGoal.y; vue.camGoal = null; }
+        else { vue.camX += gdx * 0.12; vue.camY += gdy * 0.12; }
         camMoving = true;
       }
     }
     flushDeathAlert();
-    var camVY = mobileArrowY ? mobileArrowY * CAMERA_MAX_Y : (hoverScreenY !== null ? cameraSpeedY(hoverScreenY) : 0);
+    var camVY = vue.mobileArrowY ? vue.mobileArrowY * CAMERA_MAX_Y : (vue.hoverScreenY !== null ? cameraSpeedY(vue.hoverScreenY) : 0);
     if (camVY) {
-      var newCamY = clamp(camY + camVY, camMinY(), worldH - H);
-      if (newCamY !== camY) camMoving = true;
-      camY = newCamY;
+      var newCamY = clamp(vue.camY + camVY, camMinY(), vue.worldH - vue.H);
+      if (newCamY !== vue.camY) camMoving = true;
+      vue.camY = newCamY;
     }
   }
   // Tant que la pelle est a l'ecran ou que le monde defile, la boucle tourne.
-  frame++;
+  temps.frame++;
   var realNow = performance.now();
   if (lastRealNow === null) lastRealNow = realNow;
   // Plafonne le delta reel avant de l'accelerer : sinon un long moment sans frame (onglet
   // en arriere-plan, boucle a l'arret le temps qu'on interagisse de nouveau) ferait
   // exploser vTime d'un coup une fois multiplie par timeScale. 500ms passe large au-dessus
   // du tick de la boucle lente (slowTimer, 250ms) pour ne pas la ralentir artificiellement.
-  vTime += Math.min(realNow - lastRealNow, 500) * timeScale;
+  temps.vTime += Math.min(realNow - lastRealNow, 500) * temps.timeScale;
   lastRealNow = realNow;
-  var now = vTime;
-  var active = shovel.on || bag.on || camMoving || weather.raining || drops.length > 0;
+  var now = temps.vTime;
+  var active = shovel.on || bag.on || camMoving || weather.raining || monde.drops.length > 0;
   if (bag.on) updateBag();
   if (hand.on && updateHand(now)) active = true;
-  if (mode === 'exploded') { updateWeather(now); msgTick(); }
+  if (partie.mode === 'exploded') { updateWeather(now); msgTick(); }
   updateRainDrops(now);
   if (shovel.on) {
     updateShovel();
@@ -1530,15 +1394,15 @@ function step() {
   }
   // Balayage lent, quel que soit l'outil : une facette posee dont le sol a baisse (lessivage,
   // effondrement, pluie...) sans passer par la pelle ou le poing retombe quand meme.
-  if (mode === 'exploded' && frame % 30 === 0) {
-    for (var j = 0; j < shards.length; j++) {
-      var sj = shards[j];
+  if (partie.mode === 'exploded' && temps.frame % 30 === 0) {
+    for (var j = 0; j < monde.shards.length; j++) {
+      var sj = monde.shards[j];
       if (sj.settled && sj.kcol &&sj.y < surfaceAt(sj.x) - 6) { pileRemove(sj); sj.settled = false; }
     }
   }
   var anyDead = false;
-  for (var i = 0; i < shards.length; i++) {
-    var s = shards[i];
+  for (var i = 0; i < monde.shards.length; i++) {
+    var s = monde.shards[i];
     if (s.settled) continue;
     active = true;
     if (s.eaten !== undefined) {
@@ -1571,7 +1435,7 @@ function step() {
       var wind = (Math.sin(now / 20000) >= 0 ? 1 : -1) * (0.4 + 0.3 * (1 + Math.sin(now / 1700 + s.sway))) * WIND_STRENGTH;
       s.vy += GRAVITY * 0.22 / (1 + s.gust * 0.4); s.vy *= 0.96;
       s.vx = s.vx * 0.95 + Math.sin(now / 350 + s.sway) * 0.1 + wind * (0.02 + s.gust * 0.045) * (s.wm || 1);
-      driftScale = timeScale;
+      driftScale = temps.timeScale;
     } else if (s.leaf && !s.branch) {
       // Une feuille deja tombee au moins une fois (relancee par la pelle) : elle ne
       // doit plus flotter comme a sa chute depuis l'arbre, mais tomber comme un debris.
@@ -1590,7 +1454,7 @@ function step() {
       continue; // tenue par le bol : pas de contact avec le sol cette frame
     }
     if (s.x < 4) { s.x = 4; s.vx = Math.abs(s.vx) * 0.4; }
-    if (s.x > worldW - 4) { s.x = worldW - 4; s.vx = -Math.abs(s.vx) * 0.4; }
+    if (s.x > vue.worldW - 4) { s.x = vue.worldW - 4; s.vx = -Math.abs(s.vx) * 0.4; }
     var floor = surfaceAt(s.x);
     if (s.grain) {
       // Un grain ne s'empile pas : il se fond dans la terre et l'inocule.
@@ -1610,55 +1474,55 @@ function step() {
           // son avancement de decomposition (s.mix) au lieu de repartir de zero.
           s.landed = s.landed !== undefined ? now - s.mix * (s.branch ? BRANCH_LITTER_MS : LITTER_MS) : now;
           s.bonus = 0; s.lastNow = 0;
-          if (litter.indexOf(s) < 0) litter.push(s);
+          if (monde.litter.indexOf(s) < 0) monde.litter.push(s);
         } else s.mix = 1;
         s.col = restColumn(s.x);
         s.x = (s.col + Math.random() - 0.5) * COL_W;
-        s.y = compactY[s.col] - heights[s.col];
+        s.y = monde.compactY[s.col] - monde.heights[s.col];
         pileAdd(s);
       }
     }
   }
-  if (mode === 'exploded') {
+  if (partie.mode === 'exploded') {
     var tl = stepTrees(now);
     var gl = updateGrass(now);
-    treeLife = tl > 0 || gl > 0;
+    monde.treeLife = tl > 0 || gl > 0;
     if (tl === 2) active = true;
     if (stepFlowers(now)) active = true;
     if (stepInsects(realNow)) active = true;
   }
-  if (anyDead) shards = shards.filter(function (g) { return !g.dead; });
-  if (mode === 'exploded' && colonised.length && stepMycelium(now)) active = true;
-  if (soilRiseT < 1) {
-    soilRiseT = Math.min(1, soilRiseT + 1 / SOIL_RISE_FRAMES);
+  if (anyDead) monde.shards = monde.shards.filter(function (g) { return !g.dead; });
+  if (partie.mode === 'exploded' && monde.colonised.length && stepMycelium(now)) active = true;
+  if (monde.soilRiseT < 1) {
+    monde.soilRiseT = Math.min(1, monde.soilRiseT + 1 / SOIL_RISE_FRAMES);
     active = true;
   }
   // Un champignon sorti du mycelium (pas plante a la main) fane si plus aucun mycelium
   // bien vivant n'est a portee pendant un moment : il ne peut pas survivre sans le
   // reseau qui l'a fait fructifier.
-  var mycNearReach = U * FRUIT_W;
-  for (i = 0; i < mushrooms.length; i++) {
-    var mm = mushrooms[i];
+  var mycNearReach = vue.U * FRUIT_W;
+  for (i = 0; i < monde.mushrooms.length; i++) {
+    var mm = monde.mushrooms[i];
     if (!mm.myc || mm.dying || mm.treasure) continue;
     var nearMyc = false;
-    for (var ci = 0; ci < colonised.length; ci++) {
-      if (colonised[ci].myc > MYC_READY && Math.abs(colonised[ci].x - mm.x) < mycNearReach) { nearMyc = true; break; }
+    for (var ci = 0; ci < monde.colonised.length; ci++) {
+      if (monde.colonised[ci].myc > MYC_READY && Math.abs(monde.colonised[ci].x - mm.x) < mycNearReach) { nearMyc = true; break; }
     }
     if (nearMyc) mm.lastMycNear = now;
     else if (now - mm.lastMycNear > MUSHROOM_STARVE_MS) mm.dying = true;
   }
-  for (i = 0; i < mushrooms.length; i++) {
-    var m = mushrooms[i];
+  for (i = 0; i < monde.mushrooms.length; i++) {
+    var m = monde.mushrooms[i];
     if (m.dying) { m.t -= 0.06; active = true; }
     else if (m.t < 1) { m.t = Math.min(1, m.t + 0.025); active = true; }
   }
-  mushrooms = mushrooms.filter(function (m) { return !(m.dying && m.t <= 0); });
-  if (goldBits.length && stepGoldBits()) active = true;
+  monde.mushrooms = monde.mushrooms.filter(function (m) { return !(m.dying && m.t <= 0); });
+  if (partie.goldBits.length && stepGoldBits()) active = true;
   // Un tresor enfoui est deterre d'office quand le fond du trou l'atteint (pas besoin de
   // "coups" en plus : sinon on pouvait creuser jusqu'a lui sans que rien ne se passe).
-  if (mode === 'exploded') {
-    for (i = 0; i < treasures.length; i++) {
-      var tr = treasures[i];
+  if (partie.mode === 'exploded') {
+    for (i = 0; i < partie.treasures.length; i++) {
+      var tr = partie.treasures[i];
       if (tr.deep && !tr.revealed && tr.ready && surfaceAt(tr.x) >= tr.y - 12) { reveal(tr); active = true; }
     }
   }
@@ -1667,16 +1531,16 @@ function step() {
 
 function startLoop() {
   if (paused) return; // hors viewport ou onglet cache : rien ne doit programmer de frame
-  if (rafId !== null) return;
+  if (vue.rafId !== null) return;
   if (slowTimer !== null) { clearTimeout(slowTimer); slowTimer = null; }
-  rafId = requestAnimationFrame(function tick() {
-    var active = mode === 'rebuilding' ? stepRebuild() : step();
-    if (mode !== 'assembled') draw();
-    if (active) { rafId = requestAnimationFrame(tick); return; }
-    rafId = null;
+  vue.rafId = requestAnimationFrame(function tick() {
+    var active = partie.mode === 'rebuilding' ? stepRebuild() : step();
+    if (partie.mode !== 'assembled') draw();
+    if (active) { vue.rafId = requestAnimationFrame(tick); return; }
+    vue.rafId = null;
     // Il ne reste que des feuilles qui vieillissent, ou juste le cycle meteo (pluie
     // naturelle) a surveiller pour son prochain changement d'etat : 4 images/s suffisent.
-    if (mode === 'exploded' && (treeLife || rainLevel > 0)) {
+    if (partie.mode === 'exploded' && (monde.treeLife || temps.rainLevel > 0)) {
       slowTimer = setTimeout(function () { slowTimer = null; startLoop(); }, 250);
     }
   });
@@ -1687,10 +1551,9 @@ var shovel = {
   cx: 0, cy: 0, pcx: 0, pcy: 0,         // centre du cercle du bol, et a la frame precedente
   tilt: 0, ptilt: 0, face: 1            // face : 1 = dernier geste vers la droite, -1 = gauche
 };
-var pointerDown = null, dragMoved = false;
 
-function bowlR() { return U * BLADE_WIDTH / 2 / Math.sin(BOWL_SPAN); }
-function loadDepth() { return U * 0.04; } // hauteur de terre que la lame peut porter
+function bowlR() { return vue.U * BLADE_WIDTH / 2 / Math.sin(BOWL_SPAN); }
+function loadDepth() { return vue.U * 0.04; } // hauteur de terre que la lame peut porter
 
 // Pour un cercle de centre (cx, cy) et de rayon Rc, penche de tilt : le point le plus
 // BAS (y le plus grand) de ce cercle a la colonne x, mais seulement sur la portion qui
@@ -1720,10 +1583,10 @@ function enterShovel(p) {
   // Si le bol entre deja dans le compact a cet endroit, on le remonte d'autant : prendre
   // l'outil ne doit jamais creuser un trou instantane.
   var Rc = bowlR() + BOWL_T, pen = 0;
-  var c0 = Math.max(0, Math.floor((shovel.cx - Rc) / COL_W)), c1 = Math.min(heights.length - 1, Math.ceil((shovel.cx + Rc) / COL_W));
+  var c0 = Math.max(0, Math.floor((shovel.cx - Rc) / COL_W)), c1 = Math.min(monde.heights.length - 1, Math.ceil((shovel.cx + Rc) / COL_W));
   for (var c = c0; c <= c1; c++) {
     var bo = bladeOuterY(c * COL_W, shovel.cx, shovel.cy, shovel.tilt, Rc);
-    if (bo) pen = Math.max(pen, bo.y - compactY[c]);
+    if (bo) pen = Math.max(pen, bo.y - monde.compactY[c]);
   }
   if (pen > 0) { shovel.cy -= pen; shovel.pcy = shovel.cy; }
   container.classList.add('is-tool-cursor');
@@ -1740,24 +1603,24 @@ function leaveShovel() {
 // a la main. Relachee, elle verse ce qu'elle porte sur place puis se replante la.
 var shovelPlant = { x: null };
 function plantedX() {
-  if (shovelPlant.x === null) shovelPlant.x = camMargin + W * 0.68; // coord. monde : dans la vue de depart, pres du tas
+  if (shovelPlant.x === null) shovelPlant.x = vue.camMargin + vue.W * 0.68; // coord. monde : dans la vue de depart, pres du tas
   // Demo : la camera ne defile pas, la pelle plantee reste donc dans la vue (voir compassGo).
-  return DEMO ? clamp(shovelPlant.x, camX + 30, camX + W - 30) : clamp(shovelPlant.x, 30, worldW - 30);
+  return partie.DEMO ? clamp(shovelPlant.x, vue.camX + 30, vue.camX + vue.W - 30) : clamp(shovelPlant.x, 30, vue.worldW - 30);
 }
 // Repere de la pelle plantee : s le long du manche (vers le haut), k en travers.
 function plantFrame() {
-  var x = plantedX(), bw = U * BLADE_WIDTH, bl = bw;
+  var x = plantedX(), bw = vue.U * BLADE_WIDTH, bl = bw;
   return {
     x: x, sy: surfaceAt(x), bw: bw, bl: bl,
     ux: Math.sin(PLANT_LEAN), uy: -Math.cos(PLANT_LEAN), nx: Math.cos(PLANT_LEAN), ny: Math.sin(PLANT_LEAN),
-    sock: bw / 58 * 34, shaft: U * 0.13
+    sock: bw / 58 * 34, shaft: vue.U * 0.13
   };
 }
 function plantPt(f, s, k) { return [f.x + f.ux * s + f.nx * k, f.sy + f.uy * s + f.ny * k]; }
 // Zone de saisie genereuse (surtout au doigt) autour du manche et de la partie visible de la lame.
 function shovelHit(x, y, touch) {
-  if (shovel.on || mode !== 'exploded') return false;
-  var f = plantFrame(), r = touch ? Math.max(30, U * 0.06) : Math.max(14, U * 0.03);
+  if (shovel.on || partie.mode !== 'exploded') return false;
+  var f = plantFrame(), r = touch ? Math.max(30, vue.U * 0.06) : Math.max(14, vue.U * 0.03);
   var top = f.bl * 0.45 + f.sock + f.shaft + f.bw / 58 * 12;
   var a = plantPt(f, -f.bl * 0.1, 0), b = plantPt(f, top, 0);
   return distToSeg(x, y, a[0], a[1], b[0], b[1]) <= Math.max(r, f.bw * 0.35);
@@ -1801,11 +1664,11 @@ function updateShovel() {
   // (penetration <= 0 une fois le compact deja entame par cutCompact).
   var Rc = R + BOWL_T;
   var propCx = newBottomX - Math.sin(shovel.tilt) * R, propCy = newBottomY - Math.cos(shovel.tilt) * R;
-  var c0 = Math.max(0, Math.floor((propCx - Rc) / COL_W)), c1 = Math.min(heights.length - 1, Math.ceil((propCx + Rc) / COL_W));
+  var c0 = Math.max(0, Math.floor((propCx - Rc) / COL_W)), c1 = Math.min(monde.heights.length - 1, Math.ceil((propCx + Rc) / COL_W));
   var penetration = 0;
   for (var c = c0; c <= c1; c++) {
     var bo = bladeOuterY(c * COL_W, propCx, propCy, shovel.tilt, Rc);
-    if (bo) penetration = Math.max(penetration, bo.y - compactY[c]);
+    if (bo) penetration = Math.max(penetration, bo.y - monde.compactY[c]);
   }
   if (penetration > DIG_BITE) {
     var moveLen = Math.hypot(dx, dy);
@@ -1817,7 +1680,7 @@ function updateShovel() {
     // Descendre a la verticale est encore plus dur que racler de cote.
     if (newBottomY - bottomY > DIG_SPEED_DOWN) newBottomY = bottomY + DIG_SPEED_DOWN;
   }
-  newBottomY = Math.min(newBottomY, worldH - BEDROCK_MARGIN);
+  newBottomY = Math.min(newBottomY, vue.worldH - BEDROCK_MARGIN);
   shovel.cx = newBottomX - Math.sin(shovel.tilt) * R;
   shovel.cy = newBottomY - Math.cos(shovel.tilt) * R;
   if (shovel.pouring && Math.abs(shovel.tilt) > POUR_ANGLE * 0.9) {
@@ -1872,7 +1735,7 @@ function collideBowl(s) {
 // elle. Un geste lent emporte la pelletee ; un geste rapide la laisse prendre du
 // retard progressivement (pas de decrochage sec).
 function bladeField(s) {
-  var R = bowlR(), field = U * BLADE_FIELD;
+  var R = bowlR(), field = vue.U * BLADE_FIELD;
   var rx = s.x - shovel.cx, ry = s.y - shovel.cy, d = Math.hypot(rx, ry);
   if (d > R + 1 || d < R - field) return;
   if (Math.abs(angleDiff(Math.atan2(ry, rx), Math.PI / 2 - shovel.tilt)) > BOWL_SPAN) return;
@@ -1898,24 +1761,24 @@ var compactDebt = 0;                    // aire de terre meuble encore due suite
 // bowlWakePile sache reveiller ce qui devient suspendu au-dessus.
 function cutCompact() {
   var R = bowlR() + BOWL_T, cut = null;
-  var c0 = Math.max(0, Math.floor((shovel.cx - R) / COL_W)), c1 = Math.min(compactY.length - 1, Math.ceil((shovel.cx + R) / COL_W));
+  var c0 = Math.max(0, Math.floor((shovel.cx - R) / COL_W)), c1 = Math.min(monde.compactY.length - 1, Math.ceil((shovel.cx + R) / COL_W));
   for (var c = c0; c <= c1; c++) {
-    if (rocky[c] || demoGuard(c * COL_W)) continue; // roche-mere : la pelle ne l'entame jamais, buree ou non
+    if (monde.rocky[c] || demoGuard(c * COL_W)) continue; // roche-mere : la pelle ne l'entame jamais, buree ou non
     var bo = bladeOuterY(c * COL_W, shovel.cx, shovel.cy, shovel.tilt, R);
-    if (!bo || bo.y <= compactY[c]) continue;
-    var newTop = Math.min(bo.y, worldH - BEDROCK_MARGIN);
-    var removed = newTop - compactY[c];
+    if (!bo || bo.y <= monde.compactY[c]) continue;
+    var newTop = Math.min(bo.y, vue.worldH - BEDROCK_MARGIN);
+    var removed = newTop - monde.compactY[c];
     if (removed <= 0) continue;
-    compactY[c] = newTop;
+    monde.compactY[c] = newTop;
     compactDebt += removed * COL_W * DECOMPACT_BULK;
     if (!cut) cut = {};
     cut[c] = bo.a;
     // De l'humus lessive jusque-la par la pluie (voir leach()) redevient accessible :
     // la pelle le rend a la surface, porte par une facette meuble neuve.
-    for (var ni = compactNutri.length - 1; ni >= 0; ni--) {
-      var dep = compactNutri[ni];
+    for (var ni = monde.compactNutri.length - 1; ni >= 0; ni--) {
+      var dep = monde.compactNutri[ni];
       if (Math.round(dep.x / COL_W) !== c || dep.y >= newTop) continue;
-      compactNutri.splice(ni, 1);
+      monde.compactNutri.splice(ni, 1);
       spawnDecompactShard(bo.a, dep.color);
     }
   }
@@ -1940,11 +1803,11 @@ function spawnDecompactShard(a, nutri) {
 // Coeur commun (pelle et poing, voir fistStrike) : une facette de terre meuble neuve en
 // (x,y) a la vitesse (vx,vy), taille multipliee par sizeK. Retourne son aire.
 function makeDecompactShard(x, y, vx, vy, nutri, sizeK) {
-  var size = Math.max(6, UW / 160) * 1.3 * sizeK;
+  var size = Math.max(6, vue.UW / 160) * 1.3 * sizeK;
   var pts = [[-size * 0.55, size * 0.32], [size * 0.55, size * 0.32], [(Math.random() - 0.5) * size * 0.3, -size * 0.55]];
   // Assombrie selon la profondeur sous le niveau d'origine, comme addSoilShard : la
   // terre qui sort du compact reste de la terre normale, pas la terre sombre d'avant.
-  var depth = Math.min(1, Math.max(0, y - groundY) / Math.max(1, worldH - groundY));
+  var depth = Math.min(1, Math.max(0, y - vue.groundY) / Math.max(1, vue.worldH - vue.groundY));
   var k = (Math.random() - 0.5) * 0.2 - depth * 0.3;
   var color = nutri ? hexToRgb(nutri) : shade(hexToRgb(EARTH[(Math.random() * EARTH.length) | 0]), k);
   var area = triArea(pts);
@@ -1959,17 +1822,17 @@ function makeDecompactShard(x, y, vx, vy, nutri, sizeK) {
   // trajet vers le bas (voir MIN_LEACH_TO_EAT) : mur d'emblee, la pelle ne le "rajeunit" pas.
   // Deja fait tout le trajet de lessivage avant d'etre enfoui : pas de nouveau delai de
   // retenue mycelium, sinon la pelle pourrait re-suspendre indefiniment son lessivage.
-  if (nutri) { s.nutri = nutri; s.leachCount = MIN_LEACH_TO_EAT; s.nutriSince = vTime - MYC_HOLD_MAX_MS; }
+  if (nutri) { s.nutri = nutri; s.leachCount = MIN_LEACH_TO_EAT; s.nutriSince = temps.vTime - MYC_HOLD_MAX_MS; }
   s.px = s.x; s.py = s.y;
-  shards.push(s);
+  monde.shards.push(s);
   return area;
 }
 
 // Reveille les facettes posees restees suspendues au-dessus du sol dans les colonnes
 // dirtyCols (et leurs voisines) : elles retombent. Partage par la pelle et le poing.
 function wakeSuspended(dirtyCols) {
-  for (var j = 0; j < shards.length; j++) {
-    var sj = shards[j];
+  for (var j = 0; j < monde.shards.length; j++) {
+    var sj = monde.shards[j];
     if (!sj.settled) continue;
     var sjCol = Math.round(sj.x / COL_W);
     if (!(dirtyCols[sjCol] || dirtyCols[sjCol - 1] || dirtyCols[sjCol + 1])) continue;
@@ -1988,8 +1851,8 @@ function bowlWakePile(cutCols) {
   // meme n'a pas de valeur nutritive, seul le bois decompose (ou le mycelium qui meurt
   // de faim) en donne — voir stepTrees/stepMycelium.
   var R = bowlR(), woke = [], dirtyCols = null;
-  for (var i = 0; i < shards.length; i++) {
-    var s = shards[i];
+  for (var i = 0; i < monde.shards.length; i++) {
+    var s = monde.shards[i];
     if (!s.settled) continue;
     var dx = s.x - shovel.cx, dy = s.y - shovel.cy;
     var adx = Math.abs(dx);
@@ -2027,14 +1890,14 @@ function bowlWakePile(cutCols) {
   if (dirtyCols) wakeSuspended(dirtyCols);
   if (!woke.length) return;
   // La pelle qui passe sous un champignon le brise (sauf les tresors, qui portent l'infobulle).
-  for (i = 0; i < mushrooms.length; i++) {
-    var mu = mushrooms[i];
+  for (i = 0; i < monde.mushrooms.length; i++) {
+    var mu = monde.mushrooms[i];
     if (mu.treasure || mu.dying || mu.t < 0.5) continue;
     if (Math.abs(mu.x - shovel.cx) < R * Math.sin(BOWL_SPAN) + mu.size * 0.3) breakMushroom(mu);
   }
   // Deplacer de la terre au-dessus d'un tresor le deterre peu a peu.
-  for (i = 0; i < treasures.length; i++) {
-    var t = treasures[i];
+  for (i = 0; i < partie.treasures.length; i++) {
+    var t = partie.treasures[i];
     if (t.revealed) continue;
     var near = woke.filter(function (m) { return Math.abs(m.x - t.x) < 30; }).length;
     if (near) tryDig(t, Math.min(0.12, near * 0.01));
@@ -2054,7 +1917,7 @@ function breakMushroom(m) {
       return [Math.cos(t) * r, Math.sin(t) * r];
     });
     var color = hexToRgb(EARTH[(Math.random() * EARTH.length) | 0]);
-    shards.push({
+    monde.shards.push({
       pts: pts, x: m.x + (Math.random() - 0.5) * m.size * 0.8, y: base - Math.random() * m.size * 0.9,
       vx: (Math.random() - 0.5) * 4, vy: -2 - Math.random() * 3, rot: 0, vr: (Math.random() - 0.5) * 0.4,
       from: color, to: color, mix: 1,
@@ -2063,7 +1926,7 @@ function breakMushroom(m) {
   }
 }
 function drawShovelShape(ax, ay, dir, ox, oy) {
-  var S = U * BLADE_WIDTH / 58, flip = Math.cos(dir) < 0;
+  var S = vue.U * BLADE_WIDTH / 58, flip = Math.cos(dir) < 0;
   ctx.save();
   ctx.translate(ax, ay);
   if (flip) ctx.scale(-1, 1);
@@ -2098,11 +1961,11 @@ function drawShovelShape(ax, ay, dir, ox, oy) {
 
 // Pelle plantee : meme dessin, lame vers le bas (rognee a la surface), manche qui depasse.
 function drawPlantedShovel() {
-  if (mode !== "exploded") return;
+  if (partie.mode !== "exploded") return;
   var f = plantFrame(), tip = plantPt(f, -f.bw * 0.5, 0); // pointe a moitie enterree
   ctx.save();
   ctx.beginPath();
-  ctx.rect(f.x - f.bw * 3, f.sy - U * 2, f.bw * 6, U * 2);   // tout ce qui est sous la surface est cache
+  ctx.rect(f.x - f.bw * 3, f.sy - vue.U * 2, f.bw * 6, vue.U * 2);   // tout ce qui est sous la surface est cache
   ctx.clip();
   drawShovelShape(tip[0], tip[1], Math.atan2(f.uy, f.ux), SHOVEL_TIP[0], SHOVEL_TIP[1]);
   ctx.restore();
@@ -2154,9 +2017,9 @@ function handleTap(pos) {
 // leur infobulle produit, ni les champignons plantes a la main sans valeur marchande).
 function harvestableNear(x, y) {
   // Au doigt : a defaut d'etre pile dessus, le champignon mur le plus proche dans l'anneau.
-  var reach = hand.touch ? HAND_RING_R / ZOOM : 0, best = null, bestD = reach;
-  for (var i = 0; i < mushrooms.length; i++) {
-    var m = mushrooms[i];
+  var reach = hand.touch ? HAND_RING_R / vue.ZOOM : 0, best = null, bestD = reach;
+  for (var i = 0; i < monde.mushrooms.length; i++) {
+    var m = monde.mushrooms[i];
     if (!m.myc || m.treasure || m.dying || m.t < 0.9) continue;
     if (Math.abs(x - m.x) < m.size * 0.9 && y > surfaceAt(m.x) - m.size * 1.6) return m;
     if (reach) {
@@ -2173,24 +2036,23 @@ function harvestAt(pos) {
   hand.flash = performance.now();
   guideSet('harvest');
   queueDemoEnd(); // la premiere recolte termine la demo
-  harvestCount++;
+  partie.harvestCount++;
   var hs = m.strain && m.strain.id ? m.strain.id : 'standard', hi = CH_HARVEST_IDS.indexOf(hs);
-  if (hi !== -1 && !(chDone & (256 << hi)) && chUnlocked(8 + hi)) {
-    chHarv[hi]++;
-    if (chHarv[hi] >= CH_HARVEST_GOAL) challengeDone(8 + hi);
+  if (hi !== -1 && !(partie.chDone & (256 << hi)) && chUnlocked(8 + hi)) {
+    partie.chHarv[hi]++;
+    if (partie.chHarv[hi] >= CH_HARVEST_GOAL) challengeDone(8 + hi);
     else savePlayerIfChanged();
   }
   if (window.sporaSfx) sporaSfx.play('pop'); 
   earn(m.myc && m.strain && m.strain.price ? m.strain.price : MUSHROOM_PRICE);
 }
 var hand = { x: 0, y: 0, on: false, fist: 0, tilt: 0, rot: 0, lx: 0, grip: null, px: 0, py: 0, pcx: 0, pcy: 0, touch: false, flash: 0 };
-var handCarry = [];
 var fistDist = 0;                      // distance parcourue par le poing depuis le dernier coup
 
 function enterHand(p) {
   hand.on = true;
   hand.x = hand.lx = hand.px = p.x; hand.y = hand.py = p.y;
-  hand.pcx = camX; hand.pcy = camY;
+  hand.pcx = vue.camX; hand.pcy = vue.camY;
   hand.fist = 0; hand.tilt = 0; hand.rot = 0;
   container.classList.add('is-tool-cursor');
 }
@@ -2198,8 +2060,8 @@ function enterHand(p) {
 // la branche agrippee revient droite (elle n'a pas casse).
 function leaveHand() {
   dropHeldInsect();
-  for (var i = 0; i < handCarry.length; i++) handCarry[i].carried = false;
-  handCarry = [];
+  for (var i = 0; i < vue.handCarry.length; i++) vue.handCarry[i].carried = false;
+  vue.handCarry = [];
   hand.grip = null;
   hand.on = false; hand.fist = 0; hand.tilt = 0; hand.rot = 0;
   container.classList.remove('is-tool-cursor');
@@ -2225,10 +2087,10 @@ function leafAgeOf(lf, now) { return clamp((now - lf.born) / lf.life, 0, 1); }
 // dans la main), puis branche (maitresse ou bonus : agrippee, elle casse si on tire assez,
 // voir updateHand). Retourne vrai si la main a pris quelque chose.
 function handGrabTree(pos) {
-  var now = vTime, ti, i, t, tg, by, top, sl, lf;
+  var now = temps.vTime, ti, i, t, tg, by, top, sl, lf;
   var bestLeaf = null, bestLeafT = null, bestLeafD = Infinity;
-  for (ti = 0; ti < trees.length; ti++) {
-    t = trees[ti]; tg = treeScale(t);
+  for (ti = 0; ti < monde.trees.length; ti++) {
+    t = monde.trees[ti]; tg = treeScale(t);
     by = t.by !== undefined ? t.by : surfaceAt(t.x) + TREE_EMBED; top = by - t.h * tg;
     for (i = 0; i < t.slots.length; i++) {
       sl = t.slots[i]; lf = sl.leaf;
@@ -2247,15 +2109,15 @@ function handGrabTree(pos) {
     sh.carried = true;
     sh.vx = sh.vy = 0;
     sh.hox = sh.x - pos.x; sh.hoy = sh.y - pos.y;
-    shards.push(sh);
-    handCarry.push(sh);
+    monde.shards.push(sh);
+    vue.handCarry.push(sh);
     return true;
   }
   // Branches : segments coudes des branches maitresses (pas les cassees) et branches
   // bonus (du tronc vers leur bout). Le tronc lui-meme n'est pas attrapable.
   var bestObj = null, bestKind = '', bestTree = null, bestD = HAND_LIMB_TOL;
-  for (ti = 0; ti < trees.length; ti++) {
-    t = trees[ti]; tg = treeScale(t);
+  for (ti = 0; ti < monde.trees.length; ti++) {
+    t = monde.trees[ti]; tg = treeScale(t);
     by = t.by !== undefined ? t.by : surfaceAt(t.x) + TREE_EMBED; top = by - t.h * tg;
     for (i = 0; i < t.limbs.length; i++) {
       var lm = t.limbs[i];
@@ -2288,12 +2150,12 @@ function breakLimb(t, lm, now) {
   for (var i = 0; i < t.slots.length; i++) {
     var sl = t.slots[i];
     if (sl.limb !== k || !sl.leaf) continue;
-    shards.push(makeLeafShard(sl.leaf, t.x + sl.dx * tg, top + sl.dy * tg, leafAgeOf(sl.leaf, now)));
+    monde.shards.push(makeLeafShard(sl.leaf, t.x + sl.dx * tg, top + sl.dy * tg, leafAgeOf(sl.leaf, now)));
     sl.leaf = null;
   }
   var sx = t.x, sy = top + t.h * tg * lm.f, ex = t.x + lm.dx * tg, ey = top + lm.dy * tg;
   var wood = makeWoodShard(hand.x, hand.y, branchTri(Math.hypot(ex - sx, ey - sy) * 0.5, Math.atan2(ey - sy, ex - sx)));
-  shards.push(wood);
+  monde.shards.push(wood);
   return wood;
 }
 
@@ -2318,8 +2180,8 @@ function breakGrip(now) {
   wood.x = wood.px = hand.x; wood.y = wood.py = hand.y;
   wood.vx = wood.vy = wood.vr = 0;
   wood.carried = true; wood.hox = 0; wood.hoy = 0;
-  handCarry.push(wood);
-  branchTorn = true;
+  vue.handCarry.push(wood);
+  partie.branchTorn = true;
   if (chUnlocked(0)) challengeDone(0);
 }
 
@@ -2332,7 +2194,7 @@ function updateHand(now) {
     else if (Math.hypot(hand.x - g.gx, hand.y - g.gy) > HAND_BREAK_DIST) breakGrip(now);
     else busy = true;
   }
-  var goal = ((pointerDown && tool === 'hand') || handCarry.length || hand.grip) ? 1 : 0;
+  var goal = ((vue.pointerDown && partie.tool === 'hand') || vue.handCarry.length || hand.grip) ? 1 : 0;
   hand.fist += (goal - hand.fist) * 0.35;
   if (Math.abs(goal - hand.fist) < 0.02) hand.fist = goal; else busy = true;
   var tiltGoal = clamp((hand.x - hand.lx) * 0.05, -0.4, 0.4);
@@ -2340,8 +2202,8 @@ function updateHand(now) {
   hand.tilt += (tiltGoal - hand.tilt) * 0.2;
   if (Math.abs(tiltGoal - hand.tilt) > 0.005 || Math.abs(hand.tilt) > 0.01) busy = true;
   // Vitesse reelle du geste (monde, camera deduite), puis effleurement des facettes.
-  var hvx = hand.x - hand.px - (camX - hand.pcx), hvy = hand.y - hand.py - (camY - hand.pcy);
-  hand.px = hand.x; hand.py = hand.y; hand.pcx = camX; hand.pcy = camY;
+  var hvx = hand.x - hand.px - (vue.camX - hand.pcx), hvy = hand.y - hand.py - (vue.camY - hand.pcy);
+  hand.px = hand.x; hand.py = hand.y; hand.pcx = vue.camX; hand.pcy = vue.camY;
   var sp2 = hvx * hvx + hvy * hvy;
   // Poing ferme : la main pivote dans toutes les directions, doigts vers ou elle va (avec un
   // peu de retard, comme une traine). Ouverte ou immobile, elle garde l'inclinaison douce.
@@ -2352,13 +2214,13 @@ function updateHand(now) {
   dRot -= Math.round(dRot / (2 * Math.PI)) * 2 * Math.PI;
   hand.rot += dRot * 0.18;
   if (Math.abs(dRot) > 0.01) busy = true;
-  if (mode === 'exploded' && pointerDown && sp2 >= HAND_PUSH_MIN_V * HAND_PUSH_MIN_V) {
+  if (partie.mode === 'exploded' && vue.pointerDown && sp2 >= HAND_PUSH_MIN_V * HAND_PUSH_MIN_V) {
     handPush(hvx, hvy);
     busy = true;
   }
   // Poing : bouton enfonce et main en mouvement, meme avec quelque chose en main (les facettes
   // tenues sont ignorees par fistStrike).
-  if (mode === 'exploded' && pointerDown && tool === 'hand') {
+  if (partie.mode === 'exploded' && vue.pointerDown && partie.tool === 'hand') {
     if (sp2 >= HAND_FIST_MIN_V * HAND_FIST_MIN_V) {
       fistDist += Math.min(Math.sqrt(sp2), 30);
       for (var fs = 0; fistDist >= HAND_FIST_STEP && fs < HAND_FIST_MAX_STRIKES; fs++) {
@@ -2380,12 +2242,12 @@ function updateHand(now) {
 function fistStrike(hvx, hvy) {
   var sp = Math.hypot(hvx, hvy);
   if (sp > HAND_FIST_MAX_V) { hvx *= HAND_FIST_MAX_V / sp; hvy *= HAND_FIST_MAX_V / sp; }
-  var R = HAND_FIST_R, limit = worldH - BEDROCK_MARGIN, i, c;
+  var R = HAND_FIST_R, limit = vue.worldH - BEDROCK_MARGIN, i, c;
   // (0) Feuilles encore accrochees aux arbres : le poing les fait sauter, elles tombent
   // (memes facettes que la chute naturelle, voir makeLeafShard) en emportant un peu du coup.
-  var nowF = vTime, ti, tF, tgF, topF, slF;
-  for (ti = 0; ti < trees.length; ti++) {
-    tF = trees[ti]; tgF = treeScale(tF);
+  var nowF = temps.vTime, ti, tF, tgF, topF, slF;
+  for (ti = 0; ti < monde.trees.length; ti++) {
+    tF = monde.trees[ti]; tgF = treeScale(tF);
     topF = (tF.by !== undefined ? tF.by : surfaceAt(tF.x) + TREE_EMBED) - tF.h * tgF;
     for (i = 0; i < tF.slots.length; i++) {
       slF = tF.slots[i];
@@ -2397,14 +2259,14 @@ function fistStrike(hvx, hvy) {
       shF.vx = hvx * HAND_FIST_KICK + (Math.random() - 0.5) * HAND_FIST_SPREAD;
       shF.vy = hvy * HAND_FIST_KICK - Math.random() * HAND_FIST_LIFT * 0.5;
       shF.vr = (Math.random() - 0.5) * 0.3;
-      shards.push(shF);
+      monde.shards.push(shF);
       slF.leaf = null; // la place redevient libre, l'arbre en repoussera une autre
     }
   }
   // (1) Terre meuble posee a portee : delogee, projetee dans le sens du geste.
   var loose = 0, cut = null;
-  for (i = 0; i < shards.length && loose < HAND_FIST_LOOSE; i++) {
-    var s = shards[i];
+  for (i = 0; i < monde.shards.length && loose < HAND_FIST_LOOSE; i++) {
+    var s = monde.shards[i];
     if (!s.settled || s.carried || s.dead || s.eaten !== undefined || s.grain) continue;
     if (s.myc || s.nutri || s.deadMyc || !s.kcol) continue; // mycelium : jamais (le maillage de terre, lui, se brise comme sous la pelle)
     var sdx = s.x - hand.x, sdy = s.y - hand.y;
@@ -2419,27 +2281,27 @@ function fistStrike(hvx, hvy) {
     loose++;
   }
   // (2) Compact sous le poing.
-  var c0 = Math.max(0, Math.floor((hand.x - R) / COL_W)), c1 = Math.min(compactY.length - 1, Math.ceil((hand.x + R) / COL_W));
+  var c0 = Math.max(0, Math.floor((hand.x - R) / COL_W)), c1 = Math.min(monde.compactY.length - 1, Math.ceil((hand.x + R) / COL_W));
   var dug = false;
   for (c = c0; c <= c1; c++) {
-    if (rocky[c] || demoGuard(c * COL_W)) continue; // roche-mere : le poing ne l'entame pas plus que la pelle
+    if (monde.rocky[c] || demoGuard(c * COL_W)) continue; // roche-mere : le poing ne l'entame pas plus que la pelle
     var ddx = c * COL_W - hand.x;
     if (ddx > R || ddx < -R) continue;
     var bottom = hand.y + Math.sqrt(R * R - ddx * ddx);
-    if (bottom <= compactY[c]) continue;
-    var newTop = Math.min(bottom, compactY[c] + HAND_FIST_DEPTH, limit);
-    var removed = newTop - compactY[c];
+    if (bottom <= monde.compactY[c]) continue;
+    var newTop = Math.min(bottom, monde.compactY[c] + HAND_FIST_DEPTH, limit);
+    var removed = newTop - monde.compactY[c];
     if (removed <= 0) continue;
-    compactY[c] = newTop;
+    monde.compactY[c] = newTop;
     compactDebt += removed * COL_W * DECOMPACT_BULK;
     dug = true;
     if (!cut) cut = {};
     cut[c] = true;
     // Humus lessive redevenu accessible : rendu a la surface, comme la pelle.
-    for (var ni = compactNutri.length - 1; ni >= 0; ni--) {
-      var dep = compactNutri[ni];
+    for (var ni = monde.compactNutri.length - 1; ni >= 0; ni--) {
+      var dep = monde.compactNutri[ni];
       if (Math.round(dep.x / COL_W) !== c || dep.y >= newTop) continue;
-      compactNutri.splice(ni, 1);
+      monde.compactNutri.splice(ni, 1);
       makeDecompactShard(c * COL_W, surfaceAt(c * COL_W) - 3, hvx * HAND_FIST_KICK, -HAND_FIST_LIFT, dep.color, HAND_FIST_SIZE);
     }
   }
@@ -2458,14 +2320,14 @@ function fistStrike(hvx, hvy) {
     if (compactDebt > 400) compactDebt = 400; // dette bornee : un poing ne rattrape pas une montagne
     wakeSuspended(cut);
     // Le poing brise aussi les champignons a portee (sauf les tresors, qui portent l'infobulle).
-    for (i = 0; i < mushrooms.length; i++) {
-      var mu = mushrooms[i];
+    for (i = 0; i < monde.mushrooms.length; i++) {
+      var mu = monde.mushrooms[i];
       if (mu.treasure || mu.dying || mu.t < 0.5) continue;
       if (Math.abs(mu.x - hand.x) < R + mu.size * 0.4) breakMushroom(mu);
     }
     // (3) Un tresor enfoui juste sous le poing se deterre peu a peu.
-    for (i = 0; i < treasures.length; i++) {
-      var t = treasures[i];
+    for (i = 0; i < partie.treasures.length; i++) {
+      var t = partie.treasures[i];
       if (!t.revealed && Math.abs(t.x - hand.x) < R + 15) tryDig(t, 0.02);
     }
   }
@@ -2479,9 +2341,9 @@ function handPush(hvx, hvy) {
   var sp = Math.hypot(hvx, hvy);
   if (sp > HAND_PUSH_MAX_V) { hvx *= HAND_PUSH_MAX_V / sp; hvy *= HAND_PUSH_MAX_V / sp; }
   // Bouton enfonce = poing (voir fistStrike) : l'effleurement ne deloge alors plus de terre posee.
-  var busyHand = handCarry.length > 0 || hand.grip !== null || !!pointerDown, loose = 0;
-  for (var i = 0; i < shards.length; i++) {
-    var s = shards[i];
+  var busyHand = vue.handCarry.length > 0 || hand.grip !== null || !!vue.pointerDown, loose = 0;
+  for (var i = 0; i < monde.shards.length; i++) {
+    var s = monde.shards[i];
     if (s.carried || s.dead || s.eaten !== undefined || s.grain) continue;
     var dx = s.x - hand.x, dy = s.y - hand.y;
     if (dx > HAND_PUSH_R || dx < -HAND_PUSH_R || dy > HAND_PUSH_R || dy < -HAND_PUSH_R) continue;
@@ -2520,14 +2382,14 @@ function handPoly(p) { poly(p); ctx.stroke(); }
 // doigts raccourcis dont le bout se replie sur la paume, pouce en travers.
 function drawHand() {
   if (!hand.on) return;
-  var f = hand.fist, k = clamp(U / 500, 0.7, 1.3) * (ZOOM < 1 ? HAND_ZOOM_K : 1), i;
+  var f = hand.fist, k = clamp(vue.U / 500, 0.7, 1.3) * (vue.ZOOM < 1 ? HAND_ZOOM_K : 1), i;
   if (hand.touch) {
     // Epaisseurs en px CSS (/ ZOOM) : l'anneau garde la meme taille a l'ecran quel que soit le zoom.
     var fl = clamp(1 - (performance.now() - hand.flash) / HAND_FLASH_MS, 0, 1);
     ctx.beginPath();
-    ctx.arc(hand.x, hand.y, (HAND_RING_R * (1 - 0.1 * f) + 6 * fl) / ZOOM, 0, Math.PI * 2);
-    ctx.lineWidth = 5 / ZOOM; ctx.strokeStyle = 'rgba(43,29,16,0.35)'; ctx.stroke();
-    ctx.lineWidth = 2.5 / ZOOM; ctx.strokeStyle = fl > 0 ? 'rgba(243,201,74,' + (0.6 + 0.4 * fl) + ')' : 'rgba(255,248,230,0.85)'; ctx.stroke();
+    ctx.arc(hand.x, hand.y, (HAND_RING_R * (1 - 0.1 * f) + 6 * fl) / vue.ZOOM, 0, Math.PI * 2);
+    ctx.lineWidth = 5 / vue.ZOOM; ctx.strokeStyle = 'rgba(43,29,16,0.35)'; ctx.stroke();
+    ctx.lineWidth = 2.5 / vue.ZOOM; ctx.strokeStyle = fl > 0 ? 'rgba(243,201,74,' + (0.6 + 0.4 * fl) + ')' : 'rgba(255,248,230,0.85)'; ctx.stroke();
   }
   ctx.save();
   ctx.translate(hand.x, hand.y);
@@ -2569,13 +2431,13 @@ function drawHand() {
 }
 
 function pickUpHand(pos) {
-  if (handCarry.length) return;         // deja les mains pleines
+  if (vue.handCarry.length) return;         // deja les mains pleines
   // Deux passes : le bois et les feuilles d'abord (poses au sol, ils restent dans litter,
   // stepTrees ignore ce qui n'est plus settled et le chemin d'atterrissage de step() les y
   // remet en conservant leur decomposition), puis la terre pour completer la poignee.
   for (var pass = 0; pass < 2; pass++) {
-    for (var i = 0; i < shards.length && handCarry.length < HAND_GRAB_MAX; i++) {
-      var s = shards[i];
+    for (var i = 0; i < monde.shards.length && vue.handCarry.length < HAND_GRAB_MAX; i++) {
+      var s = monde.shards[i];
       if (s.carried || s.dead || s.eaten !== undefined || s.grain || s.myc || s.nutri || s.deadMyc) continue;
       // Une feuille ou un bout de bois encore en l air (non pose) s attrape aussi, avec une
       // zone un peu plus large : elle bouge, il faut pardonner la visee.
@@ -2589,7 +2451,7 @@ function pickUpHand(pos) {
       s.carried = true;
       s.vx = s.vy = s.vr = 0;
       s.hox = s.x - pos.x; s.hoy = s.y - pos.y; // garde sa position relative dans la poignee
-      handCarry.push(s);
+      vue.handCarry.push(s);
     }
   }
 }
@@ -2610,31 +2472,31 @@ function sprout(x, fromMyc, strain) {
   var mainMushroom = null;
   for (var i = 0; i < n; i++) {
     var side = i === 0 ? 0 : (i === 1 ? -1 : 1);
-    var size = U * 0.2 * (0.6 + Math.random() * 0.6) * (i === 0 ? 1.15 : 0.85) * (fromMyc ? MYC_MUSHROOM_SCALE : 1);
+    var size = vue.U * 0.2 * (0.6 + Math.random() * 0.6) * (i === 0 ? 1.15 : 0.85) * (fromMyc ? MYC_MUSHROOM_SCALE : 1);
     var m = {
       x: x + side * size * 0.55, size: size,
       lean: (Math.random() - 0.5) * 0.35 + side * 0.2,
       sp: sp, t: -i * 0.25,   // t negatif = petit decalage de pousse dans la grappe
-      myc: !!fromMyc, lastMycNear: vTime, strain: fromMyc ? strain || null : null
+      myc: !!fromMyc, lastMycNear: temps.vTime, strain: fromMyc ? strain || null : null
     };
-    mushrooms.push(m);
+    monde.mushrooms.push(m);
     if (window.sporaSfx) sporaSfx.play('pop', { min: 70 });
     if (i === 0) mainMushroom = m;
   }
-  var alive = mushrooms.filter(function (m) { return !m.dying && !m.treasure; });
+  var alive = monde.mushrooms.filter(function (m) { return !m.dying && !m.treasure; });
   for (i = 0; i < alive.length - MAX_MUSHROOMS; i++) alive[i].dying = true;
   // Bulle produit : seulement au tout premier champignon issu du mycelium verse par le
   // visiteur (pas les champignons plantes a la main ni les tresors), une fois par
   // chargement de page (mycTipShown ne se reinitialise jamais, meme au rebuild).
   if (fromMyc && !mycTipShown) {
     mycTipShown = true;
-    mycTipMushroom = mainMushroom;
-    mycTip = buildTip({
+    monde.mycTipMushroom = mainMushroom;
+    monde.mycTip = buildTip({
       title: 'Cultivez vos propres champignons avec notre mycélium!',
       url: '/product/mycelium-en-vrac',
       cta: 'Précommander'
     });
-    container.appendChild(mycTip);
+    container.appendChild(monde.mycTip);
     openTip('myc');
     setCaption(CAPTION_MYC);
   }
@@ -2657,8 +2519,8 @@ function infect(s, ox, oy, amount, now, lastFed, parent, strain) {
   s.mycParent = parent || null;
   s.strain = (parent ? parent.strain : strain) || null;
   s.pid = parent ? parent.pid || 0 : 0; // patch : herite du parent ; inoculation directe/restauration = attribue au prochain instantane
-  if (s.pid && patches[s.pid]) patches[s.pid].alive++;
-  if (s.strain) tintedMyc = true;
+  if (s.pid && partie.patches[s.pid]) partie.patches[s.pid].alive++;
+  if (s.strain) monde.tintedMyc = true;
   s.hyJ = (Math.random() - 0.5) * 8;
   s.hyTw = [Math.random() * 6.283, 3 + Math.random() * 4];
   if (Math.random() < 0.5) s.hyTw.push(Math.random() * 6.283, 3 + Math.random() * 4);
@@ -2667,13 +2529,13 @@ function infect(s, ox, oy, amount, now, lastFed, parent, strain) {
   s.mox = ox; s.moy = oy;               // point d'inoculation : borne la portee (MYC_RADIUS)
   s.mycTone = 0.7 + Math.random() * 0.2; // jamais tout a fait blanc : les facettes restent lisibles
   s.lastFed = lastFed !== undefined ? lastFed : now;
-  colonised.push(s);
-  mycBusyUntil = frame + 120;
+  monde.colonised.push(s);
+  mycBusyUntil = temps.frame + 120;
 }
 
 function inoculate(x, y, now, strain) {
-  for (var i = 0; i < shards.length; i++) {
-    var s = shards[i];
+  for (var i = 0; i < monde.shards.length; i++) {
+    var s = monde.shards[i];
     if (!s.settled || Math.abs(s.x - x) > 12 || Math.abs(s.y - y) > 12) continue;
     infect(s, x, y, 0.06, now, undefined, undefined, strain);
   }
@@ -2683,12 +2545,12 @@ function inoculate(x, y, now, strain) {
 // Sans bois a decomposer a portee (voir stepTrees, qui met a jour c.lastFed), un
 // mycelium colonise finit par s'eteindre et la facette redevient de la terre normale.
 function stepMycelium(now) {
-  var busy = frame < mycBusyUntil;
+  var busy = temps.frame < mycBusyUntil;
   snapshotPatches(performance.now());
   var deathCheck = now >= mycNextDeathCheck;
   if (deathCheck) mycNextDeathCheck = now + MYC_RANDOM_DEATH_CHECK_MS;
-  for (var i = colonised.length - 1; i >= 0; i--) {
-    var c = colonised[i], droughtHit = false, starving = false, cst = c.strain || STRAIN_STD, dm = cst.decayMul;
+  for (var i = monde.colonised.length - 1; i >= 0; i--) {
+    var c = monde.colonised[i], droughtHit = false, starving = false, cst = c.strain || STRAIN_STD, dm = cst.decayMul;
     // La secheresse peut faner un mycelium en surface meme s'il est activement nourri :
     // elle agit sur l'exposition, pas sur la faim (voir DROUGHT_* pres de updateWeather).
     if (deathCheck && c.myc > 0 && Math.random() < MYC_RANDOM_DEATH_P * dm) {
@@ -2715,7 +2577,7 @@ function stepMycelium(now) {
         c.deadMyc = true;
         var deadColor = hexToRgb(MYC_DEAD[(Math.random() * MYC_DEAD.length) | 0]);
         c.from = deadColor; c.to = deadColor; c.mix = 1; c.nutri = null;
-        deadMyc.push(c);
+        monde.deadMyc.push(c);
       } else if (c.leaf) {
         // Le mycelium qui meurt de faim SUR DE LA LITIERE devient lui-meme un nutriment
         // (necromasse) : comme dans la vraie vie, sa propre mort nourrit encore le sol et
@@ -2725,33 +2587,33 @@ function stepMycelium(now) {
         c.nutri = NUTRI[(Math.random() * NUTRI.length) | 0];
         c.nutriSince = now;
       }
-      colonised.splice(i, 1);
+      monde.colonised.splice(i, 1);
       if (!c.deadMyc) c.mycParent = null; // redevient de la terre normale (le mort garde son filament)
     }
   }
-  if (frame % MYC_SPREAD_EVERY === 0) spreadMycelium(now);
+  if (temps.frame % MYC_SPREAD_EVERY === 0) spreadMycelium(now);
   return busy;
 }
 
 // Grille de voisinage refaite a chaque passage : la pelle deplace les facettes.
 function spreadMycelium(now) {
-  var D = 14, radius = U * MYC_RADIUS, grid = new Map(), i, s, b;
-  for (i = 0; i < shards.length; i++) {
-    s = shards[i];
+  var D = 14, radius = vue.U * MYC_RADIUS, grid = new Map(), i, s, b;
+  for (i = 0; i < monde.shards.length; i++) {
+    s = monde.shards[i];
     if (!s.settled) continue;
     var key = ((s.x / D) | 0) * 1024 + ((s.y / D) | 0);
     var cell = grid.get(key);
     if (cell) cell.push(s); else grid.set(key, [s]);
   }
-  var buckets = {}, fw = U * FRUIT_W;
-  for (i = 0; i < colonised.length; i++) {
-    var c = colonised[i];
+  var buckets = {}, fw = vue.U * FRUIT_W;
+  for (i = 0; i < monde.colonised.length; i++) {
+    var c = monde.colonised[i];
     if (!c.settled || c.myc < MYC_READY) continue;
     if (c.myc > 0.9 && c.y - surfaceAt(c.x) < 18) {
       b = Math.floor(c.x / fw);
       (buckets[b] = buckets[b] || []).push(c);
     }
-    if (c.mycIdle > frame || Math.random() > MYC_SPREAD_P) continue;
+    if (c.mycIdle > temps.frame || Math.random() > MYC_SPREAD_P) continue;
     // Coloniser de la terre neuve demande d'etre activement nourri MAINTENANT (bois
     // vraiment a portee), pas juste "pas encore mort" : sinon une facette peut conquerir
     // toute la terre autour d'elle avant de s'eteindre, loin de tout bois.
@@ -2770,15 +2632,15 @@ function spreadMycelium(now) {
       }
     }
     // Plus rien a gagner autour : on la laisse tranquille un moment (economise des calculs).
-    if (!free.length) { c.mycIdle = frame + 90; continue; }
+    if (!free.length) { c.mycIdle = temps.frame + 90; continue; }
     // Herite l'horloge de faim du parent : se repandre dans la terre ne nourrit pas.
     infect(free[(Math.random() * free.length) | 0], c.mox, c.moy, 0.02, now, c.lastFed, c);
   }
   // Une zone de surface bien blanche fructifie une fois.
   for (b in buckets) {
     var xs = buckets[b];
-    if (fruited[b] || xs.length < FRUIT_MIN) continue;
-    fruited[b] = true;
+    if (monde.fruited[b] || xs.length < FRUIT_MIN) continue;
+    monde.fruited[b] = true;
     var pick = xs[(Math.random() * xs.length) | 0];
     sprout(pick.x, true, pick.strain || STRAIN_STD);
   }
@@ -2803,20 +2665,20 @@ function updateBag() {
   var goal = bag.pouring ? 0.45 : 1.9;
   bag.rot += (goal - bag.rot) * 0.18;
   if (!bag.pouring || bag.rot > 1) return; // les grains coulent une fois le sac bascule
-  if (bagGrainsLeft <= 0 && DEMO) bagGrainsLeft = BAG_GRAINS; // demo : mycelium gratuit, le sac ne se vide jamais
-  if (bagGrainsLeft <= 0) {
+  if (partie.bagGrainsLeft <= 0 && partie.DEMO) partie.bagGrainsLeft = BAG_GRAINS; // demo : mycelium gratuit, le sac ne se vide jamais
+  if (partie.bagGrainsLeft <= 0) {
     bag.pouring = false; // sac vide : se redresse tout seul
     setCaption(CAPTION_BAG_EMPTY);
     return;
   }
-  var n = Math.min(bagGrainsLeft, Math.random() < 0.5 ? 2 : 1);
-  bagGrainsLeft -= n;
+  var n = Math.min(partie.bagGrainsLeft, Math.random() < 0.5 ? 2 : 1);
+  partie.bagGrainsLeft -= n;
   var cs = currentStrain();
   for (var i = 0; i < n; i++) {
     var r = 1.8 + Math.random() * 1.6, a = Math.random() * Math.PI * 2;
     var color = hexToRgb(GRAIN[(Math.random() * GRAIN.length) | 0]);
     if (cs) color = mixRgb(color, cs.tintRgb, STRAIN_MIX);
-    shards.push({
+    monde.shards.push({
       pts: [0, 1, 2].map(function (j) {
         var t = a + j * 2.1 + (Math.random() - 0.5) * 0.5;
         return [Math.cos(t) * r, Math.sin(t) * r];
@@ -2835,7 +2697,7 @@ var bagLogo = null;
 
 function drawBag() {
   if (!bag.on) return;
-  var k = clamp(U / 500, 0.7, 1.3);
+  var k = clamp(vue.U / 500, 0.7, 1.3);
   ctx.save();
   ctx.translate(bag.x, bag.y);
   ctx.rotate(bag.rot);
@@ -2874,26 +2736,24 @@ var weather = {
   raining: false, changeAt: 0, startedAt: 0, clouds: [], lastNow: null,
   drought: false, droughtChangeAt: 0, storm: false, stormChangeAt: 0
 };
-var drops = [];
-var nextLeachAt = 0;
 
 function weatherDryMs() {
-  return lerp(RAIN_DRY_MS[0], RAIN_DRY_MS[1], rainLevel) * (0.6 + Math.random() * 0.8);
+  return lerp(RAIN_DRY_MS[0], RAIN_DRY_MS[1], temps.rainLevel) * (0.6 + Math.random() * 0.8);
 }
 function weatherShowerMs() {
-  return lerp(RAIN_SHOWER_MS[0], RAIN_SHOWER_MS[1], rainLevel) * (0.7 + Math.random() * 0.6);
+  return lerp(RAIN_SHOWER_MS[0], RAIN_SHOWER_MS[1], temps.rainLevel) * (0.7 + Math.random() * 0.6);
 }
 function droughtMs() {
-  return lerp(DROUGHT_MS[0], DROUGHT_MS[1], droughtLevel) * (0.7 + Math.random() * 0.6);
+  return lerp(DROUGHT_MS[0], DROUGHT_MS[1], temps.droughtLevel) * (0.7 + Math.random() * 0.6);
 }
 function droughtGapMs() {
-  return lerp(DROUGHT_GAP_MS[0], DROUGHT_GAP_MS[1], droughtLevel) * (0.7 + Math.random() * 0.6);
+  return lerp(DROUGHT_GAP_MS[0], DROUGHT_GAP_MS[1], temps.droughtLevel) * (0.7 + Math.random() * 0.6);
 }
 function stormMs() {
-  return lerp(STORM_MS[0], STORM_MS[1], stormLevel) * (0.7 + Math.random() * 0.6);
+  return lerp(STORM_MS[0], STORM_MS[1], temps.stormLevel) * (0.7 + Math.random() * 0.6);
 }
 function stormGapMs() {
-  return lerp(STORM_GAP_MS[0], STORM_GAP_MS[1], stormLevel) * (0.7 + Math.random() * 0.6);
+  return lerp(STORM_GAP_MS[0], STORM_GAP_MS[1], temps.stormLevel) * (0.7 + Math.random() * 0.6);
 }
 
 function startShower(now) {
@@ -2903,8 +2763,8 @@ function startShower(now) {
   weather.clouds = [];
   for (var i = 0; i < RAIN_CLOUDS_N; i++) {
     weather.clouds.push({
-      x: (worldW / RAIN_CLOUDS_N) * (i + Math.random() * 0.4),
-      w: U * (0.5 + Math.random() * 0.4),
+      x: (vue.worldW / RAIN_CLOUDS_N) * (i + Math.random() * 0.4),
+      w: vue.U * (0.5 + Math.random() * 0.4),
       vx: (Math.random() < 0.5 ? -1 : 1) * RAIN_CLOUD_DRIFT * (0.6 + Math.random() * 0.8)
     });
   }
@@ -2953,7 +2813,7 @@ function updateWeather(now) {
   if (weather.lastNow === null) weather.lastNow = now;
   var dt = Math.max(0, now - weather.lastNow);
   weather.lastNow = now;
-  if (rainLevel <= 0) {
+  if (temps.rainLevel <= 0) {
     if (weather.raining) stopShower();
     weather.changeAt = now; // repart a zero des que le curseur remonte
   } else if (now >= weather.changeAt) {
@@ -2961,7 +2821,7 @@ function updateWeather(now) {
   }
   // Le cycle de secheresse tourne independamment de la pluie (son propre curseur, sa propre
   // horloge) tant qu'il ne pleut pas ; a 0 elle est simplement coupee, comme la pluie a 0.
-  if (droughtLevel <= 0) {
+  if (temps.droughtLevel <= 0) {
     weather.drought = false;
     weather.droughtChangeAt = now; // repart a zero des que le curseur remonte
   } else if (!weather.raining && now >= weather.droughtChangeAt) {
@@ -2970,7 +2830,7 @@ function updateWeather(now) {
   // La tempete n'existe que PENDANT une averse deja en cours (une tempete hors pluie
   // n'aurait rien a intensifier) ; a 0 elle est simplement coupee, comme la pluie et la
   // secheresse a 0.
-  if (stormLevel <= 0 || !weather.raining) {
+  if (temps.stormLevel <= 0 || !weather.raining) {
     if (weather.storm) weather.storm = false;
   } else if (now >= weather.stormChangeAt) {
     if (weather.storm) endStorm(now); else startStorm(now);
@@ -2997,21 +2857,21 @@ function updateStormIndicator() {
 }
 
 function updateRainDrops(now) {
-  if (weather.raining && drops.length < RAIN_DROP_MAX) {
-    var spawnN = Math.max(1, Math.round(RAIN_SPAWN_MAX * rainLevel * (weather.storm ? STORM_SPAWN_MULT : 1)));
-    var cy = camY + H * RAIN_CLOUD_Y_FRAC;
-    for (var i = 0; i < spawnN && drops.length < RAIN_DROP_MAX; i++) {
-      drops.push({ x: camX + Math.random() * W, y: cy + 4, vy: lerp(RAIN_DROP_VY[0], RAIN_DROP_VY[1], Math.random()) });
+  if (weather.raining && monde.drops.length < RAIN_DROP_MAX) {
+    var spawnN = Math.max(1, Math.round(RAIN_SPAWN_MAX * temps.rainLevel * (weather.storm ? STORM_SPAWN_MULT : 1)));
+    var cy = vue.camY + vue.H * RAIN_CLOUD_Y_FRAC;
+    for (var i = 0; i < spawnN && monde.drops.length < RAIN_DROP_MAX; i++) {
+      monde.drops.push({ x: vue.camX + Math.random() * vue.W, y: cy + 4, vy: lerp(RAIN_DROP_VY[0], RAIN_DROP_VY[1], Math.random()) });
     }
   }
-  for (var d = drops.length - 1; d >= 0; d--) {
-    var dr = drops[d];
+  for (var d = monde.drops.length - 1; d >= 0; d--) {
+    var dr = monde.drops[d];
     dr.y += dr.vy;
     // Une goutte qui touche une cuvette (ou son eau) y ajoute du volume (voir updateLakes).
-    var dcol = Math.max(0, Math.min(heights.length - 1, Math.round(dr.x / COL_W))), dl = lakeOf[dcol] ? lakes[lakeOf[dcol] - 1] : null;
+    var dcol = Math.max(0, Math.min(monde.heights.length - 1, Math.round(dr.x / COL_W))), dl = monde.lakeOf[dcol] ? monde.lakes[monde.lakeOf[dcol] - 1] : null;
     if (dr.y >= surfaceAt(dr.x) || (dl && dcol >= dl.c0 && dcol <= dl.c1 && dr.y >= dl.level)) {
       if (dl) dl.vol += LAKE_DROP_VOL;
-      drops.splice(d, 1);
+      monde.drops.splice(d, 1);
     }
   }
   updateLakes(now);
@@ -3027,11 +2887,11 @@ function updateRainDrops(now) {
   // suit vTime brut) finit par devancer le lessivage a vitesse elevee (voir plus haut).
   if (weather.raining) {
     var leachSteps = 0;
-    while (now >= nextLeachAt && leachSteps < LEACH_MAX_STEPS_PER_FRAME) {
-      nextLeachAt += LEACH_INTERVAL_MS;
+    while (now >= monde.nextLeachAt && leachSteps < LEACH_MAX_STEPS_PER_FRAME) {
+      monde.nextLeachAt += LEACH_INTERVAL_MS;
       leachSteps++;
     }
-    if (nextLeachAt < now) nextLeachAt = now + LEACH_INTERVAL_MS;
+    if (monde.nextLeachAt < now) monde.nextLeachAt = now + LEACH_INTERVAL_MS;
     if (leachSteps > 0) {
       sinkCompactNutri(leachSteps);
       leach(now);
@@ -3044,9 +2904,9 @@ function updateRainDrops(now) {
 // humus contre le lessivage — seulement s'il ne le retient pas depuis trop longtemps
 // deja (MYC_HOLD_MAX_MS), sinon un humus jamais mange resterait bloque pour toujours.
 function heldByMycelium(x, y, nutriSince) {
-  if (nutriSince !== undefined && vTime - nutriSince > MYC_HOLD_MAX_MS) return false;
-  for (var i = 0; i < colonised.length; i++) {
-    var c = colonised[i];
+  if (nutriSince !== undefined && temps.vTime - nutriSince > MYC_HOLD_MAX_MS) return false;
+  for (var i = 0; i < monde.colonised.length; i++) {
+    var c = monde.colonised[i];
     if (c.myc > MYC_READY && Math.hypot(c.x - x, c.y - y) < MYC_HOLD_REACH) return true;
   }
   return false;
@@ -3087,13 +2947,13 @@ function spawnNutrientShard(x, y, col, area, now) {
     rot: Math.random() * Math.PI, vr: 0, from: color, to: color, mix: 1,
     area: area, settled: true, col: col, nutri: hex, nutriSince: now
   };
-  shards.push(s);
+  monde.shards.push(s);
   pileAdd(s);
 }
 
 // --- Gazon (voir section "Gazon" plus haut pour le pourquoi) ------------------------
 function spawnGrassNutrient(col, now) {
-  var x = (col + Math.random() - 0.5) * COL_W, y = compactY[col] - heights[col];
+  var x = (col + Math.random() - 0.5) * COL_W, y = monde.compactY[col] - monde.heights[col];
   spawnNutrientShard(x, y, col, GRASS_NUTRI_AREA, now);
 }
 
@@ -3102,31 +2962,31 @@ function spawnGrassNutrient(col, now) {
 // n'a jamais besoin de la pleine cadence (60 fps), juste de ne pas s'arreter completement
 // (voir son usage dans step(), fondu avec treeLife).
 function updateGrass(now) {
-  if (!grassCover) return 0;
-  var dt = grassLastNow === null ? 0 : now - grassLastNow;
-  grassLastNow = now;
-  for (var c = 0; c < grassCover.length; c++) {
-    if ((rocky[c] && heights[c] < ROCK_COVER_MIN) || isSubmergedCol(c)) { grassCover[c] = 0; continue; }
-    var diff = heights[c] - grassPrevH[c];
+  if (!monde.grassCover) return 0;
+  var dt = monde.grassLastNow === null ? 0 : now - monde.grassLastNow;
+  monde.grassLastNow = now;
+  for (var c = 0; c < monde.grassCover.length; c++) {
+    if ((monde.rocky[c] && monde.heights[c] < ROCK_COVER_MIN) || isSubmergedCol(c)) { monde.grassCover[c] = 0; continue; }
+    var diff = monde.heights[c] - monde.grassPrevH[c];
     if (Math.abs(diff) > GRASS_DISTURB_EPS && !demoGuard(c * COL_W)) {
-      if (grassCover[c] > 0 && performance.now() > grassTipFrom && ++grassLost >= GRASS_LOST_TIP && leachTip(16, CAPTION_GRASS_LOST, true)) grassLost = 0;
-      grassCover[c] = 0;
+      if (monde.grassCover[c] > 0 && performance.now() > monde.grassTipFrom && ++monde.grassLost >= GRASS_LOST_TIP && leachTip(16, CAPTION_GRASS_LOST, true)) monde.grassLost = 0;
+      monde.grassCover[c] = 0;
     }
-    grassPrevH[c] += diff * GRASS_BASELINE_FOLLOW;
-    if (grassCover[c] >= 1) continue;
+    monde.grassPrevH[c] += diff * GRASS_BASELINE_FOLLOW;
+    if (monde.grassCover[c] >= 1) continue;
     // Uniquement de la propagation : sans voisine deja gazonnee, une colonne nue ne pousse
     // pas toute seule (pas de generation spontanee), exactement comme le mycelium qui ne
     // colonise que ce qui touche deja une facette colonisee (voir spreadMycelium).
-    var neighborLush = (c > 0 && grassCover[c - 1] > GRASS_NEIGHBOR_MIN) ||
-      (c < grassCover.length - 1 && grassCover[c + 1] > GRASS_NEIGHBOR_MIN);
+    var neighborLush = (c > 0 && monde.grassCover[c - 1] > GRASS_NEIGHBOR_MIN) ||
+      (c < monde.grassCover.length - 1 && monde.grassCover[c + 1] > GRASS_NEIGHBOR_MIN);
     if (!neighborLush) continue;
-    grassCover[c] = Math.min(1, grassCover[c] + (dt / GRASS_REGROW_MS) * GRASS_SPREAD_BONUS);
+    monde.grassCover[c] = Math.min(1, monde.grassCover[c] + (dt / GRASS_REGROW_MS) * GRASS_SPREAD_BONUS);
   }
   // grassMyc (symbiose visible, voir sa section plus haut) : recalcule seulement toutes
   // les GRASS_MYC_CHECK_EVERY frames, pas a chaque frame — parcourir colonised pour
   // chaque colonne a 60fps couterait cher pour un simple bonus cosmetique + production.
-  if (frame % GRASS_MYC_CHECK_EVERY === 0) {
-    for (var gc = 0; gc < grassCover.length; gc++) grassMyc[gc] = grassHasMycUnder(gc * COL_W) ? 1 : 0;
+  if (temps.frame % GRASS_MYC_CHECK_EVERY === 0) {
+    for (var gc = 0; gc < monde.grassCover.length; gc++) monde.grassMyc[gc] = grassHasMycUnder(gc * COL_W) ? 1 : 0;
     // Cible de flore (mousse/touffes/feuillage, purement cosmetique) : calculee ici, pas a
     // chaque frame, comme grassMyc juste au-dessus — meme raison, ca ne coute rien de plus
     // qu'un simple effet visuel. Plus dense pres d'un arbre bien nourri (treeInf) et
@@ -3134,45 +2994,45 @@ function updateGrass(now) {
     // voisines pour eviter un bord dur), avec un bonus si les deux se superposent (vraie
     // mycorhize) : le sol vivant doit se voir profiter a la flore aussi, pas seulement au
     // gazon (voir GRASS_MYC_HEIGHT_MULT) ou aux arbres.
-    for (var flc = 0; flc < floraTarget.length; flc++) {
+    for (var flc = 0; flc < monde.floraTarget.length; flc++) {
       var fx = flc * COL_W, treeInf = 0;
-      for (var fti = 0; fti < trees.length; fti++) {
-        var ft = trees[fti], fd = Math.abs(ft.x - fx);
-        var frr = U * lerp(FLORA_TREE_R_MIN, FLORA_TREE_R_MAX, ft.growth);
+      for (var fti = 0; fti < monde.trees.length; fti++) {
+        var ft = monde.trees[fti], fd = Math.abs(ft.x - fx);
+        var frr = vue.U * lerp(FLORA_TREE_R_MIN, FLORA_TREE_R_MAX, ft.growth);
         if (fd >= frr) continue;
         var infl = lerp(0.4, 1, ft.growth) * (1 - fd / frr);
         if (infl > treeInf) treeInf = infl;
       }
-      var mycInf = grassMyc[flc] ? 1 : 0;
+      var mycInf = monde.grassMyc[flc] ? 1 : 0;
       if (!mycInf) {
         for (var fnb = -2; fnb <= 2; fnb++) {
           var fni = flc + fnb;
-          if (fnb === 0 || fni < 0 || fni >= grassMyc.length) continue;
-          if (grassMyc[fni]) { mycInf = 0.7; break; }
+          if (fnb === 0 || fni < 0 || fni >= monde.grassMyc.length) continue;
+          if (monde.grassMyc[fni]) { mycInf = 0.7; break; }
         }
       }
       var flTgt = treeInf * FLORA_TREE_W + mycInf * FLORA_MYC_W;
-      if (treeInf > 0 && grassMyc[flc]) flTgt += FLORA_SYMBIOSIS_BONUS;
-      floraTarget[flc] = Math.min(1, flTgt);
+      if (treeInf > 0 && monde.grassMyc[flc]) flTgt += FLORA_SYMBIOSIS_BONUS;
+      monde.floraTarget[flc] = Math.min(1, flTgt);
     }
   }
-  if (now >= grassNutriAt) {
-    grassNutriAt = now + GRASS_NUTRI_CHECK_MS;
+  if (now >= monde.grassNutriAt) {
+    monde.grassNutriAt = now + GRASS_NUTRI_CHECK_MS;
     {
       var eligible = [];
-      for (var cc = 0; cc < grassCover.length; cc++) {
-        if (grassCover[cc] < GRASS_FRUIT_MIN) continue;
+      for (var cc = 0; cc < monde.grassCover.length; cc++) {
+        if (monde.grassCover[cc] < GRASS_FRUIT_MIN) continue;
         eligible.push(cc);
         // Compte plusieurs fois dans le tirage au sort : ~GRASS_MYC_NUTRI_WEIGHT fois plus
         // susceptible d'etre choisie, sans changer combien de nutriments sortent d'un coup.
-        if (grassMyc[cc]) for (var w = 1; w < GRASS_MYC_NUTRI_WEIGHT; w++) eligible.push(cc);
+        if (monde.grassMyc[cc]) for (var w = 1; w < GRASS_MYC_NUTRI_WEIGHT; w++) eligible.push(cc);
       }
       if (eligible.length) {
         var pickCol = eligible[(Math.random() * eligible.length) | 0];
         // Multiplicateur de production (champs "Gazon"/"Gazon long" de la barre de reglages) :
         // 1 = comportement d'origine (chance GRASS_NUTRI_P d'un nutriment), 0 = aucun,
         // >1 = plusieurs nutriments (partie entiere + chance sur le reste).
-        var nutriExpect = GRASS_NUTRI_P * (grassMyc[pickCol] ? grassMycNutriMult : grassNutriMult);
+        var nutriExpect = GRASS_NUTRI_P * (monde.grassMyc[pickCol] ? temps.grassMycNutriMult : temps.grassNutriMult);
         var nutriN = Math.floor(nutriExpect);
         if (Math.random() < nutriExpect - nutriN) nutriN++;
         for (var ni = 0; ni < nutriN; ni++) spawnGrassNutrient(pickCol, now);
@@ -3185,11 +3045,11 @@ function updateGrass(now) {
   // flore, elle, doit etre mise a jour partout. Jamais au-dela de grassCover (pas de flore
   // sans herbe dessous) ; une colonne remuee a la pelle (grassCover retombe a 0 juste
   // au-dessus) perd sa flore tout de suite, comme arrachee par le coup de pelle.
-  for (var fc = 0; fc < floraLush.length; fc++) {
-    if (grassCover[fc] <= 0) { floraLush[fc] = 0; continue; }
-    var flTarget = Math.min(floraTarget[fc], grassCover[fc]);
-    if (flTarget > floraLush[fc]) floraLush[fc] = Math.min(flTarget, floraLush[fc] + dt / FLORA_GROW_MS);
-    else if (flTarget < floraLush[fc]) floraLush[fc] = Math.max(flTarget, floraLush[fc] - dt / FLORA_FADE_MS);
+  for (var fc = 0; fc < monde.floraLush.length; fc++) {
+    if (monde.grassCover[fc] <= 0) { monde.floraLush[fc] = 0; continue; }
+    var flTarget = Math.min(monde.floraTarget[fc], monde.grassCover[fc]);
+    if (flTarget > monde.floraLush[fc]) monde.floraLush[fc] = Math.min(flTarget, monde.floraLush[fc] + dt / FLORA_GROW_MS);
+    else if (flTarget < monde.floraLush[fc]) monde.floraLush[fc] = Math.max(flTarget, monde.floraLush[fc] - dt / FLORA_FADE_MS);
   }
   return 1;
 }
@@ -3199,8 +3059,8 @@ function updateGrass(now) {
 // reseau actif juste sous lui, pas d'un mycelium enfoui loin en profondeur.
 function grassHasMycUnder(x) {
   var surf = surfaceAt(x);
-  for (var i = 0; i < colonised.length; i++) {
-    var c = colonised[i];
+  for (var i = 0; i < monde.colonised.length; i++) {
+    var c = monde.colonised[i];
     if (c.myc > MYC_READY && Math.abs(c.x - x) < GRASS_MYC_REACH && c.y - surf < GRASS_MYC_SURFACE_DEPTH) return true;
   }
   return false;
@@ -3220,32 +3080,32 @@ function grassHasMycUnder(x) {
 // portee : rien ne se perdait vraiment, l'arbre avait toujours le temps de tout manger.
 function sinkCompactNutri(steps) {
   var stormMult = weather.storm ? STORM_LEACH_MULT : 1;
-  for (var di = compactNutri.length - 1; di >= 0; di--) {
-    var dep = compactNutri[di];
+  for (var di = monde.compactNutri.length - 1; di >= 0; di--) {
+    var dep = monde.compactNutri[di];
     // Sous une plaque rocheuse (plus compacte que la terre), l'enfoncement est plus lent.
-    var rockMult = rocky[Math.max(0, Math.min(rocky.length - 1, Math.round(dep.x / COL_W)))] ? ROCK_LEACH_MULT : 1;
-    dep.y = Math.min(worldH - BEDROCK_MARGIN - 5, dep.y + COMPACT_SINK_SPEED * rockMult * stormMult * steps * (0.5 + Math.random()));
+    var rockMult = monde.rocky[Math.max(0, Math.min(monde.rocky.length - 1, Math.round(dep.x / COL_W)))] ? ROCK_LEACH_MULT : 1;
+    dep.y = Math.min(vue.worldH - BEDROCK_MARGIN - 5, dep.y + COMPACT_SINK_SPEED * rockMult * stormMult * steps * (0.5 + Math.random()));
   }
 }
 
 function leach(now) {
   var stormMult = weather.storm ? STORM_LEACH_MULT : 1;
-  var leachP = LEACH_P * (0.5 + rainLevel) * stormMult;
-  var leafP = LEAF_RAIN_P * (0.5 + rainLevel) * stormMult;
-  for (var i = 0; i < shards.length; i++) {
-    var s = shards[i];
+  var leachP = LEACH_P * (0.5 + temps.rainLevel) * stormMult;
+  var leafP = LEAF_RAIN_P * (0.5 + temps.rainLevel) * stormMult;
+  for (var i = 0; i < monde.shards.length; i++) {
+    var s = monde.shards[i];
     if (s.leaf && s.settled && !s.bonus && Math.random() < (s.branch ? leafP * WOOD_RAIN_MULT : leafP)) rainLeaf(s);
-    if (!s.settled || !s.nutri || s.leachTick === frame) continue;
+    if (!s.settled || !s.nutri || s.leachTick === temps.frame) continue;
     if (heldByMycelium(s.x, s.y, s.nutriSince)) {
-      if (!(leachTipSeen & 2) && s.x > camX && s.x < camX + W) leachTip(2, CAPTION_HELD);
+      if (!(partie.leachTipSeen & 2) && s.x > vue.camX && s.x < vue.camX + vue.W) leachTip(2, CAPTION_HELD);
       continue;
     }
     // Sur la roche (meme recouverte de terre meuble), le lessivage est plus lent.
-    if (Math.random() > (rocky[Math.max(0, Math.min(rocky.length - 1, Math.round(s.x / COL_W)))] ? leachP * ROCK_LEACH_MULT : leachP)) continue;
-    if (!(leachTipSeen & 1) && s.x > camX && s.x < camX + W) leachTip(1, CAPTION_LEACH);
+    if (Math.random() > (monde.rocky[Math.max(0, Math.min(monde.rocky.length - 1, Math.round(s.x / COL_W)))] ? leachP * ROCK_LEACH_MULT : leachP)) continue;
+    if (!(partie.leachTipSeen & 1) && s.x > vue.camX && s.x < vue.camX + vue.W) leachTip(1, CAPTION_LEACH);
     var best = null, bestDy = Infinity;
-    for (var j = 0; j < shards.length; j++) {
-      var o = shards[j];
+    for (var j = 0; j < monde.shards.length; j++) {
+      var o = monde.shards[j];
       if (o === s || !o.settled || o.nutri || o.myc || o.leaf || o.deadMyc) continue;
       var dx = o.x - s.x, dy = o.y - s.y;
       if (Math.abs(dx) > 8 || dy < 3 || dy > 20) continue;
@@ -3254,12 +3114,12 @@ function leach(now) {
     if (best) {
       toNutriColor(best);
       best.leachCount = (s.leachCount || 0) + 1; // a fait un cran de plus vers les racines
-      best.leachTick = frame; // un seul cran par passage, meme si on la croise plus loin dans la boucle
+      best.leachTick = temps.frame; // un seul cran par passage, meme si on la croise plus loin dans la boucle
       best.nutriSince = s.nutriSince; // l'age de l'humus suit le lessivage, ne repart pas a zero
       toEarthColor(s);
     } else {
-      var col = Math.max(0, Math.min(compactY.length - 1, Math.round(s.x / COL_W)));
-      compactNutri.push({ x: s.x, y: compactY[col] + 5 + Math.random() * 20, color: NUTRI[(Math.random() * NUTRI.length) | 0] });
+      var col = Math.max(0, Math.min(monde.compactY.length - 1, Math.round(s.x / COL_W)));
+      monde.compactNutri.push({ x: s.x, y: monde.compactY[col] + 5 + Math.random() * 20, color: NUTRI[(Math.random() * NUTRI.length) | 0] });
       // La facette s'enfonce dans le compact : sa matiere est desormais representee
       // UNIQUEMENT par le depot compactNutri ci-dessus. Il faut donc la retirer du tas
       // (hauteur ET facette elle-meme) plutot que la laisser en terre normale : sinon
@@ -3267,7 +3127,7 @@ function leach(now) {
       // fera pousser une feuille, en plus de la facette qui reste plantee dans le sol),
       // ce qui fait grossir les buttes indefiniment meme a fort ruissellement.
       pileRemove(s);
-      shards.splice(i, 1);
+      monde.shards.splice(i, 1);
       i--;
     }
   }
@@ -3279,11 +3139,11 @@ function leach(now) {
 function rainLeaf(s) {
   if (s.rainEpisode !== weather.startedAt) { s.rainEpisode = weather.startedAt; s.rainDrop = 0; }
   if (s.rainDrop >= LEAF_RAIN_MAX_DROP * (s.branch ? WOOD_RAIN_MULT : 1)) return;
-  var col = Math.max(0, Math.min(compactY.length - 1, Math.round(s.x / COL_W)));
+  var col = Math.max(0, Math.min(monde.compactY.length - 1, Math.round(s.x / COL_W)));
   var ny = s.y + LEAF_RAIN_STEP;
-  if (ny > compactY[col] - 3) return;
-  for (var j = 0; j < shards.length; j++) {
-    var o = shards[j];
+  if (ny > monde.compactY[col] - 3) return;
+  for (var j = 0; j < monde.shards.length; j++) {
+    var o = monde.shards[j];
     if (o === s || !o.leaf || !o.settled) continue;
     if (Math.abs(o.x - s.x) < 8 && o.y > s.y && o.y - ny < 4) return;
   }
@@ -3294,12 +3154,12 @@ function rainLeaf(s) {
 // Decomposition du mycelium mort de secheresse (voir stepMycelium) : seule l'humidite d'une
 // averse le fait pourrir en nutriment, comme du bois mort ordinaire. Meme cadence que leach().
 function decomposeDeadMyc() {
-  for (var i = deadMyc.length - 1; i >= 0; i--) {
-    var c = deadMyc[i];
+  for (var i = monde.deadMyc.length - 1; i >= 0; i--) {
+    var c = monde.deadMyc[i];
     if (!c.settled || Math.random() > DEAD_MYC_DECOMPOSE_P) continue;
     c.deadMyc = false; c.mycParent = null;
     toNutriColor(c);
-    deadMyc.splice(i, 1);
+    monde.deadMyc.splice(i, 1);
   }
 }
 
@@ -3307,12 +3167,12 @@ function decomposeDeadMyc() {
 // redescend pendant RAIN_FADE_MS avant sa fin programmee (weather.changeAt).
 function drawClouds() {
   if (!weather.clouds.length) return;
-  var now = vTime;
+  var now = temps.vTime;
   var alpha = Math.min(1, (now - weather.startedAt) / RAIN_FADE_MS, (weather.changeAt - now) / RAIN_FADE_MS);
   alpha = Math.max(0, Math.min(1, alpha));
   if (alpha <= 0) return;
   var CLOUD = ['#e9edf0', '#d7dee2', '#c7d0d6'];
-  var cy = camY + H * RAIN_CLOUD_Y_FRAC, n = 5;
+  var cy = vue.camY + vue.H * RAIN_CLOUD_Y_FRAC, n = 5;
   ctx.save();
   ctx.globalAlpha = alpha;
   for (var ci = 0; ci < weather.clouds.length; ci++) {
@@ -3328,8 +3188,8 @@ function drawClouds() {
 }
 
 function drawRain() {
-  for (var i = 0; i < drops.length; i++) {
-    var d = drops[i];
+  for (var i = 0; i < monde.drops.length; i++) {
+    var d = monde.drops[i];
     ctx.fillStyle = '#bfe0ef';
     poly([[d.x - 1.5, d.y - 6], [d.x + 1.5, d.y - 6], [d.x, d.y + 6]]);
   }
@@ -3340,16 +3200,16 @@ function drawRain() {
 function dropFertilizer(x) {
   var t = Date.now();
   if (t - fertLastAt < FERT_MIN_MS) return;
-  if (money < FERT_COST) { setCaption(CAPTION_NEED_MONEY_FERT); return; }
+  if (partie.money < FERT_COST) { setCaption(CAPTION_NEED_MONEY_FERT); return; }
   fertLastAt = t;
-  fertDropped = true;
+  partie.fertDropped = true;
   if (window.sporaSfx) sporaSfx.play('plant');
-  money -= FERT_COST;
+  partie.money -= FERT_COST;
   updateMoneyUI();
   for (var i = 0; i < FERT_COUNT; i++) {
     var fx = x + (Math.random() - 0.5) * FERT_SPREAD;
-    var col = Math.max(0, Math.min(heights.length - 1, Math.round(fx / COL_W)));
-    spawnNutrientShard(fx, compactY[col] - heights[col], col, GRASS_NUTRI_AREA, vTime);
+    var col = Math.max(0, Math.min(monde.heights.length - 1, Math.round(fx / COL_W)));
+    spawnNutrientShard(fx, monde.compactY[col] - monde.heights[col], col, GRASS_NUTRI_AREA, temps.vTime);
   }
   startLoop();
 }
@@ -3358,37 +3218,32 @@ function dropFertilizer(x) {
 function seedGrass(x) {
   var t = Date.now();
   if (t - grassLastAt < GRASS_SEED_MIN_MS) return;
-  if (money < GRASS_SEED_COST) { setCaption(CAPTION_NEED_MONEY_GRASS); return; }
+  if (partie.money < GRASS_SEED_COST) { setCaption(CAPTION_NEED_MONEY_GRASS); return; }
   grassLastAt = t;
   if (window.sporaSfx) sporaSfx.play('plant');
-  money -= GRASS_SEED_COST;
+  partie.money -= GRASS_SEED_COST;
   updateMoneyUI();
   for (var i = 0; i < 5; i++) {
     var fx = x + (Math.random() - 0.5) * GRASS_SEED_SPREAD;
-    var col = Math.max(0, Math.min(grassCover.length - 1, Math.round(fx / COL_W)));
-    if (grassCover[col] < 1) {
-      grassCover[col] = Math.min(1, grassCover[col] + GRASS_SEED_BOOST);
+    var col = Math.max(0, Math.min(monde.grassCover.length - 1, Math.round(fx / COL_W)));
+    if (monde.grassCover[col] < 1) {
+      monde.grassCover[col] = Math.min(1, monde.grassCover[col] + GRASS_SEED_BOOST);
     }
   }
   startLoop();
 }
-
-// Aide au placement du mycelium : tant que le visiteur n'a pas nourri un mycelium avec du bois
-// (mycFedOnce, voir stepTrees), un halo marque le pied des arbres matures et la fleche du
-// menu d'outils reste affichee.
-var mycFedOnce;
 function matureTrees() {
   var out = [];
-  for (var i = 0; i < trees.length; i++) if (trees[i].growth >= MYC_HALO_GROWTH) out.push(trees[i]);
+  for (var i = 0; i < monde.trees.length; i++) if (monde.trees[i].growth >= MYC_HALO_GROWTH) out.push(monde.trees[i]);
   return out;
 }
 function drawMycHalo() {
   var gs = guideCurrent();
-  if (!gs || !gs.halo || !unlockedStrains.length) return;
-  var pulse = 0.5 + 0.5 * Math.sin(vTime / 420);
+  if (!gs || !gs.halo || !partie.unlockedStrains.length) return;
+  var pulse = 0.5 + 0.5 * Math.sin(temps.vTime / 420);
   var list = matureTrees();
   for (var i = 0; i < list.length; i++) {
-    var hx = list[i].x, hy = surfaceAt(hx), rr = U * 0.07 * (0.9 + 0.2 * pulse);
+    var hx = list[i].x, hy = surfaceAt(hx), rr = vue.U * 0.07 * (0.9 + 0.2 * pulse);
     ctx.save();
     ctx.translate(hx, hy);
     ctx.scale(1, 0.32);
@@ -3406,38 +3261,38 @@ function drawMycHalo() {
 // Vrai si aucun arbre mature ni bois au sol n'est a portee de x : le mycelium verse la
 // va s'eteindre faute de nourriture.
 function nearMatureTree(x) {
-  for (var i = 0; i < trees.length; i++) if (trees[i].growth >= MYC_HALO_GROWTH && Math.abs(trees[i].x - x) < MYC_NEAR_TREE) return true;
+  for (var i = 0; i < monde.trees.length; i++) if (monde.trees[i].growth >= MYC_HALO_GROWTH && Math.abs(monde.trees[i].x - x) < MYC_NEAR_TREE) return true;
   return false;
 }
 function demoGuard(x) {
-  if (!DEMO) return false;
-  var r = Math.min(MYC_UNDER_TREE, UW * 0.1), i, hit = false;
-  for (i = 0; i < trees.length && !hit; i++) hit = !!trees[i].tuto && Math.abs(trees[i].x - x) < r;
+  if (!partie.DEMO) return false;
+  var r = Math.min(MYC_UNDER_TREE, vue.UW * 0.1), i, hit = false;
+  for (i = 0; i < monde.trees.length && !hit; i++) hit = !!monde.trees[i].tuto && Math.abs(monde.trees[i].x - x) < r;
   if (!hit) return false;
-  for (i = 0; i < treasures.length; i++) if (!treasures[i].revealed && Math.abs(treasures[i].x - x) < DEMO_GUARD_TREASURE) return false;
+  for (i = 0; i < partie.treasures.length; i++) if (!partie.treasures[i].revealed && Math.abs(partie.treasures[i].x - x) < DEMO_GUARD_TREASURE) return false;
   return true;
 }
 function underMatureTree(x) {
-  for (var i = 0; i < trees.length; i++) if (trees[i].growth >= MYC_HALO_GROWTH && Math.abs(trees[i].x - x) < MYC_UNDER_TREE) return true;
+  for (var i = 0; i < monde.trees.length; i++) if (monde.trees[i].growth >= MYC_HALO_GROWTH && Math.abs(monde.trees[i].x - x) < MYC_UNDER_TREE) return true;
   return false;
 }
 function noWoodNear(x) {
   var i;
-  for (i = 0; i < trees.length; i++) if (trees[i].growth >= MYC_HALO_GROWTH && Math.abs(trees[i].x - x) < MYC_DECOMPOSE_REACH * 1.6) return false;
-  for (i = 0; i < litter.length; i++) if (Math.abs(litter[i].x - x) < MYC_DECOMPOSE_REACH) return false;
+  for (i = 0; i < monde.trees.length; i++) if (monde.trees[i].growth >= MYC_HALO_GROWTH && Math.abs(monde.trees[i].x - x) < MYC_DECOMPOSE_REACH * 1.6) return false;
+  for (i = 0; i < monde.litter.length; i++) if (Math.abs(monde.litter[i].x - x) < MYC_DECOMPOSE_REACH) return false;
   return true;
 }
 
 function setTool(name) {
-  if (!name || name === tool) return;
+  if (!name || name === partie.tool) return;
   if (window.sporaSfx) sporaSfx.play('toolSwitch'); 
   leaveShovel();
   leaveBag();
   leaveHand();
-  tool = name;
+  partie.tool = name;
   updateStrainBar();
   container.classList.toggle('is-planting', name === 'tree');
-  if (name === 'mycelium' && unlockedStrains.length) guideSet('myc'); // sans souche debloquee, prendre l'outil ne compte pas (le tutoriel resterait sur la barre)
+  if (name === 'mycelium' && partie.unlockedStrains.length) guideSet('myc'); // sans souche debloquee, prendre l'outil ne compte pas (le tutoriel resterait sur la barre)
   for (var i = 0; i < toolBtns.length; i++) {
     // Le gazon n'a pas de bouton dans la barre d'outils : le bouton mycelium (dont la barre
     // contient le bouton gazon) reste actif, sinon tous les boutons sont replies et la barre disparait.
@@ -3450,8 +3305,8 @@ function setTool(name) {
 
 // --- Arbres -----------------------------------------------------------------------
 function makeTree(x) {
-  var now = vTime, slots = [], DEG = Math.PI / 180;
-  var rx = U * 0.2, ry = U * 0.13;
+  var now = temps.vTime, slots = [], DEG = Math.PI / 180;
+  var rx = vue.U * 0.2, ry = vue.U * 0.13;
   // Branches maitresses : bouts en eventail sur le demi-plan superieur (200-340 deg, la
   // branche du milieu pointe vers le haut), dans l'ellipse du houppier. Les branches
   // laterales partent plus bas sur le tronc. f = hauteur de depart, en fraction de h
@@ -3473,7 +3328,7 @@ function makeTree(x) {
   // Places de feuilles : en round-robin sur les bouquets (les N premieres places debloquees
   // touchent donc tous les bouquets), autour du bout de leur branche (disque un peu aplati).
   for (var i = 0; i < 40; i++) {
-    var sa = Math.random() * Math.PI * 2, sr = Math.sqrt(Math.random()) * CANOPY_CLUSTER_R * U, lm = limbs[i % CANOPY_LIMBS];
+    var sa = Math.random() * Math.PI * 2, sr = Math.sqrt(Math.random()) * CANOPY_CLUSTER_R * vue.U, lm = limbs[i % CANOPY_LIMBS];
     slots.push({ dx: lm.dx + Math.cos(sa) * sr, dy: lm.dy + Math.sin(sa) * sr * 0.8, leaf: null, limb: i % CANOPY_LIMBS });
   }
   // Racines dessinees : 6 racines laterales alternees gauche/droite, qui partent en
@@ -3481,7 +3336,7 @@ function makeTree(x) {
   // chacune avec une fourche. Longueur volontairement plus courte que la portee de
   // recherche de nutriment (voir ROOT_VISUAL_REACH plus haut). Points pre-calcules ici :
   // rien ne bouge d'une frame a l'autre. Chaque racine = { pts, forkAt, fork }.
-  var roots = [], reach = U * ROOT_VISUAL_REACH;
+  var roots = [], reach = vue.U * ROOT_VISUAL_REACH;
   for (i = 0; i < 6; i++) {
     var side = i % 2 ? 1 : -1, len = (0.45 + Math.random() * 0.55) * reach, nseg = 5 + (Math.random() < 0.5 ? 1 : 0);
     var ang = (20 + Math.random() * 25) * DEG, pts = [[0, 0]], px = 0, py = 0, segL = len / nseg;
@@ -3509,7 +3364,7 @@ function makeTree(x) {
   // CAMERA_TOP_DEADZONE) plutot qu'a H au complet : sinon un arbre bien nourri
   // (TREE_SCALE_MAX) a sa cime qui finit cachee sous le header, sans que la camera
   // puisse jamais remonter assez pour la reveler (camY ne descend jamais sous 0).
-  var t = { x: x, h: (U - CAMERA_TOP_DEADZONE) * 0.42, slots: slots, limbs: limbs, roots: roots, nextEat: now + EAT_MS, eaten: 0, growth: 0, lastAte: now, flowers: [] };
+  var t = { x: x, h: (vue.U - CAMERA_TOP_DEADZONE) * 0.42, slots: slots, limbs: limbs, roots: roots, nextEat: now + EAT_MS, eaten: 0, growth: 0, lastAte: now, flowers: [] };
   // Quelques feuilles au depart, d'ages varies : on reconnait un arbre tout de suite.
   for (i = 0; i < 8; i++) addLeaf(t, now - Math.random() * LEAF_LIFE_MS[0] * 0.6);
   return t;
@@ -3519,8 +3374,8 @@ function makeTree(x) {
 function makeStartTree(x, eaten) {
   // Cherche vers la gauche (on reste au bord de l'ecran, loin du tas du logo) une zone
   // sans roche ni eau sur 4 colonnes de chaque cote.
-  var maxX = (heights.length - 1) * COL_W, nx = null, cx, d, ok;
-  for (cx = x; cx >= x - UW * 0.2 && nx === null; cx -= COL_W) {
+  var maxX = (monde.heights.length - 1) * COL_W, nx = null, cx, d, ok;
+  for (cx = x; cx >= x - vue.UW * 0.2 && nx === null; cx -= COL_W) {
     ok = true;
     for (d = -4; d <= 4 && ok; d++) {
       var px = cx + d * COL_W;
@@ -3533,7 +3388,7 @@ function makeStartTree(x, eaten) {
   t.tuto = true; // l'arbre du tutoriel : son pied est protege en demo (demoGuard)
   t.eaten = Math.min(MATURE_NUTRIENTS, eaten);
   t.growth = Math.min(1, t.eaten / MATURE_NUTRIENTS);
-  for (var k = 8; k < Math.round(unlockedSlots(t) * 0.7); k++) addLeaf(t, vTime - Math.random() * LEAF_LIFE_MS[0] * 0.6);
+  for (var k = 8; k < Math.round(unlockedSlots(t) * 0.7); k++) addLeaf(t, temps.vTime - Math.random() * LEAF_LIFE_MS[0] * 0.6);
   return t;
 }
 
@@ -3554,21 +3409,21 @@ function treeTall(t) { return Math.min(1, (t.surplus || 0) / TALL_FULL); }
 // (TREE_MIN_SPACING). Pas de plafond : seul le prix limite le nombre.
 function plantTree(x) {
   if (isRocky(x) || isSubmerged(x)) return false;
-  for (var i = 0; i < trees.length; i++) {
-    if (Math.abs(trees[i].x - x) < TREE_MIN_SPACING) return false;
+  for (var i = 0; i < monde.trees.length; i++) {
+    if (Math.abs(monde.trees[i].x - x) < TREE_MIN_SPACING) return false;
   }
-  var cost = nextTreeCost(), useFree = cost > 0 && freeTrees > 0;
-  if (!useFree && money < cost) { setCaption('Il faut ' + cost + ' $ pour planter un arbre — récoltez des champignons à la main.'); return false; }
-  if (useFree) freeTrees--; else money -= cost;
+  var cost = nextTreeCost(), useFree = cost > 0 && partie.freeTrees > 0;
+  if (!useFree && partie.money < cost) { setCaption('Il faut ' + cost + ' $ pour planter un arbre — récoltez des champignons à la main.'); return false; }
+  if (useFree) partie.freeTrees--; else partie.money -= cost;
   updateMoneyUI();
   var planted = makeTree(x);
   planted.planted = true;
-  trees.push(planted);
-  chPlanted++;
+  monde.trees.push(planted);
+  partie.chPlanted++;
   savePlayerIfChanged();
-  if (!worldSaveOff) saveWorld(); // sauvegarde immediate : un arbre paye ne doit pas se perdre
+  if (!partie.worldSaveOff) saveWorld(); // sauvegarde immediate : un arbre paye ne doit pas se perdre
   if (window.sporaSfx) sporaSfx.play('plant'); 
-  treeLife = true;
+  monde.treeLife = true;
   startLoop();
   return true;
 }
@@ -3581,7 +3436,7 @@ function eatNutrient(item, now) {
     item.ref.settled = false;
     item.ref.eaten = now;
   } else {
-    compactNutri.splice(compactNutri.indexOf(item.ref), 1);
+    monde.compactNutri.splice(monde.compactNutri.indexOf(item.ref), 1);
   }
 }
 
@@ -3610,7 +3465,7 @@ function makeLeafShard(lf, x, y, age, wm) {
 // couleur de bois plutot que de feuille fanee. pts : forme (triangle) ; par defaut un
 // triangle de feuille agrandi.
 function makeWoodShard(x, y, pts) {
-  pts = pts || leafTri(U * 0.05, Math.random() * Math.PI * 2);
+  pts = pts || leafTri(vue.U * 0.05, Math.random() * Math.PI * 2);
   return {
     pts: pts, x: x, y: y, vx: (Math.random() - 0.5) * 0.4, vy: 0,
     rot: 0, vr: (Math.random() - 0.5) * 0.04, from: [107, 74, 48],
@@ -3629,10 +3484,10 @@ function shedBranchSlot(t, sl, now, woodPts, leafByAge) {
   var x = t.x + sl.dx * tg, y = by - t.h * tg + sl.dy * tg;
   // La fleur (s'il y en a une) fane avec sa branche, elle ne disparait pas d'un coup.
   if (sl.flower && sl.flower.wilt === null) sl.flower.wilt = now;
-  if (sl.leaf) shards.push(makeLeafShard(sl.leaf, x, y, leafByAge ? leafAgeOf(sl.leaf, now) : 1));
+  if (sl.leaf) monde.shards.push(makeLeafShard(sl.leaf, x, y, leafByAge ? leafAgeOf(sl.leaf, now) : 1));
   sl.leaf = null;
   var wood = makeWoodShard(x, y, woodPts);
-  shards.push(wood);
+  monde.shards.push(wood);
   return wood;
 }
 
@@ -3641,7 +3496,7 @@ function addLeaf(t, born) {
   if (!free.length) return false;
   free[(Math.random() * free.length) | 0].leaf = {
     born: born, life: lerp(LEAF_LIFE_MS[0], LEAF_LIFE_MS[1], Math.random()),
-    rot: Math.random() * Math.PI * 2, size: U * (0.028 + Math.random() * 0.016)
+    rot: Math.random() * Math.PI * 2, size: vue.U * (0.028 + Math.random() * 0.016)
   };
   return true;
 }
@@ -3678,17 +3533,17 @@ function countLiveFlowers(t) {
 // sinon renonce silencieusement cette fois-ci, sans jamais faire echouer la branche.
 function spawnFlower(t, slot, now) {
   if (countLiveFlowers(t) >= FLOWER_MAX_PER_TREE) return;
-  var R = U * lerp(FLORA_TREE_R_MIN, FLORA_TREE_R_MAX, t.growth);
-  var trunkW = U * 0.035 * treeScale(t);
+  var R = vue.U * lerp(FLORA_TREE_R_MIN, FLORA_TREE_R_MAX, t.growth);
+  var trunkW = vue.U * 0.035 * treeScale(t);
   for (var attempt = 0; attempt < 10; attempt++) {
     var side = Math.random() < 0.5 ? -1 : 1;
     var dist = lerp(trunkW * 2.5, R, Math.random());
     var x = t.x + side * dist;
-    var col = Math.max(0, Math.min(grassCover.length - 1, Math.round(x / COL_W)));
-    if (!(grassCover[col] > 0.5) || isRocky(x)) continue;
+    var col = Math.max(0, Math.min(monde.grassCover.length - 1, Math.round(x / COL_W)));
+    if (!(monde.grassCover[col] > 0.5) || isRocky(x)) continue;
     var tooClose = false;
-    for (var ti = 0; ti < trees.length && !tooClose; ti++) {
-      var others = trees[ti].flowers;
+    for (var ti = 0; ti < monde.trees.length && !tooClose; ti++) {
+      var others = monde.trees[ti].flowers;
       for (var fi = 0; fi < others.length; fi++) {
         if (Math.abs(others[fi].x - x) < FLOWER_MIN_SPACING) { tooClose = true; break; }
       }
@@ -3712,8 +3567,8 @@ function spawnFlower(t, slot, now) {
 // de la vie lente (feuilles qui vieillissent, nutriments, litiere), 0 sinon.
 function stepTrees(now) {
   var state = 0, i;
-  for (var ti = 0; ti < trees.length; ti++) {
-    var t = trees[ti];
+  for (var ti = 0; ti < monde.trees.length; ti++) {
+    var t = monde.trees[ti];
     // t.by suit le sol avec un delai (TREE_BY_FOLLOW) : les petites secousses (pelle
     // pres du tronc) sont lissees, mais un trou creuse durablement sous l'arbre finit
     // par le faire lentement s'enfoncer, sans sauter.
@@ -3749,7 +3604,7 @@ function stepTrees(now) {
       // Feuille morte : elle se detache et tombe (devient une facette du monde).
       sl.leaf = null;
       var tg = treeScale(t);
-      shards.push(makeLeafShard(lf, t.x + sl.dx * tg, by - t.h * tg + sl.dy * tg, 1, lerp(SMALL_WIND_MULT, 1, t.growth) + (TALL_WIND_MULT - 1) * treeTall(t)));
+      monde.shards.push(makeLeafShard(lf, t.x + sl.dx * tg, by - t.h * tg + sl.dy * tg, 1, lerp(SMALL_WIND_MULT, 1, t.growth) + (TALL_WIND_MULT - 1) * treeTall(t)));
       state = 2;
     }
     if (branchesFallen) for (var bf = branchesFallen.length - 1; bf >= 0; bf--) t.slots.splice(branchesFallen[bf], 1);
@@ -3762,16 +3617,16 @@ function stepTrees(now) {
       // nutriment lessive trop profond dans le compact (voir leach()) est hors de portee
       // tant que la pelle ne l'a pas ramene plus haut (cutCompact).
       var g = lerp(ROOT_GROWTH_MIN, 1, t.growth);
-      var reach = UW * ROOT_REACH * g, depthReach = U * lerp(ROOT_DEPTH_MIN, ROOT_DEPTH_MAX, t.growth), surf = surfaceAt(t.x);
+      var reach = vue.UW * ROOT_REACH * g, depthReach = vue.U * lerp(ROOT_DEPTH_MIN, ROOT_DEPTH_MAX, t.growth), surf = surfaceAt(t.x);
       var eligible = [];
-      for (i = 0; i < shards.length; i++) {
-        var s = shards[i];
+      for (i = 0; i < monde.shards.length; i++) {
+        var s = monde.shards[i];
         if (!s.nutri || !s.settled || s.y > surf + depthReach || !isNutriRipe(s, now)) continue;
         if (Math.abs(s.x - t.x) >= reach) continue;
         eligible.push({ kind: 'shard', ref: s, y: s.y });
       }
-      for (var ni = 0; ni < compactNutri.length; ni++) {
-        var dep = compactNutri[ni];
+      for (var ni = 0; ni < monde.compactNutri.length; ni++) {
+        var dep = monde.compactNutri[ni];
         if (dep.y > surf + depthReach) continue;
         if (Math.abs(dep.x - t.x) >= reach) continue;
         eligible.push({ kind: 'deposit', ref: dep, y: dep.y });
@@ -3816,7 +3671,7 @@ function stepTrees(now) {
         if (bonusCount < BONUS_BRANCH_MAX) {
           for (var bc = 0; bc < BONUS_BRANCH_COST; bc++) { eatNutrient(eligible[usedIdx], now); usedIdx++; }
           var ba = Math.random() * Math.PI * 2, bdist = 1 + Math.random() * 0.25; // un peu hors du houppier normal
-          var newBranch = { dx: Math.cos(ba) * U * 0.2 * bdist, dy: Math.sin(ba) * U * 0.13 * bdist, leaf: null, branch: true, branchSince: now };
+          var newBranch = { dx: Math.cos(ba) * vue.U * 0.2 * bdist, dy: Math.sin(ba) * vue.U * 0.13 * bdist, leaf: null, branch: true, branchSince: now };
           t.slots.push(newBranch);
           spawnFlower(t, newBranch, now); // fleur cosmetique au pied de l'arbre, cf. section "Flore"
           state = 2;
@@ -3851,19 +3706,19 @@ function stepTrees(now) {
   // Du bois tombe se decompose tout seul, lentement (LITTER_MS) ; un mycelium a
   // proximite le decompose bien plus vite (MYC_DECOMPOSE_MULT) et s'en nourrit
   // (c.lastFed), ce qui le maintient en vie (voir stepMycelium).
-  for (i = 0; i < litter.length; i++) {
-    var l = litter[i];
+  for (i = 0; i < monde.litter.length; i++) {
+    var l = monde.litter[i];
     if (!l.settled) continue;
     var dt = l.lastNow ? now - l.lastNow : 0;
     l.lastNow = now;
     var fed = false, fruitCell = null;
-    for (var ci = 0; ci < colonised.length; ci++) {
-      var c = colonised[ci];
+    for (var ci = 0; ci < monde.colonised.length; ci++) {
+      var c = monde.colonised[ci];
       if (Math.abs(c.x - l.x) < MYC_DECOMPOSE_REACH && Math.abs(c.y - l.y) < MYC_DECOMPOSE_REACH) {
         c.lastFed = now;
         fed = true;
         if (c.settled && c.myc >= MYC_READY && c.y - surfaceAt(c.x) < 18) fruitCell = c;
-        if (!mycFedOnce) { mycFedOnce = true; guideSet('fed'); setCaption(CAPTION_MYC_FED); }
+        if (!partie.mycFedOnce) { partie.mycFedOnce = true; guideSet('fed'); setCaption(CAPTION_MYC_FED); }
       }
     }
     if (fed) l.bonus = (l.bonus || 0) + dt * (MYC_DECOMPOSE_MULT - 1);
@@ -3873,7 +3728,7 @@ function stepTrees(now) {
       if (weather.raining) lastRainAt = now;
       var wet = weather.raining ? 1 : Math.max(0, 1 - (now - lastRainAt) / FEED_FRUIT_WET_MS);
       var nMyc = 0;
-      for (var mi = 0; mi < mushrooms.length; mi++) if (mushrooms[mi].myc && !mushrooms[mi].dying) nMyc++;
+      for (var mi = 0; mi < monde.mushrooms.length; mi++) if (monde.mushrooms[mi].myc && !monde.mushrooms[mi].dying) nMyc++;
       if (nMyc < FEED_FRUIT_MAX && Math.random() < dt / 1000 * FEED_FRUIT_PER_S * (1 + FEED_FRUIT_WET_MULT * wet)) {
         sprout(fruitCell.x, true, fruitCell.strain || STRAIN_STD);
       }
@@ -3893,14 +3748,14 @@ function stepTrees(now) {
   // Feuille tout a fait decomposee : elle devient de l'humus, que les racines peuvent
   // reprendre. Le bois, lui, a deja rendu toute sa matiere par bouts (ci-dessus) : ce qui
   // en reste redevient juste de la terre normale, jamais un nutriment en plus.
-  litter.forEach(function (l) {
+  monde.litter.forEach(function (l) {
     if (l.mix >= 1 && l.settled) {
       if (l.branch) toEarthColor(l); else { l.nutri = rgbStr(l.to); l.nutriSince = now; }
     }
   });
-  litter = litter.filter(function (l) { return l.mix < 1 && shards.indexOf(l) >= 0; });
-  if (litter.length) state = Math.max(state, 1);
-  if (!state && shards.some(function (x) { return x.nutri; })) state = 1;
+  monde.litter = monde.litter.filter(function (l) { return l.mix < 1 && monde.shards.indexOf(l) >= 0; });
+  if (monde.litter.length) state = Math.max(state, 1);
+  if (!state && monde.shards.some(function (x) { return x.nutri; })) state = 1;
   return state;
 }
 
@@ -3912,11 +3767,11 @@ function stepTrees(now) {
 // cadence (sinon la boucle lente a 4 img/s rendrait ces transitions saccadees).
 function stepFlowers(now) {
   var busy = false;
-  for (var ti = 0; ti < trees.length; ti++) {
-    var t = trees[ti], kept = [];
+  for (var ti = 0; ti < monde.trees.length; ti++) {
+    var t = monde.trees[ti], kept = [];
     for (var i = 0; i < t.flowers.length; i++) {
       var f = t.flowers[i];
-      if (grassCover[f.col] <= 0) continue;
+      if (monde.grassCover[f.col] <= 0) continue;
       if (f.wilt !== null && now - f.wilt > FLOWER_WILT_MS) continue;
       kept.push(f);
       if (f.wilt !== null || (now >= f.born && now - f.born < FLOWER_BLOOM_MS)) busy = true;
@@ -3930,7 +3785,7 @@ function stepFlowers(now) {
 // meme geometrie appliquee au dessin) : sert de cible d'atterrissage aux insectes.
 function flowerTopWorld(f) {
   var leanSign = f.lean < 0 ? -1 : 1;
-  var stemH = FLOWER_H_F * U * f.sizeK;
+  var stemH = FLOWER_H_F * vue.U * f.sizeK;
   var curveK = stemH * 0.3 * leanSign;
   var baseX = f.x, baseY = surfaceAt(f.x) + FLORA_EMBED;
   var ca = Math.cos(f.lean), sa = Math.sin(f.lean);
@@ -3940,28 +3795,28 @@ function flowerTopWorld(f) {
 
 // Vrai si une fleur ouverte (eclosion terminee, pas fletrie) est encore visible a l'ecran.
 function flowerIsOpen(f) {
-  return f.wilt === null && vTime - f.born >= FLOWER_BLOOM_MS;
+  return f.wilt === null && temps.vTime - f.born >= FLOWER_BLOOM_MS;
 }
 // Une fleur ciblee par un insecte peut disparaitre (pelle, branche tombee) sans jamais
 // etre retiree "sous nos yeux" : on revalide sa presence a chaque frame plutot que de
 // se fier a une simple reference d'objet.
 function flowerStillGood(f) {
   if (f.wilt !== null) return false;
-  for (var ti = 0; ti < trees.length; ti++) if (trees[ti].flowers.indexOf(f) >= 0) return true;
+  for (var ti = 0; ti < monde.trees.length; ti++) if (monde.trees[ti].flowers.indexOf(f) >= 0) return true;
   return false;
 }
 function flowerAlreadyTargeted(f) {
-  for (var i = 0; i < insects.length; i++) if (insects[i].target === f) return true;
+  for (var i = 0; i < monde.insects.length; i++) if (monde.insects[i].target === f) return true;
   return false;
 }
 // Premiere fleur ouverte, visible et pas deja visee, tous arbres confondus (meme marge
 // de visibilite que drawFlower).
 function pickOpenFlower() {
-  for (var ti = 0; ti < trees.length; ti++) {
-    var fl = trees[ti].flowers;
+  for (var ti = 0; ti < monde.trees.length; ti++) {
+    var fl = monde.trees[ti].flowers;
     for (var i = 0; i < fl.length; i++) {
       var f = fl[i];
-      if (f.x < camX - 30 || f.x > camX + W + 30) continue;
+      if (f.x < vue.camX - 30 || f.x > vue.camX + vue.W + 30) continue;
       if (!flowerIsOpen(f)) continue;
       if (flowerAlreadyTargeted(f)) continue;
       return f;
@@ -3976,41 +3831,39 @@ function pickOpenFlower() {
 // le dessin (drawInsect) ne fait plus que lire ces valeurs et l'age ecoule.
 function spawnInsect() {
   var nB = 0, nBee = 0;
-  for (var ci = 0; ci < insects.length; ci++) { if (insects[ci].species === 'papillon') nB++; else nBee++; }
+  for (var ci = 0; ci < monde.insects.length; ci++) { if (monde.insects[ci].species === 'papillon') nB++; else nBee++; }
   var species = Math.random() < BUTTERFLY_P ? 'papillon' : 'bourdon';
   if (species === 'papillon' && nB >= BUTTERFLY_MAX) species = 'bourdon';
   if (species === 'bourdon' && nBee >= INSECT_MAX) species = nB < BUTTERFLY_MAX ? 'papillon' : null;
   if (!species) return;
   var dir = Math.random() < 0.5 ? -1 : 1;
-  var startX = dir > 0 ? camX - 40 : camX + W + 40;
+  var startX = dir > 0 ? vue.camX - 40 : vue.camX + vue.W + 40;
   var yFrac = 0.12 + Math.random() * (0.45 - 0.12);
   var sizeMult = species === 'bourdon' ? 0.7 : BUTTERFLY_SIZE_K;
-  var speed = U * 0.0009 * INSECT_SPEED * (species === 'bourdon' ? 1.6 : 1);
+  var speed = vue.U * 0.0009 * INSECT_SPEED * (species === 'bourdon' ? 1.6 : 1);
   var ins = {
     species: species, dir: dir, sizeMult: sizeMult, speed: speed, yFrac: yFrac,
     cruiseX: startX, x: startX, y: 0, age: 0,
     phaseWing: Math.random() * Math.PI * 2,
     glideSeed: Math.random() * 3000,
-    wA1: U * 0.02, wA2: U * 0.008, wT1: species === 'bourdon' ? 850 : 1700, wT2: species === 'bourdon' ? 300 : 600,
+    wA1: vue.U * 0.02, wA2: vue.U * 0.008, wT1: species === 'bourdon' ? 850 : 1700, wT2: species === 'bourdon' ? 300 : 600,
     wPh1: Math.random() * Math.PI * 2, wPh2: Math.random() * Math.PI * 2,
-    zzA: species === 'bourdon' ? U * 0.01 : 0, zzT: 320 + Math.random() * 80, zzPh: Math.random() * Math.PI * 2,
+    zzA: species === 'bourdon' ? vue.U * 0.01 : 0, zzT: 320 + Math.random() * 80, zzPh: Math.random() * Math.PI * 2,
     driftT: 4000 + Math.random() * 2000, driftPh: Math.random() * Math.PI * 2,
     state: 'cruise', target: null, nearFlower: false,
     landAt: 0, landDur: 0, landPh: 0
   };
-  ins.y = clamp(surfaceAt(clamp(startX, 0, worldW)) - U * yFrac, camY + 10, camY + H - 10);
+  ins.y = clamp(surfaceAt(clamp(startX, 0, vue.worldW)) - vue.U * yFrac, vue.camY + 10, vue.camY + vue.H - 10);
   if (Math.random() < INSECT_LAND_P) {
     var f = pickOpenFlower();
     if (f) { ins.target = f; ins.state = 'approach'; }
   }
-  insects.push(ins);
+  monde.insects.push(ins);
 }
-var heldInsect = null;                   // un seul papillon tenu a la fois
-var heldSX = 0, heldSY = 0;              // position ecran du pointeur (le monde peut defiler)
 function insectAt(wx, wy) {
-  var size = U * INSECT_SIZE_F * BUTTERFLY_SIZE_K, best = null, bd = 1e9;
-  for (var i = 0; i < insects.length; i++) {
-    var ins = insects[i];
+  var size = vue.U * INSECT_SIZE_F * BUTTERFLY_SIZE_K, best = null, bd = 1e9;
+  for (var i = 0; i < monde.insects.length; i++) {
+    var ins = monde.insects[i];
     if (ins.species !== 'papillon' || ins.caught) continue;
     var d = Math.hypot(wx - ins.x, wy - ins.y);
     if (d <= size * 0.95 + 14 && d < bd) { bd = d; best = ins; }
@@ -4021,13 +3874,13 @@ function catchInsect(ins) {
   ins.caught = true; ins.caughtAt = ins.age;
   // Un papillon pose ou en approche est arrache a sa fleur : plus de cible pendant la prise.
   ins.target = null; ins.nearFlower = false;
-  heldInsect = ins;
+  monde.heldInsect = ins;
   challengeDone(11);
 }
 // Libere le papillon tenu (s'il y en a un) : il s'enfuit. Sans effet sinon.
 function dropHeldInsect() {
-  var ins = heldInsect;
-  heldInsect = null;
+  var ins = monde.heldInsect;
+  monde.heldInsect = null;
   if (ins && ins.caught) releaseInsect(ins);
 }
 function releaseInsect(ins) {
@@ -4037,7 +3890,7 @@ function releaseInsect(ins) {
   ins.state = 'flee';
   ins.fleeStart = ins.age;
   ins.fvx = 0; ins.fvy = 0;
-  ins.fleeVy = -U * 0.00028;             // petite montee au depart, qui s'estompe
+  ins.fleeVy = -vue.U * 0.00028;             // petite montee au depart, qui s'estompe
 }
 function stepInsectFlee(ins, dt) {
   var t = ins.age - ins.fleeStart;
@@ -4045,11 +3898,11 @@ function stepInsectFlee(ins, dt) {
   ins.fvx += (ins.dir * ins.speed * FLEE_SPEED_K - ins.fvx) * rate;
   ins.fvy += (ins.fleeVy * Math.max(0, 1 - t / 700) - ins.fvy) * rate;
   ins.x += ins.fvx * dt;
-  ins.y = clamp(ins.y + ins.fvy * dt, camY + 10, Math.min(camY + H - 10, surfaceAt(clamp(ins.x, 0, worldW)) - U * 0.03));
+  ins.y = clamp(ins.y + ins.fvy * dt, vue.camY + 10, Math.min(vue.camY + vue.H - 10, surfaceAt(clamp(ins.x, 0, vue.worldW)) - vue.U * 0.03));
   if (t >= FLEE_MS) {
     // Retour en croisiere sans saut : cruiseX absorbe la derive courante, et l'ecart
     // vertical residuel (yOff) s'estompe ensuite dans stepInsectCruise.
-    var drift = Math.sin(ins.age / ins.driftT + ins.driftPh) * U * 0.006;
+    var drift = Math.sin(ins.age / ins.driftT + ins.driftPh) * vue.U * 0.006;
     ins.cruiseX = ins.x - drift;
     ins.state = 'cruise';
     ins.yOff = ins.y - cruiseY(ins);
@@ -4059,13 +3912,13 @@ function cruiseY(ins) {
   var w1 = ins.wA1 * Math.sin((ins.age / ins.wT1) * Math.PI * 2 + ins.wPh1);
   var w2 = ins.wA2 * Math.sin((ins.age / ins.wT2) * Math.PI * 2 + ins.wPh2);
   var zz = ins.zzA * Math.sin((ins.age / ins.zzT) * Math.PI * 2 + ins.zzPh);
-  return surfaceAt(clamp(ins.x, 0, worldW)) - U * ins.yFrac + w1 + w2 + zz;
+  return surfaceAt(clamp(ins.x, 0, vue.worldW)) - vue.U * ins.yFrac + w1 + w2 + zz;
 }
 // Croisiere : traversee de l'ecran, ondulation verticale (+ petits zigzags pour le
 // bourdon) et derive horizontale legere. speedMult vaut 2 sous la pluie (fuite).
 function stepInsectCruise(ins, dt, speedMult) {
   ins.cruiseX += ins.dir * ins.speed * speedMult * dt;
-  var drift = Math.sin(ins.age / ins.driftT + ins.driftPh) * U * 0.006;
+  var drift = Math.sin(ins.age / ins.driftT + ins.driftPh) * vue.U * 0.006;
   ins.x = ins.cruiseX + drift;
   var yo = 0;
   if (ins.yOff) { // ecart residuel apres une fuite : s'estompe en ~0,6 s
@@ -4073,19 +3926,19 @@ function stepInsectCruise(ins, dt, speedMult) {
     if (Math.abs(ins.yOff) < 0.5) ins.yOff = 0;
     yo = ins.yOff;
   }
-  ins.y = clamp(cruiseY(ins) + yo, camY + 10, camY + H - 10);
+  ins.y = clamp(cruiseY(ins) + yo, vue.camY + 10, vue.camY + vue.H - 10);
 }
 // Approche : vise un point au-dessus de la fleur qui descend progressivement vers le
 // bout de la tige (courbe douce, pas une ligne droite), jusqu'a se poser.
 function stepInsectApproach(ins, dt) {
   var top = flowerTopWorld(ins.target);
   var dx = top[0] - ins.x, dy = top[1] - ins.y, dist = Math.hypot(dx, dy);
-  ins.nearFlower = dist < U * 0.08;
-  var hover = Math.min(U * 0.07, dist * 0.5);
+  ins.nearFlower = dist < vue.U * 0.08;
+  var hover = Math.min(vue.U * 0.07, dist * 0.5);
   var rate = Math.min(1, dt / 260);
   ins.x += (top[0] - ins.x) * rate;
   ins.y += (top[1] - hover - ins.y) * rate;
-  ins.y += Math.sin(ins.age / 260 + ins.wPh1) * U * 0.004;
+  ins.y += Math.sin(ins.age / 260 + ins.wPh1) * vue.U * 0.004;
   if (dist < 3) {
     ins.state = 'landed';
     ins.x = top[0]; ins.y = top[1];
@@ -4112,30 +3965,30 @@ function stepInsectLanded(ins) {
 // un insecte : force alors la pleine cadence (la boucle lente suffit tant qu'aucun
 // insecte n'est en vol, et continue de surveiller le prochain delai d'apparition).
 function stepInsects(realNow) {
-  if (insectLastT === null) {
-    insectLastT = realNow;
-    insectNextAt = realNow + 6000 + Math.random() * 6000; // premiere apparition, 6-12s
+  if (monde.insectLastT === null) {
+    monde.insectLastT = realNow;
+    monde.insectNextAt = realNow + 6000 + Math.random() * 6000; // premiere apparition, 6-12s
   }
-  var dt = Math.min(realNow - insectLastT, 50);
-  insectLastT = realNow;
+  var dt = Math.min(realNow - monde.insectLastT, 50);
+  monde.insectLastT = realNow;
   var raining = weather.raining; // averse en cours (rainLevel n'est qu'un reglage de frequence)
-  if (!raining && insects.length < INSECT_MAX + BUTTERFLY_MAX && realNow >= insectNextAt) {
+  if (!raining && monde.insects.length < INSECT_MAX + BUTTERFLY_MAX && realNow >= monde.insectNextAt) {
     spawnInsect();
-    insectNextAt = realNow + lerp(INSECT_GAP_MIN_MS, INSECT_GAP_MAX_MS, Math.random());
+    monde.insectNextAt = realNow + lerp(INSECT_GAP_MIN_MS, INSECT_GAP_MAX_MS, Math.random());
   }
   var speedMult = raining ? 2 : 1;
-  for (var i = insects.length - 1; i >= 0; i--) {
-    var ins = insects[i];
+  for (var i = monde.insects.length - 1; i >= 0; i--) {
+    var ins = monde.insects[i];
     ins.age += dt;
     if (ins.caught) {
-      if (ins !== heldInsect || mode !== 'exploded' || ins.age - ins.caughtAt > CATCH_MAX_MS) {
-        if (ins === heldInsect) heldInsect = null;
+      if (ins !== monde.heldInsect || partie.mode !== 'exploded' || ins.age - ins.caughtAt > CATCH_MAX_MS) {
+        if (ins === monde.heldInsect) monde.heldInsect = null;
         releaseInsect(ins);
       } else {
         // Tenu : suit le pointeur (lisse, leger tremblement), jamais retire ni recycle.
         var hk = Math.min(1, dt / 18), ht = ins.age / 1000; // constante courte : colle a la main sans trainer
-        ins.x += (heldSX + camX + Math.sin(ht * 17) * 2 - ins.x) * hk;
-        ins.y += (heldSY + camY - U * 0.02 + Math.cos(ht * 21) * 2 - ins.y) * hk;
+        ins.x += (vue.heldSX + vue.camX + Math.sin(ht * 17) * 2 - ins.x) * hk;
+        ins.y += (vue.heldSY + vue.camY - vue.U * 0.02 + Math.cos(ht * 21) * 2 - ins.y) * hk;
         continue;
       }
     }
@@ -4145,9 +3998,9 @@ function stepInsects(realNow) {
     else if (ins.state === 'landed') stepInsectLanded(ins);
     else if (ins.state === 'flee') stepInsectFlee(ins, dt);
     else stepInsectCruise(ins, dt, speedMult);
-    if ((ins.dir > 0 && ins.x > camX + W + 80) || (ins.dir < 0 && ins.x < camX - 80) || ins.age > 180000) insects.splice(i, 1);
+    if ((ins.dir > 0 && ins.x > vue.camX + vue.W + 80) || (ins.dir < 0 && ins.x < vue.camX - 80) || ins.age > 180000) monde.insects.splice(i, 1);
   }
-  return insects.length > 0;
+  return monde.insects.length > 0;
 }
 
 // Quadrilatere du point a vers b (demi-epaisseurs wa, wb), perpendiculaire a la direction
@@ -4157,7 +4010,7 @@ function rootSeg(ax, ay, bx, by2, wa, wb) {
   poly([[ax + nx * wa, ay + ny * wa], [bx + nx * wb, by2 + ny * wb], [bx - nx * wb, by2 - ny * wb], [ax - nx * wa, ay - ny * wa]]);
 }
 function drawRoots(t) {
-  var by = t.by !== undefined ? t.by : surfaceAt(t.x) + TREE_EMBED, w0 = U * 0.014;
+  var by = t.by !== undefined ? t.by : surfaceAt(t.x) + TREE_EMBED, w0 = vue.U * 0.014;
   // Racines courtes a la naissance, elles s'etirent jusqu'a leur pleine longueur en poussant.
   var rg = lerp(ROOT_GROWTH_MIN, 1, t.growth);
   for (var r = 0; r < t.roots.length; r++) {
@@ -4179,11 +4032,11 @@ function drawRoots(t) {
   }
   // Racine pivot : descend droit jusqu'a la vraie profondeur ou l'arbre va chercher
   // l'humus (meme calcul que la recherche dans stepTrees), visible en defilant vers le bas.
-  var tipY = surfaceAt(t.x) + U * lerp(ROOT_DEPTH_MIN, ROOT_DEPTH_MAX, t.growth), N = 6, seed = t.x * 0.37;
+  var tipY = surfaceAt(t.x) + vue.U * lerp(ROOT_DEPTH_MIN, ROOT_DEPTH_MAX, t.growth), N = 6, seed = t.x * 0.37;
   for (i = 0; i < N; i++) {
     var k0 = i / N, k1 = (i + 1) / N;
     var y0 = lerp(by, tipY, k0), y1 = lerp(by, tipY, k1);
-    var x0 = t.x + Math.sin(seed + k0 * 5) * U * 0.012 * k0, x1 = t.x + Math.sin(seed + k1 * 5) * U * 0.012 * k1;
+    var x0 = t.x + Math.sin(seed + k0 * 5) * vue.U * 0.012 * k0, x1 = t.x + Math.sin(seed + k1 * 5) * vue.U * 0.012 * k1;
     var w0p = w0 * 1.3 * (1 - k0) + 0.6, w1p = w0 * 1.3 * (1 - k1) + 0.6;
     ctx.fillStyle = ROOT_COLORS[i % 2];
     poly([[x0 - w0p, y0], [x0 + w0p, y0], [x1 + w1p, y1], [x1 - w1p, y1]]);
@@ -4191,7 +4044,7 @@ function drawRoots(t) {
 }
 function drawTree(t) {
   // Tronc/houppier petits a la naissance, pleine taille une fois l'arbre mature (t.growth).
-  var now = vTime, tg = treeScale(t), by = t.by !== undefined ? t.by : surfaceAt(t.x) + TREE_EMBED, h = t.h * tg, w = U * 0.035 * tg, top = by - h;
+  var now = temps.vTime, tg = treeScale(t), by = t.by !== undefined ? t.by : surfaceAt(t.x) + TREE_EMBED, h = t.h * tg, w = vue.U * 0.035 * tg, top = by - h;
   // Tronc : deux facettes (lumiere a gauche), effile vers le haut.
   ctx.fillStyle = '#8a5a3b';
   poly([[t.x - w, by], [t.x, by], [t.x, top], [t.x - w * 0.35, top]]);
@@ -4211,7 +4064,7 @@ function drawTree(t) {
   // Branche agrippee par la main : elle tremble en proportion de la tension (ecart au
   // point de prise), decalage visuel seulement (lm.shx/shy, aussi lu par le feuillage).
   var gp = hand.grip, shk = handTension(t) * 3;
-  var shkX = shk ? Math.sin(frame * 1.7) * shk : 0, shkY = shk ? Math.cos(frame * 2.3) * shk * 0.6 : 0;
+  var shkX = shk ? Math.sin(temps.frame * 1.7) * shk : 0, shkY = shk ? Math.cos(temps.frame * 2.3) * shk * 0.6 : 0;
   for (k = 0; k < limbs.length; k++) {
     lm = limbs[k];
     lm.n = 0; lm.cnt = 0; lm.w = 0; lm.cr = 0; lm.cg = 0; lm.cb = 0; // cumuls du bouquet pour cette frame
@@ -4268,7 +4121,7 @@ function drawTree(t) {
     lm = limbs[k];
     if (!lm.cnt) continue;
     var inv = 1 / lm.cnt, cr = lm.cr * inv, cg = lm.cg * inv, cb = lm.cb * inv;
-    var R = CANOPY_CLUSTER_R * U * tg * (0.45 + 0.65 * Math.min(1, lm.w / Math.max(1, lm.n, lm.cnt)));
+    var R = CANOPY_CLUSTER_R * vue.U * tg * (0.45 + 0.65 * Math.min(1, lm.w / Math.max(1, lm.n, lm.cnt)));
     var cx = t.x + lm.dx * tg + lm.shx, cy = top + lm.dy * tg + lm.shy;
     var cUp = shadeRgb(cr, cg, cb, 0.85), cDn = shadeRgb(cr, cg, cb, 0.62);
     var qx = cx + Math.cos(lm.a0) * R * lm.mj[0], qy = cy + Math.sin(lm.a0) * R * 0.8 * lm.mj[0];
@@ -4285,7 +4138,7 @@ function drawTree(t) {
     sl = t.slots[i]; lf = sl.leaf;
     if (!sl.branch || !sl.mj || !lf || now < lf.born) continue;
     var bgF = Math.min(1, (now - sl.branchSince) / BRANCH_GROW_MS);
-    var bR = CANOPY_CLUSTER_R * U * tg * 0.5 * Math.min(1, lf.dg) * bgF;
+    var bR = CANOPY_CLUSTER_R * vue.U * tg * 0.5 * Math.min(1, lf.dg) * bgF;
     var bcx = t.x + sl.dx * tg * bgF + (sl.shx || 0), bcy = top + sl.dy * tg * bgF + (sl.shy || 0);
     var bUp = shadeRgb(lf.dcol[0], lf.dcol[1], lf.dcol[2], 0.85), bDn = shadeRgb(lf.dcol[0], lf.dcol[1], lf.dcol[2], 0.62);
     var bqx = bcx + Math.cos(sl.a0) * bR * sl.mj[0], bqy = bcy + Math.sin(sl.a0) * bR * 0.8 * sl.mj[0];
@@ -4322,11 +4175,11 @@ var hillRidges = [];
 function buildHills() {
   hillRidges = HILL_LAYERS.map(function (L, li) {
     var xs = [], ys = [], x = -40, ph = Math.random() * 10;
-    while (x < worldW + 80) {
-      var u = x / worldW;
+    while (x < vue.worldW + 80) {
+      var u = x / vue.worldW;
       var n = Math.sin(u * 13 + ph + li * 2) * 0.5 + Math.sin(u * 31 + ph * 1.7) * 0.28 + Math.random() * 0.22;
       xs.push(x);
-      ys.push(groundY - U * (L.lift + L.amp * (0.5 + n * 0.5)));
+      ys.push(vue.groundY - vue.U * (L.lift + L.amp * (0.5 + n * 0.5)));
       x += 28 + Math.random() * 30;
     }
     // Couleurs par facette, precalculees : elles ne dependent que de la pente (y0 - y1).
@@ -4341,26 +4194,26 @@ function buildHills() {
 }
 var skyGrad = null, skyGradY = -1;   // degrade du ciel, recree seulement si groundY change
 function drawBackdrop() {
-  var a = easeInOut(soilRiseT);
+  var a = easeInOut(monde.soilRiseT);
   if (a <= 0) return;
   ctx.save();
   ctx.globalAlpha = a;
   // Ciel : transparent en haut (se fond dans la creme de la page), a peine chaud a l'horizon.
-  if (!skyGrad || skyGradY !== groundY) {
-    skyGrad = ctx.createLinearGradient(0, 0, 0, groundY);
+  if (!skyGrad || skyGradY !== vue.groundY) {
+    skyGrad = ctx.createLinearGradient(0, 0, 0, vue.groundY);
     skyGrad.addColorStop(0, 'rgba(246,222,182,0)');
     skyGrad.addColorStop(1, 'rgba(246,214,168,0.32)');
-    skyGradY = groundY;
+    skyGradY = vue.groundY;
   }
   ctx.fillStyle = skyGrad;
-  ctx.fillRect(0, 0, W, H);
+  ctx.fillRect(0, 0, vue.W, vue.H);
   for (var li = 0; li < HILL_LAYERS.length; li++) {
     var L = HILL_LAYERS[li], R = hillRidges[li];
     if (!R) continue;
-    var ox = camX * L.f, oy = camY * L.f, bottom = worldH;
+    var ox = vue.camX * L.f, oy = vue.camY * L.f, bottom = vue.worldH;
     for (var i = 0; i < R.xs.length - 1; i++) {
       var x0 = R.xs[i] - ox, x1 = R.xs[i + 1] - ox;
-      if (x1 < -4 || x0 > W + 4) continue;
+      if (x1 < -4 || x0 > vue.W + 4) continue;
       var y0 = R.ys[i] - oy, y1 = R.ys[i + 1] - oy;
       // Lumiere haut-gauche : pente montante vers la droite = face eclairee (couleurs
       // precalculees dans buildHills).
@@ -4393,12 +4246,12 @@ function resetTiles() {
 function getTile(col, row) {
   var key = col + ',' + row, t = tiles[key];
   if (t) return t;
-  var dx0 = Math.round(col * TILE * RS), dy0 = Math.round(row * TILE * RS);
+  var dx0 = Math.round(col * TILE * vue.RS), dy0 = Math.round(row * TILE * vue.RS);
   var c = tilePool.pop() || document.createElement('canvas');
-  c.width = Math.round((col + 1) * TILE * RS) - dx0;
-  c.height = Math.round((row + 1) * TILE * RS) - dy0;
+  c.width = Math.round((col + 1) * TILE * vue.RS) - dx0;
+  c.height = Math.round((row + 1) * TILE * vue.RS) - dy0;
   var tc = c.getContext('2d');
-  tc.setTransform(RS, 0, 0, RS, -dx0, -dy0);
+  tc.setTransform(vue.RS, 0, 0, vue.RS, -dx0, -dy0);
   t = { key: key, col: col, row: row, c: c, tc: tc, dx0: dx0, dy0: dy0, list: [], n: 0, seen: 0, dirty: false, maxOid: 0 };
   tiles[key] = t; tileList.push(t);
   return t;
@@ -4460,13 +4313,13 @@ function rebuildTile(t) {
 // Passe 0 : detection des changements, cuisson, repeinte et copie des tuiles (contexte
 // deja en coord. monde). Renvoie les facettes a dessiner en direct.
 function cacheSoil(rise) {
-  if (mode !== 'exploded' || soilRiseT < 1) {
+  if (partie.mode !== 'exploded' || monde.soilRiseT < 1) {
     if (tileList.length) resetTiles();
-    return shards;
+    return monde.shards;
   }
   var i, j, t, s, live = liveSoil, keep = [];
   bakeFrame++;
-  var vx0 = camX, vx1 = camX + W, vy0 = camY, vy1 = camY + H;
+  var vx0 = vue.camX, vx1 = vue.camX + vue.W, vy0 = vue.camY, vy1 = vue.camY + vue.H;
   live.length = 0;
   // Tuiles a plus d'une tuile de la vue : liberees (leurs facettes repassent en direct).
   for (i = 0; i < tileList.length; i++) {
@@ -4482,8 +4335,8 @@ function cacheSoil(rise) {
     } else { t.seen = 0; keep.push(t); }
   }
   tileList = keep;
-  for (i = 0; i < shards.length; i++) {
-    s = shards[i];
+  for (i = 0; i < monde.shards.length; i++) {
+    s = monde.shards[i];
     if (s.leaf || s.branch || s.nutri) continue;
     if (s.oid === undefined) s.oid = ++bakeOid;
     var baked = s.bkG === bakeGen;
@@ -4492,7 +4345,7 @@ function cacheSoil(rise) {
     if (s.cullR === undefined) {
       s.cullR = Math.max(Math.abs(p[0][0]), Math.abs(p[0][1]), Math.abs(p[1][0]), Math.abs(p[1][1]), Math.abs(p[2][0]), Math.abs(p[2][1])) * 1.5;
     }
-    var cm = s.cullR * Math.max(1, LOOSE_DRAW_SCALE) + U * 0.06 + 4;
+    var cm = s.cullR * Math.max(1, LOOSE_DRAW_SCALE) + vue.U * 0.06 + 4;
     if (s.x < vx0 - cm || s.x > vx1 + cm || sy < vy0 - cm || sy > vy1 + cm) continue;
     if (s.eaten !== undefined) {
       if (baked) unbakeShard(s);
@@ -4528,7 +4381,7 @@ function cacheSoil(rise) {
     t = tileList[i];
     if (t.dirty || t.seen !== t.n) rebuildTile(t);
   }
-  var ox = Math.round(-camX * RS), oy = Math.round(-camY * RS), cw = canvas.width, ch = canvas.height;
+  var ox = Math.round(-vue.camX * vue.RS), oy = Math.round(-vue.camY * vue.RS), cw = canvas.width, ch = canvas.height;
   ctx.save();
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   for (i = 0; i < tileList.length; i++) {
@@ -4543,32 +4396,32 @@ function cacheSoil(rise) {
 }
 
 function draw() {
-  ctx.setTransform(RS, 0, 0, RS, 0, 0);
-  ctx.clearRect(0, 0, W, H);
+  ctx.setTransform(vue.RS, 0, 0, vue.RS, 0, 0);
+  ctx.clearRect(0, 0, vue.W, vue.H);
   drawBackdrop();
   // Tout ce qui suit est dessine en coord. MONDE ; ce translate ramene la portion
   // visible (camX..camX+W, camY..camY+H) a l'ecran. Les overlays HTML (tresors) font
   // ce -camX/-camY a la main dans positionTreasureOverlays, hors de ce contexte canvas.
   ctx.save();
-  ctx.translate(-camX, -camY);
+  ctx.translate(-vue.camX, -vue.camY);
   // Pendant la montee du lit de terre, tout le sol est decale vers le bas.
-  var rise = soilRiseT < 1 ? Math.pow(1 - soilRiseT, 3) * soilDepth : 0;
+  var rise = monde.soilRiseT < 1 ? Math.pow(1 - monde.soilRiseT, 3) * monde.soilDepth : 0;
   drawInsectsBack();
   drawSoil(rise);
   drawCompactNutri(rise);
   drawLooseBacking(rise);
   // Racines avant les facettes : cachees par le lit de triangles et la terre meuble,
   // visibles seulement sur l'aplat compact (defilement vers le bas, trou creuse).
-  for (var ti = 0; ti < trees.length; ti++) drawRoots(trees[ti]);
+  for (var ti = 0; ti < monde.trees.length; ti++) drawRoots(monde.trees[ti]);
   // Avant les facettes : le pied du tronc est enfoui dans la terre.
-  for (ti = 0; ti < trees.length; ti++) drawTree(trees[ti]);
+  for (ti = 0; ti < monde.trees.length; ti++) drawTree(monde.trees[ti]);
   // Deux passes : terre d'abord, puis hyphes, puis litiere (feuilles, bois, nutriments)
   // par-dessus le mycelium.
   for (var pass = 0; pass < 2; pass++) {
   if (pass === 1) drawHyphae(rise);
   // Passe 0 : les tuiles de facettes immobiles sont copiees ici (apres arbres et racines,
   // avant hyphes et litiere) ; la boucle ne dessine plus que les facettes en direct.
-  var list = pass === 0 ? cacheSoil(rise) : shards;
+  var list = pass === 0 ? cacheSoil(rise) : monde.shards;
   for (var i = 0; i < list.length; i++) {
     var s = list[i], m = s.mix, p = s.pts;
     if (!!(s.leaf || s.branch || s.nutri) !== (pass === 1)) continue;
@@ -4577,8 +4430,8 @@ function draw() {
     if (s.cullR === undefined) {
       s.cullR = Math.max(Math.abs(p[0][0]), Math.abs(p[0][1]), Math.abs(p[1][0]), Math.abs(p[1][1]), Math.abs(p[2][0]), Math.abs(p[2][1])) * 1.5;
     }
-    var cm = s.cullR * Math.max(1, LOOSE_DRAW_SCALE) + U * 0.06 + 4;
-    if (s.x < camX - cm || s.x > camX + W + cm || sy < camY - cm || sy > camY + H + cm) continue;
+    var cm = s.cullR * Math.max(1, LOOSE_DRAW_SCALE) + vue.U * 0.06 + 4;
+    if (s.x < vue.camX - cm || s.x > vue.camX + vue.W + cm || sy < vue.camY - cm || sy > vue.camY + vue.H + cm) continue;
     var r = lerp(s.from[0], s.to[0], m), g = lerp(s.from[1], s.to[1], m), bl = lerp(s.from[2], s.to[2], m);
     if (s.myc) {
       var w = s.myc * s.mycTone, mc = s.strain ? s.strain.mycRgb : MYC;
@@ -4600,7 +4453,7 @@ function draw() {
     // facettes empilees (le lit d'origine, deja jointif, garde sa taille).
     if (s.settled && !s.soil && !s.leaf) { c *= LOOSE_DRAW_SCALE; sn *= LOOSE_DRAW_SCALE; }
     if (s.eaten !== undefined) {
-      var k = Math.max(0, 1 - (vTime - s.eaten) / EATEN_MS);
+      var k = Math.max(0, 1 - (temps.vTime - s.eaten) / EATEN_MS);
       c *= k; sn *= k;
     }
     ctx.beginPath();
@@ -4618,7 +4471,7 @@ function draw() {
   drawFlowers(rise);
   drawInsectsFront();
   // Apres les facettes : les champignons sortent PAR-DESSUS la terre.
-  for (i = 0; i < mushrooms.length; i++) drawMushroom(mushrooms[i]);
+  for (i = 0; i < monde.mushrooms.length; i++) drawMushroom(monde.mushrooms[i]);
   drawNuggets();
   drawGoldBits();
   drawShovel();
@@ -4633,7 +4486,7 @@ function draw() {
 // Baton low-poly (bois tombe) : hexagone a deux facettes, moitie haute = couleur de la
 // facette, moitie basse plus sombre. Pose, il est couche et un peu enfonce dans le sol.
 function drawLog(s, x, y, rot, r, g, b) {
-  var L = U * 0.0425, T = U * 0.007, bv = T * 0.8, c = Math.cos(rot), sn = Math.sin(rot);
+  var L = vue.U * 0.0425, T = vue.U * 0.007, bv = T * 0.8, c = Math.cos(rot), sn = Math.sin(rot);
   if (s.settled) y += T * 0.66;
   var x0 = x - L * c, y0 = y - L * sn, x1 = x + L * c, y1 = y + L * sn;   // extremites
   var ta = -L + bv, tb = L - bv;
@@ -4659,7 +4512,7 @@ function drawLog(s, x, y, rot, r, g, b) {
 function hyphaPath(c, rise, dead) {
   if (!c.settled || c.dead || c.eaten !== undefined || !c.hyF) return;
   var ro = c.soil ? rise : 0, cy = c.y + ro;
-  if (c.x < camX - 40 || c.x > camX + W + 40 || cy < camY - 40 || cy > camY + H + 40) return;
+  if (c.x < vue.camX - 40 || c.x > vue.camX + vue.W + 40 || cy < vue.camY - 40 || cy > vue.camY + vue.H + 40) return;
   var p = c.mycParent, ox, oy;
   if (p) {
     if (!p.settled || !(p.myc > 0 || p.deadMyc)) return;
@@ -4699,30 +4552,30 @@ function hyphaPath(c, rise, dead) {
 }
 function drawHyphae(rise) {
   var i;
-  if (!colonised.length && !deadMyc.length) return;
+  if (!monde.colonised.length && !monde.deadMyc.length) return;
   ctx.save();
   ctx.lineWidth = HYPHA_W;
-  if (colonised.length && !tintedMyc) {
+  if (monde.colonised.length && !monde.tintedMyc) {
     ctx.strokeStyle = HYPHA_COLOR;
     ctx.beginPath();
-    for (i = 0; i < colonised.length; i++) if (colonised[i].myc > 0) hyphaPath(colonised[i], rise, false);
+    for (i = 0; i < monde.colonised.length; i++) if (monde.colonised[i].myc > 0) hyphaPath(monde.colonised[i], rise, false);
     ctx.stroke();
-  } else if (colonised.length) {
+  } else if (monde.colonised.length) {
     // Au moins une facette teintee : un trait par souche (au plus 4), chacun sa couleur.
     for (var si = 0; si < strainOrder.length; si++) {
       var st = strainOrder[si];
       ctx.strokeStyle = st.hypha;
       ctx.beginPath();
-      for (i = 0; i < colonised.length; i++) {
-        if (colonised[i].myc > 0 && (colonised[i].strain || STRAIN_STD) === st) hyphaPath(colonised[i], rise, false);
+      for (i = 0; i < monde.colonised.length; i++) {
+        if (monde.colonised[i].myc > 0 && (monde.colonised[i].strain || STRAIN_STD) === st) hyphaPath(monde.colonised[i], rise, false);
       }
       ctx.stroke();
     }
   }
-  if (deadMyc.length) {
+  if (monde.deadMyc.length) {
     ctx.strokeStyle = HYPHA_DEAD_COLOR;
     ctx.beginPath();
-    for (i = 0; i < deadMyc.length; i++) hyphaPath(deadMyc[i], rise, true);
+    for (i = 0; i < monde.deadMyc.length; i++) hyphaPath(monde.deadMyc[i], rise, true);
     ctx.stroke();
   }
   ctx.restore();
@@ -4733,32 +4586,32 @@ function drawHyphae(rise) {
 // pas un trou). Jamais au-dessus du niveau d'origine, la terre meuble se dessine par-dessus. On ne dessine
 // que la portion du monde visible (autour de camX/camY), pas tout le monde a chaque frame.
 function drawSoil(rise) {
-  var stepX = 2 * COL_W, bottom = worldH, visBottom = camY + H;
-  var x0 = Math.max(0, Math.floor((camX - stepX) / stepX) * stepX);
-  var x1 = Math.min(worldW, camX + W + stepX);
+  var stepX = 2 * COL_W, bottom = vue.worldH, visBottom = vue.camY + vue.H;
+  var x0 = Math.max(0, Math.floor((vue.camX - stepX) / stepX) * stepX);
+  var x1 = Math.min(vue.worldW, vue.camX + vue.W + stepX);
   // Maillage low-poly a plusieurs rangees (pas de longues bandes verticales jusqu'au
   // fond) : la rangee 0 suit compactY exactement ; les suivantes sont plus profondes,
   // avec sommets decales (hash stable par indice absolu, donc rien ne bouge au defilement),
   // diagonales alternees et teinte qui s'assombrit avec la profondeur.
-  var rowH = U * 0.045, K = 1, dk = [0], k;
+  var rowH = vue.U * 0.045, K = 1, dk = [0], k;
   var minTop = Infinity;
-  for (var xx = x0; xx <= x1; xx += stepX) minTop = Math.min(minTop, compactY[Math.max(0, Math.min(compactY.length - 1, Math.round(Math.min(xx, worldW) / COL_W)))] + rise);
+  for (var xx = x0; xx <= x1; xx += stepX) minTop = Math.min(minTop, monde.compactY[Math.max(0, Math.min(monde.compactY.length - 1, Math.round(Math.min(xx, vue.worldW) / COL_W)))] + rise);
   while (K < 9 && minTop + dk[K - 1] < visBottom) { dk.push(dk[K - 1] + rowH * (1 + 0.3 * K)); K++; }
   var n = Math.max(0, Math.floor((x1 - x0) / stepX)) + 2, g0 = Math.round(x0 / stepX);
   var grid = [];
   for (k = 0; k < K; k++) {
     var row = [];
     for (var i = 0; i < n; i++) {
-      var gi = g0 + i, bx = Math.min(x0 + i * stepX, worldW);
-      var vx = bx, col = Math.max(0, Math.min(compactY.length - 1, Math.round(bx / COL_W)));
+      var gi = g0 + i, bx = Math.min(x0 + i * stepX, vue.worldW);
+      var vx = bx, col = Math.max(0, Math.min(monde.compactY.length - 1, Math.round(bx / COL_W)));
       var vy;
-      if (k === 0) vy = compactY[col] + rise;
+      if (k === 0) vy = monde.compactY[col] + rise;
       else {
         vx = bx + (soilHash(gi, k, 1) - 0.5) * 0.7 * stepX;
-        col = Math.max(0, Math.min(compactY.length - 1, Math.round(Math.max(0, Math.min(worldW, vx)) / COL_W)));
-        vy = (k === K - 1 ? Math.max(bottom, compactY[col] + rise + dk[k]) : compactY[col] + rise + dk[k] + (soilHash(gi, k, 2) - 0.5) * 0.55 * rowH * (1 + 0.3 * k));
+        col = Math.max(0, Math.min(monde.compactY.length - 1, Math.round(Math.max(0, Math.min(vue.worldW, vx)) / COL_W)));
+        vy = (k === K - 1 ? Math.max(bottom, monde.compactY[col] + rise + dk[k]) : monde.compactY[col] + rise + dk[k] + (soilHash(gi, k, 2) - 0.5) * 0.55 * rowH * (1 + 0.3 * k));
       }
-      row.push([vx, vy, !!rocky[col]]);
+      row.push([vx, vy, !!monde.rocky[col]]);
     }
     grid.push(row);
   }
@@ -4771,8 +4624,8 @@ function drawSoil(rise) {
       // Sol varie : plaques de terre foncee, argile, sable (groupees par bruit grossier) et,
       // plus on descend, de plus en plus de pierre ; quelques cailloux poses par-dessus.
       var rk = A[2] || B[2] || C[2] || D[2], gj = g0 + j;
-      var depthT = Math.max(0, Math.min(1, (dk[k] - rowH * 4.25) / (U * 0.5)));
-      var patchT = Math.max(0, Math.min(1, (dk[k] - rowH * 6) / (U * 0.2)));   // le haut reste de la terre unie, les plaques/cailloux apparaissent plus bas
+      var depthT = Math.max(0, Math.min(1, (dk[k] - rowH * 4.25) / (vue.U * 0.5)));
+      var patchT = Math.max(0, Math.min(1, (dk[k] - rowH * 6) / (vue.U * 0.2)));   // le haut reste de la terre unie, les plaques/cailloux apparaissent plus bas
       var dA = (gj + k) & 1;
       var t1 = dA ? [A, B, C] : [A, B, D], t2 = dA ? [B, D, C] : [A, D, C];
       for (var q = 0; q < 2; q++) {
@@ -4818,25 +4671,25 @@ function soilShade(hex, m, gray) {
 // Depots d'humus lessives (voir leach()) encore enfouis sous le plafond du compact : de
 // petits triangles sombres, juste assez visibles pour deviner ou la pelle va en retrouver.
 function drawCompactNutri(rise) {
-  for (var i = 0; i < compactNutri.length; i++) {
-    var d = compactNutri[i];
-    if (d.x < camX - 20 || d.x > camX + W + 20) continue;
-    var col = Math.max(0, Math.min(compactY.length - 1, Math.round(d.x / COL_W)));
-    if (d.y <= compactY[col]) continue; // deja ramene au-dessus du plafond : plus la peine
+  for (var i = 0; i < monde.compactNutri.length; i++) {
+    var d = monde.compactNutri[i];
+    if (d.x < vue.camX - 20 || d.x > vue.camX + vue.W + 20) continue;
+    var col = Math.max(0, Math.min(monde.compactY.length - 1, Math.round(d.x / COL_W)));
+    if (d.y <= monde.compactY[col]) continue; // deja ramene au-dessus du plafond : plus la peine
     var y = d.y + rise, s = 5;
     ctx.fillStyle = d.color;
     poly([[d.x - s, y + s], [d.x + s, y + s], [d.x, y - s]]);
   }
 }
 function drawLooseBacking(rise) {
-  var c0 = Math.max(0, Math.floor(camX / COL_W) - 1);
-  var c1 = Math.min(heights.length - 1, Math.ceil((camX + W) / COL_W) + 1);
+  var c0 = Math.max(0, Math.floor(vue.camX / COL_W) - 1);
+  var c1 = Math.min(monde.heights.length - 1, Math.ceil((vue.camX + vue.W) / COL_W) + 1);
   ctx.fillStyle = '#5a3d28';
   ctx.beginPath();
   for (var c = c0; c <= c1; c++) {
-    var h = heights[c] - LOOSE_INSET;
-    if (heights[c] < LOOSE_MIN || h <= 0) continue;
-    var x = c * COL_W, yb = compactY[c] + rise;
+    var h = monde.heights[c] - LOOSE_INSET;
+    if (monde.heights[c] < LOOSE_MIN || h <= 0) continue;
+    var x = c * COL_W, yb = monde.compactY[c] + rise;
     ctx.rect(x - COL_W / 2, yb - h, COL_W + 0.5, h + 1);
   }
   ctx.fill();
@@ -4846,18 +4699,18 @@ function drawLooseBacking(rise) {
 // a grassCover[c] (pousse visiblement au fil de la repousse). Seed stable (pas de
 // Math.random() ici) pour que les brins ne scintillent pas d'une frame a l'autre.
 function drawGrass(rise) {
-  if (!grassCover) return;
-  var c0 = Math.max(0, Math.floor(camX / COL_W) - 1);
-  var c1 = Math.min(grassCover.length - 1, Math.ceil((camX + W) / COL_W) + 1);
-  var maxH = U * GRASS_MAX_H_F;
+  if (!monde.grassCover) return;
+  var c0 = Math.max(0, Math.floor(vue.camX / COL_W) - 1);
+  var c1 = Math.min(monde.grassCover.length - 1, Math.ceil((vue.camX + vue.W) / COL_W) + 1);
+  var maxH = vue.U * GRASS_MAX_H_F;
   for (var c = c0; c <= c1; c++) {
-    var cov = grassCover[c];
+    var cov = monde.grassCover[c];
     if (cov <= 0.03) continue;
     // +GRASS_EMBED : le terrain low-poly est irregulier, pas une ligne lisse — sans cet
     // enfoncement (meme principe que les champignons, surfaceAt(x) + 6 en drawMushroom),
     // la base des brins flotterait au-dessus des pointes de triangles de terre.
     var x = c * COL_W, y = surfaceAt(x) + rise + GRASS_EMBED;
-    var bh = maxH * cov * (grassMyc && grassMyc[c] ? GRASS_MYC_HEIGHT_MULT : 1);
+    var bh = maxH * cov * (monde.grassMyc && monde.grassMyc[c] ? GRASS_MYC_HEIGHT_MULT : 1);
     for (var b = 0; b < 3; b++) {
       var seed = ((c * 7 + b * 3) % 11) / 11;
       var dx = (b - 1) * COL_W * 0.32, lean = (seed - 0.5) * bh * 0.5, h = bh * (0.65 + seed * 0.5);
@@ -4883,11 +4736,11 @@ function floraHash(c) { return ((c * 2654435761) >>> 0) % 997 / 997; }
 // GRASS_EMBED) pour suivre les bosses du terrain low-poly, decoupee en 2 triangles de
 // teintes differentes (pas de degrade).
 function drawMoss(rise) {
-  if (!floraLush) return;
-  var c0 = Math.max(0, Math.floor(camX / COL_W) - 1);
-  var c1 = Math.min(floraLush.length - 1, Math.ceil((camX + W) / COL_W) + 1);
+  if (!monde.floraLush) return;
+  var c0 = Math.max(0, Math.floor(vue.camX / COL_W) - 1);
+  var c1 = Math.min(monde.floraLush.length - 1, Math.ceil((vue.camX + vue.W) / COL_W) + 1);
   for (var c = c0; c <= c1; c++) {
-    var lush = floraLush[c];
+    var lush = monde.floraLush[c];
     if (lush <= 0.08) continue;
     var xL = c * COL_W - COL_W / 2, xR = c * COL_W + COL_W / 2;
     var yL = surfaceAt(xL) + rise + FLORA_EMBED, yR = surfaceAt(xR) + rise + FLORA_EMBED;
@@ -4910,7 +4763,7 @@ function drawMoss(rise) {
 // fournis — la densite (k, 0..1) grandit avec floraLush pour un effet de pousse.
 function drawTuft(x, y, k, c) {
   if (k <= 0) return;
-  var maxH = U * FLORA_TUFT_H_F * k;
+  var maxH = vue.U * FLORA_TUFT_H_F * k;
   for (var b = 0; b < 5; b++) {
     var seed = floraHash(c * 5 + b + 1);
     var lean = (-0.6 + (b / 4) * 1.2) * maxH;
@@ -4930,7 +4783,7 @@ function drawTuft(x, y, k, c) {
 // courbee vers l'exterieur, avec des paires de folioles qui rapetissent vers la pointe.
 function drawFern(x, y, k, seedBase) {
   if (k <= 0) return;
-  var maxH = U * FLORA_FERN_H_F * k;
+  var maxH = vue.U * FLORA_FERN_H_F * k;
   var fronds = 3 + (floraHash(seedBase + 2) < 0.5 ? 0 : 1);
   for (var fr = 0; fr < fronds; fr++) {
     var seed = floraHash(seedBase + fr + 3);
@@ -4964,7 +4817,7 @@ function drawFern(x, y, k, seedBase) {
 // fichier), et parfois quelques minuscules baies/fleurs.
 function drawBush(x, y, k, seedBase) {
   if (k <= 0) return;
-  var r = U * FLORA_BUSH_R_F * k;
+  var r = vue.U * FLORA_BUSH_R_F * k;
   if (r <= 0) return;
   var n = 5 + (floraHash(seedBase + 4) < 0.5 ? 0 : 2);
   var colors = ['#4d7f3a', '#5f9444', '#3d6b30'];
@@ -4992,11 +4845,11 @@ function drawBush(x, y, k, seedBase) {
 // element ; la taille grandit avec floraLush (effet de pousse). Purement cosmetique,
 // dessine apres les racines et avant les champignons (voir draw()).
 function drawUnderbrush(rise) {
-  if (!floraLush) return;
-  var c0 = Math.max(0, Math.floor(camX / COL_W) - 1);
-  var c1 = Math.min(floraLush.length - 1, Math.ceil((camX + W) / COL_W) + 1);
+  if (!monde.floraLush) return;
+  var c0 = Math.max(0, Math.floor(vue.camX / COL_W) - 1);
+  var c1 = Math.min(monde.floraLush.length - 1, Math.ceil((vue.camX + vue.W) / COL_W) + 1);
   for (var c = c0; c <= c1; c++) {
-    var lush = floraLush[c];
+    var lush = monde.floraLush[c];
     if (lush <= 0.25) continue;
     var h = floraHash(c);
     var baseX = c * COL_W + (h - 0.5) * COL_W * 0.8;
@@ -5035,16 +4888,16 @@ function drawPetal(ang, rad, faceTilt, colA, colB) {
 }
 
 function drawFlower(f, rise) {
-  if (f.x < camX - 30 || f.x > camX + W + 30) return;
-  var now = vTime, p = clamp((now - f.born) / FLOWER_BLOOM_MS, 0, 1);
+  if (f.x < vue.camX - 30 || f.x > vue.camX + vue.W + 30) return;
+  var now = temps.vTime, p = clamp((now - f.born) / FLOWER_BLOOM_MS, 0, 1);
   if (p <= 0) return;
   var w = f.wilt !== null ? clamp((now - f.wilt) / FLOWER_WILT_MS, 0, 1) : 0;
   var leanSign = f.lean < 0 ? -1 : 1;
   var lean = f.lean + 0.6 * w * leanSign;
   var baseY = surfaceAt(f.x) + rise + FLORA_EMBED;
   var stemLocal = clamp(p / 0.35, 0, 1), stemG = easeOutBack(stemLocal);
-  var stemH = FLOWER_H_F * U * f.sizeK * stemG * (1 - 0.35 * w);
-  var stemW = Math.max(1.1, U * 0.0032 * f.sizeK);
+  var stemH = FLOWER_H_F * vue.U * f.sizeK * stemG * (1 - 0.35 * w);
+  var stemW = Math.max(1.1, vue.U * 0.0032 * f.sizeK);
   ctx.save();
   ctx.translate(f.x, baseY);
   ctx.rotate(lean);
@@ -5078,7 +4931,7 @@ function drawFlower(f, rise) {
     var budLocal = clamp((p - 0.35) / 0.2, 0, 1), budG = easeOutBack(budLocal);
     if (p < 0.55) {
       // Bouton : 2 sepales verts qui enserrent une goutte rose (3 triangles).
-      var budR = FLOWER_R_F * U * f.sizeK * 0.55 * budG;
+      var budR = FLOWER_R_F * vue.U * f.sizeK * 0.55 * budG;
       if (budR > 0.4) {
         ctx.fillStyle = '#4c7d33';
         poly([[tipX, tipY], [tipX - budR * 0.55, tipY + budR * 0.15], [tipX - budR * 0.15, tipY - budR * 1.15]]);
@@ -5097,7 +4950,7 @@ function drawFlower(f, rise) {
       // La corolle et le coeur se dessinent autour de (0,0) : on se place au bout de la tige.
       ctx.translate(tipX, tipY);
       var petalLocal = clamp((p - 0.55) / 0.45, 0, 1), og = easeOutBack(petalLocal);
-      var maxRad = FLOWER_R_F * U * f.sizeK;
+      var maxRad = FLOWER_R_F * vue.U * f.sizeK;
       var rad = maxRad * lerp(0.3, 1, og) * (1 - 0.5 * w);
       var upA = -Math.PI / 2, dropA = Math.PI / 2, i;
       var petals = [];
@@ -5147,8 +5000,8 @@ function drawFlower(f, rise) {
 }
 
 function drawFlowers(rise) {
-  for (var ti = 0; ti < trees.length; ti++) {
-    var flowers = trees[ti].flowers;
+  for (var ti = 0; ti < monde.trees.length; ti++) {
+    var flowers = monde.trees[ti].flowers;
     for (var i = 0; i < flowers.length; i++) drawFlower(flowers[i], rise);
   }
 }
@@ -5228,7 +5081,7 @@ function drawBee(ins, size) {
 // delegue a l'espece. Le bourdon pose ajoute un petit pietinement (+/-1.5px, purement
 // visuel, ne touche jamais ins.x/ins.y reels) tire de l'age ecoule, pas de Math.random.
 function drawInsect(ins) {
-  var size = U * INSECT_SIZE_F * ins.sizeMult;
+  var size = vue.U * INSECT_SIZE_F * ins.sizeMult;
   var jx = 0, jy = 0;
   if (ins.species === 'bourdon' && ins.state === 'landed') {
     var jt = ins.age - ins.landAt;
@@ -5244,11 +5097,11 @@ function drawInsect(ins) {
 }
 // Vol : derriere le decor (appelee juste apres le translate camera, avant drawSoil).
 function drawInsectsBack() {
-  for (var i = 0; i < insects.length; i++) if (!insects[i].nearFlower) drawInsect(insects[i]);
+  for (var i = 0; i < monde.insects.length; i++) if (!monde.insects[i].nearFlower) drawInsect(monde.insects[i]);
 }
 // Approche finale / pose sur une fleur : devant le decor (apres drawFlowers).
 function drawInsectsFront() {
-  for (var i = 0; i < insects.length; i++) if (insects[i].nearFlower) drawInsect(insects[i]);
+  for (var i = 0; i < monde.insects.length; i++) if (monde.insects[i].nearFlower) drawInsect(monde.insects[i]);
 }
 
 function drawMushroom(m) {
@@ -5493,13 +5346,13 @@ function poly(p) {
 // Decale x vers la colonne la plus proche dont tout le voisinage (+- 40 px) est de la terre
 // creusable : la roche-mere ne se creuse pas, un tresor dedans serait introuvable.
 function clearOfRock(x) {
-  var c0 = Math.round(x / COL_W), span = Math.ceil(40 / COL_W), n = rocky.length;
+  var c0 = Math.round(x / COL_W), span = Math.ceil(40 / COL_W), n = monde.rocky.length;
   for (var d = 0; d < n; d++) {
     for (var sg = -1; sg <= 1; sg += 2) {
       var c = c0 + sg * d;
       if (c - span < 0 || c + span >= n) continue;
       var ok = true;
-      for (var k = -span; k <= span; k++) if (rocky[c + k]) { ok = false; break; }
+      for (var k = -span; k <= span; k++) if (monde.rocky[c + k]) { ok = false; break; }
       if (ok) return c * COL_W;
     }
   }
@@ -5510,8 +5363,8 @@ function clearOfRock(x) {
 // tresor est enfoui hors de la vue.
 // Un tresor deja deterre revient a sa derniere position ; sinon sa place d'origine.
 function replayX(def) {
-  if (skippedFound.indexOf(def.title) !== -1 && foundFx[def.title] !== undefined) return foundFx[def.title] * worldW;
-  return clearOfRock(DEMO ? camMargin + W * DEMO_TREASURE_X : def.x * worldW);
+  if (partie.skippedFound.indexOf(def.title) !== -1 && partie.foundFx[def.title] !== undefined) return partie.foundFx[def.title] * vue.worldW;
+  return clearOfRock(partie.DEMO ? vue.camMargin + vue.W * DEMO_TREASURE_X : def.x * vue.worldW);
 }
 function buildTreasure(def) {
   var glint = document.createElement('span');
@@ -5525,7 +5378,7 @@ function buildTreasure(def) {
   container.appendChild(hint);
   var depth = Math.max(0, parseFloat(def.depth) || 0);
   // Borne : un DEPTH_MULT reduit (panneau de debug) ne doit pas laisser le tresor sous le fond du monde.
-  var ty = depth > 0 ? Math.min(groundY + depth * U, worldH - BEDROCK_MARGIN - 20) : 0;
+  var ty = depth > 0 ? Math.min(vue.groundY + depth * vue.U, vue.worldH - BEDROCK_MARGIN - 20) : 0;
   // def.x est une fraction de la largeur du MONDE (pas du logo) : les tresors sont
   // repartis sur toute la zone explorable, pas seulement sous le logo.
   // Demo : la camera ne defile pas, le tresor est donc place dans la vue de depart.
@@ -5536,33 +5389,33 @@ function buildTreasure(def) {
 }
 // Demo : un seul tresor (la premiere souche), les autres attendent le jeu complet (endDemo).
 function buriedDefs() {
-  return (DEMO ? treasureDefs.slice(0, 1) : treasureDefs).filter(function (def) { return skippedFound.indexOf(def.title) === -1; });
+  return (partie.DEMO ? partie.treasureDefs.slice(0, 1) : partie.treasureDefs).filter(function (def) { return partie.skippedFound.indexOf(def.title) === -1; });
 }
 function setupTreasures() {
   clearTreasures();
   // Tresors deja deterres (sauvegarde chargee avec la page) : ni glint ni champignon, ils
   // ne reviennent pas enterres. Une seule fois : un rebuild en cours de page regenere tout.
-  skippedFound = restoredFound;
-  restoredFound = [];
-  treasuresFound = skippedFound.length;
+  partie.skippedFound = partie.restoredFound;
+  partie.restoredFound = [];
+  treasuresFound = partie.skippedFound.length;
   updateTreasureUI();
   if (guideFlags.harvest) queueDemoEnd(); // demo deja finie avant un rechargement : l'ecran de fin revient
-  treasures = buriedDefs().map(buildTreasure);
+  partie.treasures = buriedDefs().map(buildTreasure);
   // Demo : le 1er tresor deja deterre lors d'une visite precedente reste a l'ecran, deterre
   // d'office (sinon l'accueil n'en montrerait aucun avant la fin du tutoriel).
-  var replays = (DEMO ? treasureDefs.slice(0, 1) : treasureDefs).filter(function (def) { return skippedFound.indexOf(def.title) !== -1; }).map(buildTreasure);
-  replays.forEach(function (r) { treasures.push(r); });
+  var replays = (partie.DEMO ? partie.treasureDefs.slice(0, 1) : partie.treasureDefs).filter(function (def) { return partie.skippedFound.indexOf(def.title) !== -1; }).map(buildTreasure);
+  replays.forEach(function (r) { partie.treasures.push(r); });
   // On laisse la terre retomber avant de montrer ou creuser ; positionTreasureOverlays
   // decide ensuite, a chaque frame, si chaque repere est visible (t.ready).
-  var mine = treasures;
+  var mine = partie.treasures;
   setTimeout(function () {
-    if (mode !== 'exploded' || mine !== treasures) return; // rebuild (ou nouvelle explosion) entre-temps
-    treasures.forEach(function (t) { t.ready = true; });
+    if (partie.mode !== 'exploded' || mine !== partie.treasures) return; // rebuild (ou nouvelle explosion) entre-temps
+    partie.treasures.forEach(function (t) { t.ready = true; });
     if (replays.length) {
       // Restent dans skippedFound jusqu'ici pour ne pas sortir de la sauvegarde ; reveal() les recompte
       // (dans l'ordre des defs : le contenu montre suit le rang de deterrage).
-      skippedFound = skippedFound.filter(function (ti) { return !replays.some(function (r) { return r.def.title === ti; }); });
-      treasuresFound = skippedFound.length;
+      partie.skippedFound = partie.skippedFound.filter(function (ti) { return !replays.some(function (r) { return r.def.title === ti; }); });
+      treasuresFound = partie.skippedFound.length;
       replays.forEach(reveal);
     }
     positionTreasureOverlays();
@@ -5576,31 +5429,31 @@ function setupTreasures() {
 var compass = null, compassTipShown = false;
 function compassGo() {
   var tgt = compass && compass._target;
-  if (!tgt || shovel.on || mode !== 'exploded') return;
-  shovelPlant.x = clamp(tgt.x - 110, 30, worldW - 30);
-  camGoal = { x: clamp(shovelPlant.x - W / 2, 0, Math.max(0, worldW - W)), y: camY };
+  if (!tgt || shovel.on || partie.mode !== 'exploded') return;
+  shovelPlant.x = clamp(tgt.x - 110, 30, vue.worldW - 30);
+  vue.camGoal = { x: clamp(shovelPlant.x - vue.W / 2, 0, Math.max(0, vue.worldW - vue.W)), y: vue.camY };
   compass.classList.add('is-pressed');
   setTimeout(function () { if (compass) compass.classList.remove('is-pressed'); }, 220);
   startLoop();
   setCaption(DIG_HINT_MSG);
 }
 function updateCompass() {
-  var best = null, bd = Infinity, cx = W / 2, cy = H / 2, i;
+  var best = null, bd = Infinity, cx = vue.W / 2, cy = vue.H / 2, i;
   // Pas de boussole pendant le tutoriel du mycelium : elle detournerait l'attention.
-  if (mode === 'exploded' && !(unlockedStrains.length && guideCurrent())) {
-    for (i = 0; i < treasures.length; i++) {
-      var t = treasures[i];
+  if (partie.mode === 'exploded' && !(partie.unlockedStrains.length && guideCurrent())) {
+    for (i = 0; i < partie.treasures.length; i++) {
+      var t = partie.treasures[i];
       if (t.revealed) continue;
-      var d = Math.hypot(t.x - camX - cx, treasureY(t) - camY - cy);
+      var d = Math.hypot(t.x - vue.camX - cx, treasureY(t) - vue.camY - cy);
       if (d < bd) { bd = d; best = t; }
     }
   }
   // Horizontalement le badge suit le tresor (loin a gauche -> colle au bord gauche) ; en hauteur
   // il reste dans la bande basse de l'ecran (au plus COMPASS_RISE_FRAC x H au-dessus du bas).
   // Tout ce bloc est en px CSS (ecran) : la boussole est un overlay HTML, d'ou les * ZOOM.
-  var tx = 0, ty = 0, px = 0, py = 0, cssW = W * ZOOM, cssH = H * ZOOM;
+  var tx = 0, ty = 0, px = 0, py = 0, cssW = vue.W * vue.ZOOM, cssH = vue.H * vue.ZOOM;
   if (best) {
-    tx = (best.x - camX) * ZOOM; ty = (treasureY(best) - camY) * ZOOM;
+    tx = (best.x - vue.camX) * vue.ZOOM; ty = (treasureY(best) - vue.camY) * vue.ZOOM;
     px = clamp(tx, 30, cssW - 30);
     var pyMax = cssH - COMPASS_BOTTOM_PAD, pyMin = Math.min(cssH * (1 - COMPASS_RISE_FRAC), pyMax);
     py = clamp(ty, pyMin, pyMax);
@@ -5657,22 +5510,22 @@ function updateCompass() {
 function clearTreasures() {
   if (compass) { compass.remove(); compass = null; }
   hideDigTip();
-  treasures.forEach(function (t) {
+  partie.treasures.forEach(function (t) {
     t.glint.remove();
     if (t.tip) t.tip.remove();
     if (t.hint) t.hint.remove();
     if (t.sparks) t.sparks.forEach(function (sp) { sp.remove(); });
   });
-  treasures = [];
-  skippedFound = [];
-  goldBits = [];
+  partie.treasures = [];
+  partie.skippedFound = [];
+  partie.goldBits = [];
 }
 
 // Compteur "Trésors n/N" (N = toutes les defs). Une fois tout
 // trouve il devient un lien vers la boutique (pas de code promo pour l'instant).
 function updateTreasureUI() {
   if (!treasureCountEl) return;
-  var total = treasureDefs.length, done = total > 0 && treasuresFound >= total;
+  var total = partie.treasureDefs.length, done = total > 0 && treasuresFound >= total;
   treasureCountEl.classList.toggle('is-complete', done);
   treasureCountEl.textContent = '';
   if (!done) { treasureCountEl.textContent = 'Trésors ' + treasuresFound + '/' + total; return; }
@@ -5695,13 +5548,13 @@ function hideDemoEnd() {
 function syncDemoEndTop() {
   if (!demoEndEl || demoEndEl.classList.contains('d-none')) return;
   var hb = siteHeader ? siteHeader.getBoundingClientRect().bottom - container.getBoundingClientRect().top : 0;
-  demoEndEl.style.top = Math.max(0, Math.min(hb, U * 0.55)) + 'px'; // px CSS : U = hauteur CSS de la boite
+  demoEndEl.style.top = Math.max(0, Math.min(hb, vue.U * 0.55)) + 'px'; // px CSS : U = hauteur CSS de la boite
 }
 function queueDemoEnd() {
-  if (!DEMO || !demoEndEl) return;
+  if (!partie.DEMO || !demoEndEl) return;
   clearTimeout(demoEndTimer);
   demoEndTimer = setTimeout(function () {
-    if (mode !== 'exploded') return;
+    if (partie.mode !== 'exploded') return;
     demoEndEl.classList.remove('d-none');
     syncDemoEndTop();
     var link = demoEndEl.querySelector('a');
@@ -5710,7 +5563,7 @@ function queueDemoEnd() {
 }
 function endDemo() {
   hideDemoEnd();
-  DEMO = false;
+  partie.DEMO = false;
   container.classList.remove('is-demo');
   try { localStorage.setItem(DEMO_KEY, '1'); } catch (e) { /* ignore */ }
   updateMoneyUI();
@@ -5718,10 +5571,10 @@ function endDemo() {
   updateStrainBar();
   // Les tresors mis de cote pendant la demo (buriedDefs) sont enfouis maintenant.
   buriedDefs().forEach(function (def) {
-    if (treasures.some(function (t) { return t.def === def; })) return;
+    if (partie.treasures.some(function (t) { return t.def === def; })) return;
     var t = buildTreasure(def);
     t.ready = true;
-    treasures.push(t);
+    partie.treasures.push(t);
   });
   positionTreasureOverlays();
   updateTreasureUI();
@@ -5766,7 +5619,7 @@ function refreshStrainBar() {
   var btns = strainsBar.querySelectorAll('[data-strain]');
   for (var i = 0; i < btns.length; i++) {
     var id = btns[i].getAttribute('data-strain'), st = strainById[id];
-    var open = unlockedStrains.indexOf(id) !== -1, on = open && id === bagStrain;
+    var open = partie.unlockedStrains.indexOf(id) !== -1, on = open && id === partie.bagStrain;
     var label = open ? 'Souche : ' + st.label + (st.perk ? ' (' + st.perk + ')' : '') : 'Souche à débloquer';
     var dot = btns[i].firstChild;
     btns[i].disabled = !open;
@@ -5779,10 +5632,10 @@ function refreshStrainBar() {
     dot.textContent = open ? '' : '?';
   }
   var grassBtn = document.getElementById('logo-explosion-grass-btn');
-  if (grassBtn && grassCover) {
-    var avg = grassCover.reduce(function (a, b) { return a + b; }, 0) / grassCover.length;
+  if (grassBtn && monde.grassCover) {
+    var avg = monde.grassCover.reduce(function (a, b) { return a + b; }, 0) / monde.grassCover.length;
     var pct = Math.round(avg * 100);
-    var on = tool === 'grass';
+    var on = partie.tool === 'grass';
     grassBtn.setAttribute('aria-label', 'Semer du gazon : ' + pct + '%');
     grassBtn.title = 'Semer du gazon : ' + pct + '%';
     grassBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
@@ -5792,12 +5645,12 @@ function refreshStrainBar() {
 
 // Visible seulement avec l'outil mycelium ou gazon (le bouton gazon vit dans cette barre) ET le monde explose.
 function updateStrainBar() {
-  if (strainsBar) strainsBar.classList.toggle('d-none', !(mode === 'exploded' && (tool === 'mycelium' || tool === 'grass')));
+  if (strainsBar) strainsBar.classList.toggle('d-none', !(partie.mode === 'exploded' && (partie.tool === 'mycelium' || partie.tool === 'grass')));
 }
 
 function setStrain(id) {
-  if (unlockedStrains.indexOf(id) === -1 || !strainById[id]) return;
-  bagStrain = id;
+  if (partie.unlockedStrains.indexOf(id) === -1 || !strainById[id]) return;
+  partie.bagStrain = id;
   refreshStrainBar();
   startLoop(); // le sac dessine la nouvelle teinte
 }
@@ -5807,8 +5660,8 @@ function setStrain(id) {
 function pickTreasureStrain(t) { if (t) t.tipClosed = false; if (t && t.strainId) setStrain(t.strainId); }
 
 function unlockStrain(id) {
-  if (!strainById[id] || unlockedStrains.indexOf(id) !== -1) return false;
-  unlockedStrains.push(id);
+  if (!strainById[id] || partie.unlockedStrains.indexOf(id) !== -1) return false;
+  partie.unlockedStrains.push(id);
   refreshStrainBar();
   return true;
 }
@@ -5816,8 +5669,8 @@ function unlockStrain(id) {
 // Retire juste la bulle DOM (le rebuild fait tomber le champignon qui la portait) —
 // mycTipShown n'est PAS reinitialise : elle ne doit s'afficher qu'une fois par page.
 function clearMycTip() {
-  if (mycTip) { mycTip.remove(); mycTip = null; }
-  mycTipMushroom = null;
+  if (monde.mycTip) { monde.mycTip.remove(); monde.mycTip = null; }
+  monde.mycTipMushroom = null;
 }
 
 // Hauteur (y monde) du tresor non deterre : fixe s'il est enfoui profond, sinon a la surface.
@@ -5829,23 +5682,20 @@ function treasureY(t) {
 function treasureReachable(t) {
   return treasureY(t) - surfaceAt(t.x) < TREASURE_NEAR;
 }
-
-// Tresor deterre saisi a la main : son champignon, sa pepite et sa bulle suivent le curseur.
-var treasureGrab = null;
 function grabTreasureAt(pos) {
   var t = treasureNear(pos.x, pos.y);
   if (!t || !t.revealed || !t.mushroom) return null;
   return { t: t, dx: t.x - pos.x };
 }
 function moveTreasure(t, x) {
-  x = clamp(x, 30, worldW - 30);
+  x = clamp(x, 30, vue.worldW - 30);
   var off = t.nx - t.x;
   t.x = x; t.mushroom.x = x; t.nx = x + off;
   t.deep = false; t.y = surfaceAt(x); // repose a la surface, comme s'il venait d'etre deterre
 }
 function treasureNear(x, y) {
-  for (var i = 0; i < treasures.length; i++) {
-    var t = treasures[i];
+  for (var i = 0; i < partie.treasures.length; i++) {
+    var t = partie.treasures[i];
     if (!t.revealed && !treasureReachable(t)) continue; // trop profond : un tap ici plante juste un champignon
     var reach = t.revealed ? t.mushroom.size * 1.5 : 50;
     if (Math.abs(x - t.x) < 36 && y > surfaceAt(t.x) - reach) return t;
@@ -5858,8 +5708,8 @@ function treasureNear(x, y) {
 function digAt(t) {
   if (window.sporaSfx) sporaSfx.play('dig', { min: 120 }); 
   var sy = surfaceAt(t.x), R = isMobile ? 30 : 42;
-  for (var i = 0; i < shards.length; i++) {
-    var s = shards[i];
+  for (var i = 0; i < monde.shards.length; i++) {
+    var s = monde.shards[i];
     if (!s.settled || Math.hypot(s.x - t.x, s.y - sy) > R) continue;
     var side = s.x === t.x ? (Math.random() < 0.5 ? -1 : 1) : (s.x < t.x ? -1 : 1);
     pileRemove(s);
@@ -5881,7 +5731,7 @@ function reveal(t) {
   t.revealed = true;
   // Le contenu montre (champignon, infobulle) suit l'ordre de deterrage, pas le tresor :
   // le 1er deterre est toujours le strophaire, puis pleurote, puis hydne.
-  var shown = treasureDefs[Math.min(foundList().length, treasureDefs.length) - 1] || t.def;
+  var shown = partie.treasureDefs[Math.min(foundList().length, partie.treasureDefs.length) - 1] || t.def;
   t.glint.classList.remove('is-visible');
   if (t.hint) { t.hint.remove(); t.hint = null; }
   // Hauteur de la pepite : celle du tresor (fixe s'il est profond, sinon la surface au
@@ -5889,8 +5739,8 @@ function reveal(t) {
   if (!t.deep) t.y = surfaceAt(t.x);
   digAt(t);
   // t negatif : le trou s'ouvre d'abord, le champignon sort ensuite.
-  t.mushroom = { x: t.x, size: U * 0.24, lean: 0, sp: SPECIES[shown.species] || SPECIES[0], t: -0.4, treasure: true };
-  mushrooms.push(t.mushroom);
+  t.mushroom = { x: t.x, size: vue.U * 0.24, lean: 0, sp: SPECIES[shown.species] || SPECIES[0], t: -0.4, treasure: true };
+  monde.mushrooms.push(t.mushroom);
   if (window.sporaSfx) sporaSfx.play('pop', { min: 70 });
   // Pepite au pied du champignon (decalee de son pied), avec deux eclats qui pulsent en CSS.
   t.nx = t.x + t.mushroom.size * 0.24;
@@ -5913,7 +5763,7 @@ function reveal(t) {
   t.strainId = strainOrder[nDug - 1] ? strainOrder[nDug - 1].id : null;
   if (!fresh) st = null;
   if (fresh && toolsArrow && guideCurrent()) toolsArrow.classList.remove('d-none');
-  if (fresh && st.id === 'pleurote') pleuroteDug = true;
+  if (fresh && st.id === 'pleurote') partie.pleuroteDug = true;
   t.tip = buildTip(shown);
   container.appendChild(t.tip);
   // La main peut aussi deplacer le tresor en le saisissant par sa bulle (hors lien / bouton).
@@ -5935,10 +5785,10 @@ function reveal(t) {
       return;
     }
     // Carte rangee sous le jeu (shelfEl) : elle ne sert pas de poignee au tresor.
-    if (mode !== 'exploded' || tool !== 'hand' || t.tip.parentNode !== container) return;
-    var sp = getRelativePos(evt), wp = { x: sp.x + camX, y: sp.y + camY };
-    treasureGrab = { t: t, dx: t.x - wp.x, fromTip: true, onImg: evt.target.tagName === 'IMG' };
-    pointerDown = wp; dragMoved = false; pressCaught = true; grabbed = true;
+    if (partie.mode !== 'exploded' || partie.tool !== 'hand' || t.tip.parentNode !== container) return;
+    var sp = getRelativePos(evt), wp = { x: sp.x + vue.camX, y: sp.y + vue.camY };
+    vue.treasureGrab = { t: t, dx: t.x - wp.x, fromTip: true, onImg: evt.target.tagName === 'IMG' };
+    vue.pointerDown = wp; vue.dragMoved = false; vue.pressCaught = true; grabbed = true;
     try { canvas.setPointerCapture(evt.pointerId); } catch (e) { /* pas grave */ }
     evt.preventDefault();
   });
@@ -5958,7 +5808,7 @@ function reveal(t) {
     tapTip(t, evt.target.tagName === 'IMG');
   });
   // Pendant le tutoriel du mycelium, la bulle des tresors suivants ne s'ouvre pas seule (elle reste ouvrable au clic).
-  if (nDug <= 1 || !guideCurrent()) { openTip(t); tipHoldUntil = performance.now() + TIP_REVEAL_HOLD_MS; }
+  if (nDug <= 1 || !guideCurrent()) { openTip(t); partie.tipHoldUntil = performance.now() + TIP_REVEAL_HOLD_MS; }
   // Souris sur la carte : elle reste ouverte ; sortie de la carte : voir tipAway.
   t.tip.addEventListener('pointerenter', function () { tipAway(false); });
   t.tip.addEventListener('pointerleave', function (evt) { if (evt.pointerType === 'mouse') tipAway(true); });
@@ -5966,7 +5816,7 @@ function reveal(t) {
   updateTreasureUI();
   savePlayerIfChanged();
   var msg = fresh ? 'Nouvelle souche débloquée : ' + strainById[st.id].label + (strainById[st.id].perk ? ' — ' + strainById[st.id].perk : '') + ' (outil mycélium).' : '';
-  if (treasureDefs.length && treasuresFound >= treasureDefs.length) msg += (msg ? ' ' : '') + 'Vous avez trouvé tous les trésors !';
+  if (partie.treasureDefs.length && treasuresFound >= partie.treasureDefs.length) msg += (msg ? ' ' : '') + 'Vous avez trouvé tous les trésors !';
   if (msg) setCaption(msg);
   startLoop();
 }
@@ -5975,7 +5825,7 @@ function reveal(t) {
 // point central decale), teinte selon l'orientation de chaque facette par rapport a une
 // lumiere venant du haut-gauche. Points figes au reveal (pas de random au dessin).
 function makeNugget() {
-  var R = U * NUGGET_R, n = 5 + (Math.random() < 0.5 ? 1 : 0), ang = [], rad = [], i;
+  var R = vue.U * NUGGET_R, n = 5 + (Math.random() < 0.5 ? 1 : 0), ang = [], rad = [], i;
   for (i = 0; i < n; i++) {
     ang.push((i + (Math.random() - 0.5) * 0.4) / n * Math.PI * 2);
     rad.push(R * (0.8 + Math.random() * 0.4));
@@ -5999,11 +5849,11 @@ function nuggetY(t) {
 }
 
 function drawNuggets() {
-  for (var i = 0; i < treasures.length; i++) {
-    var t = treasures[i];
+  for (var i = 0; i < partie.treasures.length; i++) {
+    var t = partie.treasures[i];
     if (!t.nugget) continue;
     var y = nuggetY(t), fs = t.nugget.facets;
-    if (t.nx < camX - 30 || t.nx > camX + W + 30 || y < camY - 30 || y > camY + H + 30) continue;
+    if (t.nx < vue.camX - 30 || t.nx > vue.camX + vue.W + 30 || y < vue.camY - 30 || y > vue.camY + vue.H + 30) continue;
     for (var f = 0; f < fs.length; f++) {
       var p = fs[f].p;
       ctx.fillStyle = fs[f].c;
@@ -6021,7 +5871,7 @@ function drawNuggets() {
 // toucher au systeme de facettes de terre. Comptes comme "actifs" par step().
 function spawnGoldBits(x, y) {
   for (var i = 0; i < GOLD_BITS_N; i++) {
-    goldBits.push({
+    partie.goldBits.push({
       x: x, y: y, vx: (Math.random() - 0.5) * 5, vy: -3 - Math.random() * 3,
       rot: Math.random() * Math.PI * 2, vr: (Math.random() - 0.5) * 0.4,
       r: 2.5 + Math.random() * 2.5, c: NUGGET_COLORS[(Math.random() * 3) | 0], life: GOLD_BITS_LIFE
@@ -6030,18 +5880,18 @@ function spawnGoldBits(x, y) {
 }
 
 function stepGoldBits() {
-  for (var i = goldBits.length - 1; i >= 0; i--) {
-    var b = goldBits[i];
+  for (var i = partie.goldBits.length - 1; i >= 0; i--) {
+    var b = partie.goldBits[i];
     b.vy += GRAVITY; b.vx *= AIR;
     b.x += b.vx; b.y += b.vy; b.rot += b.vr;
-    if (--b.life <= 0) goldBits.splice(i, 1);
+    if (--b.life <= 0) partie.goldBits.splice(i, 1);
   }
-  return goldBits.length > 0;
+  return partie.goldBits.length > 0;
 }
 
 function drawGoldBits() {
-  for (var i = 0; i < goldBits.length; i++) {
-    var b = goldBits[i], r = b.r * Math.min(1, b.life / 15); // retrecit sur la fin
+  for (var i = 0; i < partie.goldBits.length; i++) {
+    var b = partie.goldBits[i], r = b.r * Math.min(1, b.life / 15); // retrecit sur la fin
     ctx.fillStyle = b.c;
     poly([
       [b.x + Math.cos(b.rot) * r, b.y + Math.sin(b.rot) * r],
@@ -6151,14 +6001,13 @@ function tipImgs(def) {
   return [].concat(def.img || []).map(function (im) { return typeof im === 'string' ? { src: im } : im; });
 }
 var tipAwayTimer = 0;
-var tipHoldUntil = 0;
 function tipAway(away) {
   if (!away) { clearTimeout(tipAwayTimer); tipAwayTimer = 0; return; }
   if (tipAwayTimer) return;
   tipAwayTimer = setTimeout(function check() {
     var open = null;
-    treasures.forEach(function (t) { if (t.tip && t.tip.classList.contains('is-open')) open = t; });
-    var wait = (treasureGrab || (open && open.tip.matches(':hover'))) ? TIP_AWAY_MS : tipHoldUntil - performance.now();
+    partie.treasures.forEach(function (t) { if (t.tip && t.tip.classList.contains('is-open')) open = t; });
+    var wait = (vue.treasureGrab || (open && open.tip.matches(':hover'))) ? TIP_AWAY_MS : partie.tipHoldUntil - performance.now();
     if (open && wait > 0) { tipAwayTimer = setTimeout(check, wait); return; }
     tipAwayTimer = 0;
     if (open) openTip(null);
@@ -6170,7 +6019,7 @@ function tipIdle() {
   if (!NO_HOVER) return;
   tipIdleTimer = setTimeout(function () {
     var open = null;
-    treasures.forEach(function (t) { if (t.tip && t.tip.classList.contains('is-open')) open = t; });
+    partie.treasures.forEach(function (t) { if (t.tip && t.tip.classList.contains('is-open')) open = t; });
     if (!open) return;
     if (open.tip.classList.contains('is-zoom')) tipIdle(); else openTip(null);
   }, TIP_IDLE_MS);
@@ -6187,7 +6036,7 @@ function tapTip(t, onImg) {
 // valant la chaine 'myc') sont proches, elles se chevaucheraient.
 function openTip(active, tapped) {
   var wasOpen = !!(active && active.tip && active.tip.classList.contains('is-open'));
-  treasures.forEach(function (t) {
+  partie.treasures.forEach(function (t) {
     if (!t.tip) return;
     t.tip.classList.toggle('is-open', t === active);
     if (t !== active) t.tip.classList.remove('is-details', 'is-zoom'); // se rouvre repliee
@@ -6203,8 +6052,8 @@ function openTip(active, tapped) {
     }
     if (shelved && active && active.tip && (tapped || !wasOpen)) shelfCue(active);
   }
-  if (mycTip) mycTip.classList.toggle('is-open', active === 'myc');
-  if (!!active !== tipOpen) { tipOpen = !!active; tipChangeAt = performance.now(); } // voir leachTip
+  if (monde.mycTip) monde.mycTip.classList.toggle('is-open', active === 'myc');
+  if (!!active !== partie.tipOpen) { partie.tipOpen = !!active; partie.tipChangeAt = performance.now(); } // voir leachTip
   if (active && active !== 'myc') tipIdle(); else clearTimeout(tipIdleTimer);
 }
 
@@ -6230,8 +6079,8 @@ function shelfCue(t) {
   label.textContent = name ? name.textContent : '';
   cue.appendChild(label);
   // Overlay HTML : px CSS, donc * ZOOM (comme positionTipOverMushroom). 120 : reste sous le header.
-  var boxW = W * ZOOM, top = Math.max(120, (surfaceAt(m.x) - camY) * ZOOM - 70);
-  cue.style.left = Math.max(110, Math.min(boxW - 110, (m.x - camX) * ZOOM)) + 'px';
+  var boxW = vue.W * vue.ZOOM, top = Math.max(120, (surfaceAt(m.x) - vue.camY) * vue.ZOOM - 70);
+  cue.style.left = Math.max(110, Math.min(boxW - 110, (m.x - vue.camX) * vue.ZOOM)) + 'px';
   cue.style.top = top + 'px';
   cue.style.setProperty('--drop', Math.max(80, container.clientHeight - top + 60) + 'px');
   cue.addEventListener('click', function () { shelfEl.scrollIntoView({ behavior: 'smooth', block: 'center' }); });
@@ -6251,10 +6100,10 @@ function shelfCue(t) {
 function positionTipOverMushroom(tipEl, m) {
   var g = easeOutBack(Math.max(0, Math.min(1, m.t)));
   // Overlay HTML : positions en px CSS, donc * ZOOM (la taille de la bulle, elle, reste en px CSS).
-  var capTop = (surfaceAt(m.x) - camY + 6 - m.size * g * 1.45) * ZOOM;
+  var capTop = (surfaceAt(m.x) - vue.camY + 6 - m.size * g * 1.45) * vue.ZOOM;
   var half = tipEl.offsetWidth / 2;
-  var mScreenX = (m.x - camX) * ZOOM;
-  var left = Math.max(half + 8, Math.min(W * ZOOM - half - 8, mScreenX));
+  var mScreenX = (m.x - vue.camX) * vue.ZOOM;
+  var left = Math.max(half + 8, Math.min(vue.W * vue.ZOOM - half - 8, mScreenX));
   tipEl.style.left = left + 'px';
   // Champignon sorti trop haut (terre decompactee) ou carte agrandie : la bulle reste dans l'ecran,
   // sans fleche, et sous le header qui flotte par-dessus le haut de la boite (accueil). Bornee a
@@ -6275,16 +6124,15 @@ var digTipEl = null, digTipTarget = null, digTipTimer = 0;
 function hideDigTip() {
   clearTimeout(digTipTimer);
   digTipTarget = null;
-  digTipHover = false;
+  partie.digTipHover = false;
   if (digTipEl) digTipEl.classList.remove('is-open');
 }
-var digTipHover = false;
 // Tresor pas encore deterre dont le scintillement affiche est sous le pointeur (meme enfoui) :
 // on compare au rectangle reel de l'element (coordonnees fenetre), pas a un calcul monde -> ecran.
 function treasureGlintAt(evt) {
   var best = null, bd = 34;
-  for (var i = 0; i < treasures.length; i++) {
-    var t = treasures[i];
+  for (var i = 0; i < partie.treasures.length; i++) {
+    var t = partie.treasures[i];
     if (t.revealed || !t.glint.classList.contains('is-visible')) continue;
     var r = t.glint.getBoundingClientRect();
     var d = Math.hypot(r.left + r.width / 2 - evt.clientX, r.top + r.height / 2 - evt.clientY);
@@ -6301,7 +6149,7 @@ function showDigTip(t, hover) {
     container.appendChild(digTipEl);
   }
   digTipTarget = t;
-  digTipHover = !!hover;
+  partie.digTipHover = !!hover;
   digTipEl.classList.add('is-open');
   clearTimeout(digTipTimer);
   if (!hover) digTipTimer = setTimeout(hideDigTip, DIG_TIP_MS);
@@ -6310,51 +6158,51 @@ function showDigTip(t, hover) {
 function positionDigTip() {
   if (!digTipEl || !digTipTarget) return;
   if (digTipTarget.revealed) { hideDigTip(); return; }
-  var sx = (digTipTarget.x - camX) * ZOOM, sy = (treasureY(digTipTarget) - camY) * ZOOM;
+  var sx = (digTipTarget.x - vue.camX) * vue.ZOOM, sy = (treasureY(digTipTarget) - vue.camY) * vue.ZOOM;
   var half = digTipEl.offsetWidth / 2;
-  digTipEl.style.left = Math.max(half + 8, Math.min(W * ZOOM - half - 8, sx)) + 'px';
+  digTipEl.style.left = Math.max(half + 8, Math.min(vue.W * vue.ZOOM - half - 8, sx)) + 'px';
   digTipEl.style.top = Math.max(digTipEl.offsetHeight + 8, sy - 26) + 'px';
 }
 
 function positionTreasureOverlays() {
   // Un seul repere a la fois : celui du tresor enfoui le plus pres du centre de l'ecran.
-  var hintT = null, hintD = W / 2 + 20;
-  for (var h = 0; h < treasures.length; h++) {
-    var dh = Math.abs(treasures[h].x - camX - W / 2);
-    if (!treasures[h].revealed && dh < hintD) { hintD = dh; hintT = treasures[h]; }
+  var hintT = null, hintD = vue.W / 2 + 20;
+  for (var h = 0; h < partie.treasures.length; h++) {
+    var dh = Math.abs(partie.treasures[h].x - vue.camX - vue.W / 2);
+    if (!partie.treasures[h].revealed && dh < hintD) { hintD = dh; hintT = partie.treasures[h]; }
   }
-  for (var i = 0; i < treasures.length; i++) {
-    var t = treasures[i];
-    var screenX = t.x - camX;
+  for (var i = 0; i < partie.treasures.length; i++) {
+    var t = partie.treasures[i];
+    var screenX = t.x - vue.camX;
     if (!t.revealed) {
       // Toujours signale des qu'il est dans la vue, meme enfoui (il ne se creuse que
       // quand treasureReachable, voir tryDig).
-      var sy = treasureY(t) - camY;
-      var show = t.ready && sy > -20 && sy < H + 20 && screenX > -20 && screenX < W + 20;
+      var sy = treasureY(t) - vue.camY;
+      var show = t.ready && sy > -20 && sy < vue.H + 20 && screenX > -20 && screenX < vue.W + 20;
       t.glint.classList.toggle('is-visible', show);
-      t.glint.style.left = screenX * ZOOM + 'px';
-      t.glint.style.top = (sy * ZOOM - 2) + 'px';
+      t.glint.style.left = screenX * vue.ZOOM + 'px';
+      t.glint.style.top = (sy * vue.ZOOM - 2) + 'px';
       if (t.hint) {
         // A la surface (ou sur le tresor si on a creuse plus bas que lui). Cache pendant le
         // tutoriel du mycelium, comme la boussole : il detournerait l'attention.
-        var hy = Math.min(sy, surfaceAt(t.x) - camY);
-        t.hint.classList.toggle('is-visible', t === hintT && t.ready && hy * ZOOM > 30 && hy < H + 20 && screenX > -20 && screenX < W + 20 && !(unlockedStrains.length && guideCurrent()));
-        t.hint.style.left = screenX * ZOOM + 'px';
-        t.hint.style.top = (hy * ZOOM - 34) + 'px';
+        var hy = Math.min(sy, surfaceAt(t.x) - vue.camY);
+        t.hint.classList.toggle('is-visible', t === hintT && t.ready && hy * vue.ZOOM > 30 && hy < vue.H + 20 && screenX > -20 && screenX < vue.W + 20 && !(partie.unlockedStrains.length && guideCurrent()));
+        t.hint.style.left = screenX * vue.ZOOM + 'px';
+        t.hint.style.top = (hy * vue.ZOOM - 34) + 'px';
       }
       continue;
     }
     if (t.sparks) {
-      var ny = nuggetY(t) - camY, nsx = t.nx - camX, nr = t.nugget.r;
-      t.sparks[0].style.left = (nsx - nr * 0.35) * ZOOM + 'px';
-      t.sparks[0].style.top = (ny - nr * 0.7) * ZOOM + 'px';
-      t.sparks[1].style.left = (nsx + nr * 0.5) * ZOOM + 'px';
-      t.sparks[1].style.top = (ny - nr * 0.2) * ZOOM + 'px';
+      var ny = nuggetY(t) - vue.camY, nsx = t.nx - vue.camX, nr = t.nugget.r;
+      t.sparks[0].style.left = (nsx - nr * 0.35) * vue.ZOOM + 'px';
+      t.sparks[0].style.top = (ny - nr * 0.7) * vue.ZOOM + 'px';
+      t.sparks[1].style.left = (nsx + nr * 0.5) * vue.ZOOM + 'px';
+      t.sparks[1].style.top = (ny - nr * 0.2) * vue.ZOOM + 'px';
     }
     if (!t.tip) continue;
     positionTipOverMushroom(t.tip, t.mushroom);
     // Champignon sorti de l'ecran : la bulle s'efface graduellement, puis se ferme.
-    var farX = t.mushroom.x - camX, off = farX < 0 ? -farX : farX > W ? farX - W : 0, fade = 1 - off / (W * 0.12);
+    var farX = t.mushroom.x - vue.camX, off = farX < 0 ? -farX : farX > vue.W ? farX - vue.W : 0, fade = 1 - off / (vue.W * 0.12);
     if (t.tip.classList.contains('is-open') && off > 0) {
       // Filet de securite : hors ecran depuis 2,5 s, elle se ferme meme si la distance ne suffit pas (bord du monde).
       if (!t.farSince) t.farSince = performance.now();
@@ -6362,34 +6210,34 @@ function positionTreasureOverlays() {
       else t.tip.style.opacity = Math.min(fade, 1 - (performance.now() - t.farSince) / 2500).toFixed(2);
     } else { t.tip.style.opacity = ''; t.farSince = 0; }
   }
-  if (mycTip && mycTipMushroom) positionTipOverMushroom(mycTip, mycTipMushroom);
+  if (monde.mycTip && monde.mycTipMushroom) positionTipOverMushroom(monde.mycTip, monde.mycTipMushroom);
   positionDigTip();
   updateCompass();
 }
 
 // --- Reconstruction ----------------------------------------------------------------
 function rebuild() {
-  if (mode !== 'exploded') return;
-  mode = 'rebuilding';
+  if (partie.mode !== 'exploded') return;
+  partie.mode = 'rebuilding';
   rebuildT = 0;
-  camX = camMargin; // la camera revient au centre pendant que le logo se reconstruit
-  camY = ZOOM === 1 ? 0 : camHomeY();
-  mobileArrow = 0;
-  mobileArrowY = 0;
+  vue.camX = vue.camMargin; // la camera revient au centre pendant que le logo se reconstruit
+  vue.camY = vue.ZOOM === 1 ? 0 : camHomeY();
+  vue.mobileArrow = 0;
+  vue.mobileArrowY = 0;
   leaveHand(); // ce qu'on tenait/agrippait a la main ne survit pas a la reconstruction (rend aussi s.carried a false)
   // Les grains en vol n'ont pas de place dans le logo : ils disparaissent.
-  shards = shards.filter(function (g) { return !g.grain && !g.extra && g.eaten === undefined; });
-  colonised = []; fruited = {}; deadMyc = []; tintedMyc = false; resetPatches();
-  trees = []; litter = []; treeLife = false;
-  insects = []; heldInsect = null; insectNextAt = null; insectLastT = null;
-  compactNutri = []; drops = [];
-  lakes = []; lakeOf = []; lakeLastT = null;
+  monde.shards = monde.shards.filter(function (g) { return !g.grain && !g.extra && g.eaten === undefined; });
+  monde.colonised = []; monde.fruited = {}; monde.deadMyc = []; monde.tintedMyc = false; resetPatches();
+  monde.trees = []; monde.litter = []; monde.treeLife = false;
+  monde.insects = []; monde.heldInsect = null; monde.insectNextAt = null; monde.insectLastT = null;
+  monde.compactNutri = []; monde.drops = [];
+  monde.lakes = []; monde.lakeOf = []; monde.lakeLastT = null;
   weather.raining = false; weather.clouds = []; weather.lastNow = null;
   weather.drought = false;
   updateDroughtIndicator();
   leaveBag();
-  for (var i = 0; i < shards.length; i++) {
-    var s = shards[i];
+  for (var i = 0; i < monde.shards.length; i++) {
+    var s = monde.shards[i];
     s.sx = s.x; s.sy = s.y; s.srot = s.rot; s.smix = s.mix;
     s.delay = Math.random() * 0.35;
   }
@@ -6422,30 +6270,30 @@ function stepRebuild() {
   // Le tas s'enfonce avec le lit de terre, qui redescend d'ou il etait monte ; le
   // compact remonte lentement vers son niveau d'origine (setupSoil le refixe de toute
   // facon au prochain build).
-  for (var i = 0; i < heights.length; i++) {
-    heights[i] *= 0.9;
-    compactY[i] += (groundY - compactY[i]) * 0.1;
+  for (var i = 0; i < monde.heights.length; i++) {
+    monde.heights[i] *= 0.9;
+    monde.compactY[i] += (vue.groundY - monde.compactY[i]) * 0.1;
   }
-  for (i = 0; i < shards.length; i++) {
-    var s = shards[i];
+  for (i = 0; i < monde.shards.length; i++) {
+    var s = monde.shards[i];
     var t = easeInOut(Math.max(0, Math.min(1, (rebuildT - s.delay) / 0.65)));
     s.x = lerp(s.sx, s.ox, t);
     // Logo : petit arc vers le haut. Lit de terre : retour a sa place puis sous le bord.
-    s.y = s.soil ? lerp(s.sy, s.oy + soilDepth, t) : lerp(s.sy, s.oy, t) - Math.sin(t * Math.PI) * 40;
+    s.y = s.soil ? lerp(s.sy, s.oy + monde.soilDepth, t) : lerp(s.sy, s.oy, t) - Math.sin(t * Math.PI) * 40;
     s.rot = lerp(s.srot, 0, t);
     s.mix = lerp(s.smix, 0, t);
     if (s.myc) s.myc *= 0.93;
     s.nutri = null;
   }
-  mushrooms.forEach(function (m) { m.t -= 0.06; });
-  mushrooms = mushrooms.filter(function (m) { return m.t > 0; });
+  monde.mushrooms.forEach(function (m) { m.t -= 0.06; });
+  monde.mushrooms = monde.mushrooms.filter(function (m) { return m.t > 0; });
   if (rebuildT < 1) return true;
   resetToLogo();
   return false;
 }
 
 function resetToLogo() {
-  mode = 'assembled';
+  partie.mode = 'assembled';
   canvas.classList.add('d-none');
   fallbackImg.classList.remove('d-none');
   leaveShovel();
@@ -6467,23 +6315,23 @@ function resetToLogo() {
   if (scrollRightBtn) scrollRightBtn.classList.add('d-none');
   if (scrollUpBtn) scrollUpBtn.classList.add('d-none');
   if (scrollDownBtn) scrollDownBtn.classList.add('d-none');
-  mobileArrow = 0;
-  mobileArrowY = 0;
-  hoverScreenX = null; hoverScreenY = null;
+  vue.mobileArrow = 0;
+  vue.mobileArrowY = 0;
+  vue.hoverScreenX = null; vue.hoverScreenY = null;
   leaveBag();
   leaveHand();
   weather.raining = false; weather.clouds = []; weather.lastNow = null;
   weather.drought = false;
   updateDroughtIndicator();
-  drops = []; compactNutri = [];
-  lakes = []; lakeOf = []; lakeLastT = null;
-  shards = [];
+  monde.drops = []; monde.compactNutri = [];
+  monde.lakes = []; monde.lakeOf = []; monde.lakeLastT = null;
+  monde.shards = [];
   resetTiles();
-  mushrooms = [];
-  colonised = []; fruited = {}; deadMyc = []; tintedMyc = false; resetPatches();
-  bagGrainsLeft = 0; // le sac se re-achete (ou se re-offre s'il n'a jamais servi) au prochain versement
-  trees = []; litter = []; treeLife = false;
-  insects = []; heldInsect = null; insectNextAt = null; insectLastT = null;
+  monde.mushrooms = [];
+  monde.colonised = []; monde.fruited = {}; monde.deadMyc = []; monde.tintedMyc = false; resetPatches();
+  partie.bagGrainsLeft = 0; // le sac se re-achete (ou se re-offre s'il n'a jamais servi) au prochain versement
+  monde.trees = []; monde.litter = []; monde.treeLife = false;
+  monde.insects = []; monde.heldInsect = null; monde.insectNextAt = null; monde.insectLastT = null;
   if (slowTimer !== null) { clearTimeout(slowTimer); slowTimer = null; }
 }
 
@@ -6494,14 +6342,14 @@ function getRelativePos(evt) {
   // Divisees par ZOOM : px CSS -> px logiques (meme repere que W/H).
   var rect = container.getBoundingClientRect();
   var p = evt.touches ? evt.touches[0] : evt;
-  return { x: (p.clientX - rect.left) / ZOOM, y: (p.clientY - rect.top) / ZOOM };
+  return { x: (p.clientX - rect.left) / vue.ZOOM, y: (p.clientY - rect.top) / vue.ZOOM };
 }
 
 // Coordonnees monde (ajoute le decalage camera courant) : a utiliser pour toute la
 // physique/logique (pelle, tresors, tas) une fois le monde explose.
 function getWorldPos(evt) {
   var p = getRelativePos(evt);
-  return { x: p.x + camX, y: p.y + camY };
+  return { x: p.x + vue.camX, y: p.y + vue.camY };
 }
 var holdWrap = document.getElementById('logo-explosion-fallback-wrap');
 var holdTimer = null, holdHintTimer = null, holdTouch = false;
@@ -6520,79 +6368,71 @@ function holdFollow(evt) {
   magnetTy = evt.clientY - (zr.top + zr.height / 2) - HOLD_LIFT;
 }
 
-// Pointer events : meme code pour souris, doigt et stylet.
-// Souris : la pelle suit le survol, bouton maintenu = elle ralentit (mode precis). Le
-// survol pres des bords de la boite fait aussi defiler le monde (voir cameraSpeed).
-// Doigt : le bol suit le doigt, doigt leve = il se vide puis disparait. Deux facons de
-// defiler : les fleches tactiles, ou amener l'outil tenu pres d'un bord (edgeTouch,
-// voir cameraSpeed).
-var pressCaught = false;
-
 function endPress(evt, allowTap) {
   dropHeldInsect(); // meme si pointerDown a deja ete remis a zero
-  if (!pointerDown) return;
-  if (evt.pointerType !== 'mouse') { hoverScreenX = null; hoverScreenY = null; }
-  if (tool === 'hand' && shovel.on) {
+  if (!vue.pointerDown) return;
+  if (evt.pointerType !== 'mouse') { vue.hoverScreenX = null; vue.hoverScreenY = null; }
+  if (partie.tool === 'hand' && shovel.on) {
     releaseShovel();
-    pressCaught = false;
-    pointerDown = null;
+    vue.pressCaught = false;
+    vue.pointerDown = null;
     startLoop();
     return;
   }
-  if (tool === 'hand') {
-    if (treasureGrab) {
-      if (allowTap && !dragMoved) {
-        openTip(treasureGrab.t, true); pickTreasureStrain(treasureGrab.t);
-        if (treasureGrab.fromTip) tapTip(treasureGrab.t, treasureGrab.onImg);
+  if (partie.tool === 'hand') {
+    if (vue.treasureGrab) {
+      if (allowTap && !vue.dragMoved) {
+        openTip(vue.treasureGrab.t, true); pickTreasureStrain(vue.treasureGrab.t);
+        if (vue.treasureGrab.fromTip) tapTip(vue.treasureGrab.t, vue.treasureGrab.onImg);
       }
-      treasureGrab = null;
+      vue.treasureGrab = null;
     }
     var hadGrip = !!hand.grip;
     hand.grip = null; // relachee avant de casser : la branche revient droite, rien d'autre
-    if (handCarry.length) {
+    if (vue.handCarry.length) {
       // On relache la prise : la gravite fait le reste (chute et pose normales, meme
       // chemin que pour n'importe quelle facette delogee par la pelle, voir step()).
-      for (var hi = 0; hi < handCarry.length; hi++) handCarry[hi].carried = false;
-      handCarry = [];
-    } else if (allowTap && !dragMoved && !hadGrip && !pressCaught) {
+      for (var hi = 0; hi < vue.handCarry.length; hi++) vue.handCarry[hi].carried = false;
+      vue.handCarry = [];
+    } else if (allowTap && !vue.dragMoved && !hadGrip && !vue.pressCaught) {
       // Un tap sur le monde ferme aussi l'infobulle ouverte (tresor ou bulle mycelium).
       var handWp = getWorldPos(evt), handT = treasureNear(handWp.x, handWp.y);
       if (!(handT && handT.revealed)) openTip(null);
       harvestAt(handWp);
     }
-    pressCaught = false;
-    pointerDown = null;
+    vue.pressCaught = false;
+    vue.pointerDown = null;
     if (evt.pointerType !== 'mouse') leaveHand(); // au doigt la main n'existe que pendant l'appui
     startLoop();
     return;
   }
-  if (tool === 'mycelium') {
+  if (partie.tool === 'mycelium') {
     bag.pouring = false;
     // Au sac, un tap ne creuse pas : il rouvre seulement l'infobulle d'un tresor deja sorti.
-    if (allowTap && !dragMoved) {
+    if (allowTap && !vue.dragMoved) {
       var wp = getWorldPos(evt), t = treasureNear(wp.x, wp.y);
       if (t && t.revealed) { openTip(t, true); pickTreasureStrain(t); } else openTip(null);
     }
     if (evt.pointerType !== 'mouse') leaveBag();
-    pointerDown = null;
+    vue.pointerDown = null;
     startLoop();
     return;
   }
-  if (tool === 'fertilizer') {
-    pointerDown = null;
+  if (partie.tool === 'fertilizer') {
+    vue.pointerDown = null;
     startLoop();
     return;
   }
-  if (tool === 'tree') {
-    if (allowTap && !dragMoved) {
+  if (partie.tool === 'tree') {
+    if (allowTap && !vue.dragMoved) {
       openTip(null); // un tap plante un arbre mais ferme d'abord toute infobulle ouverte
       plantTree(getWorldPos(evt).x);
     }
-    pointerDown = null;
+    vue.pointerDown = null;
     startLoop();
     return;
   }
-  pointerDown = null;
+  vue.pointerDown = null;
   startLoop();
 }
 // Reutilise le mecanisme de header compact expose par nav-compact.js (voir
@@ -6620,7 +6460,7 @@ function setHeaderHover(over) {
   if (over === headerHover) return;
   headerHover = over;
   clearTimeout(headerLeaveTimer);
-  if (!over) headerLeaveTimer = setTimeout(function () { if (mode === 'exploded') compactHeaderForGame(); }, HEADER_HOVER_LEAVE);
+  if (!over) headerLeaveTimer = setTimeout(function () { if (partie.mode === 'exploded') compactHeaderForGame(); }, HEADER_HOVER_LEAVE);
   else if (window.sporaHeaderCompact && typeof window.sporaHeaderCompact.set === 'function') window.sporaHeaderCompact.set(false);
 }
 function hideDebugPanel() {
@@ -6640,36 +6480,35 @@ function hideDebugPanel() {
 // juste la fenetre de camera (H + toile de fond du canvas) pour en reveler plus,
 // sans toucher au sol/trous/arbres deja en place ni reinitialiser la partie.
 function resizeGameHeight() {
-  if (mode === 'assembled') return; // pas encore explose : build() lira la taille a jour au clic
+  if (partie.mode === 'assembled') return; // pas encore explose : build() lira la taille a jour au clic
   var rect = container.getBoundingClientRect();
-  if (Math.round(rect.width) !== Math.round(UW)) {
+  if (Math.round(rect.width) !== Math.round(vue.UW)) {
     // La largeur a aussi change (jamais le cas pour le bouton plein ecran lui-meme,
     // mais garde-fou si une barre de defilement s'en mele) : seul cas ou on doit
     // vraiment tout reconstruire, comme le fait deja le listener de resize plus bas.
-    if (rafId !== null) { cancelAnimationFrame(rafId); rafId = null; }
+    if (vue.rafId !== null) { cancelAnimationFrame(vue.rafId); vue.rafId = null; }
     resetToLogo();
     return;
   }
   var newH = rect.height;
-  if (Math.round(newH) === Math.round(U)) return;
-  H = newH / ZOOM; U = H * ZOOM;
+  if (Math.round(newH) === Math.round(vue.U)) return;
+  vue.H = newH / vue.ZOOM; vue.U = vue.H * vue.ZOOM;
   resetTiles();
   sizeCanvas();
   // groundY et le sol existant restent en coordonnees monde absolues, inchanges :
   // seule la fenetre visible (camY..camY+H) grandit ou retrecit.
-  worldH = Math.max(worldH, H + U * DEPTH_MULT);
+  vue.worldH = Math.max(vue.worldH, vue.H + vue.U * DEPTH_MULT);
   // Au sommet (camY <= 0) on colle la vue sur le sol en bas d'ecran, comme au depart :
   // la place gagnee sert a montrer plus de ciel, pas plus de sous-sol.
-  var atTop = camY <= 0;
-  camY = clamp(atTop ? camHomeY() : camY, camMinY(), worldH - H);
+  var atTop = vue.camY <= 0;
+  vue.camY = clamp(atTop ? camHomeY() : vue.camY, camMinY(), vue.worldH - vue.H);
 }
 // Vue de depart : le sol au bas de l'ecran. 0 tant que la fenetre n'est pas plus haute que
 // le monde de depart ; negatif en plein ecran ou en zoom arriere (H depasse groundY).
-function camHomeY() { return Math.min(0, groundY - (H - 6)); }
+function camHomeY() { return Math.min(0, vue.groundY - (vue.H - 6)); }
 // Zoome : la vue de depart montre deja beaucoup de ciel au-dessus des arbres, pas de ciel en plus.
-function camMinY() { return ZOOM === 1 ? Math.min(0, groundY - (H - 6)) - H * SKY_EXTRA : camHomeY(); }
+function camMinY() { return vue.ZOOM === 1 ? Math.min(0, vue.groundY - (vue.H - 6)) - vue.H * SKY_EXTRA : camHomeY(); }
 var debugDefaults = null;
-var debugBuilt = false;
 // Section repliable du panneau d'options : en-tete bouton (aria-expanded) + corps.
 var sectionSeq = 0;
 function makeSection(title, open) {
@@ -6695,8 +6534,8 @@ function makeSection(title, open) {
   return { sec: sec, body: body };
 }
 function buildDebugPanel() {
-  if (!debugPanel || debugBuilt) return;
-  debugBuilt = true;
+  if (!debugPanel || partie.debugBuilt) return;
+  partie.debugBuilt = true;
   debugDefaults = {};
   var groups = [], byGroup = {};
   for (var i = 0; i < DEBUG_FIELDS.length; i++) {
@@ -6709,7 +6548,7 @@ function buildDebugPanel() {
   // Compteur de tresors : plus flottant sur la scene, en tete du panneau (voir updateTreasureUI).
   if (treasureCountEl) {
     frag.appendChild(treasureCountEl);
-    if (treasureDefs.length) treasureCountEl.classList.remove('d-none');
+    if (partie.treasureDefs.length) treasureCountEl.classList.remove('d-none');
   }
   // Meteo, vitesse et gazon (anciennement la barre en bas a gauche) : seule section ouverte.
   if (speedWrap) {
@@ -6767,8 +6606,8 @@ var grassMycNutriInput = document.getElementById('logo-explosion-grassmyc-nutri'
 // Fleches tactiles (mobile) : maintenues, elles font defiler le monde a vitesse fixe.
 function bindScrollArrow(btn, dir, vertical) {
   if (!btn) return;
-  var start = function (evt) { evt.preventDefault(); if (vertical) mobileArrowY = dir; else mobileArrow = dir; startLoop(); };
-  var stop = function () { if (vertical) mobileArrowY = 0; else mobileArrow = 0; };
+  var start = function (evt) { evt.preventDefault(); if (vertical) vue.mobileArrowY = dir; else vue.mobileArrow = dir; startLoop(); };
+  var stop = function () { if (vertical) vue.mobileArrowY = 0; else vue.mobileArrow = 0; };
   btn.addEventListener('pointerdown', start);
   btn.addEventListener('pointerup', stop);
   btn.addEventListener('pointercancel', stop);
@@ -6782,8 +6621,8 @@ function bindScrollArrow(btn, dir, vertical) {
 function pauseLoop() {
   if (paused) return;
   paused = true;
-  wasRunningBeforeHide = rafId !== null || slowTimer !== null;
-  if (rafId !== null) { cancelAnimationFrame(rafId); rafId = null; }
+  wasRunningBeforeHide = vue.rafId !== null || slowTimer !== null;
+  if (vue.rafId !== null) { cancelAnimationFrame(vue.rafId); vue.rafId = null; }
   if (slowTimer !== null) { clearTimeout(slowTimer); slowTimer = null; }
 }
 function resumeLoop() {
@@ -6804,21 +6643,14 @@ var lastWidth;
 var resizeTimeout = null;
 
 // Demarrage du module : appele une seule fois par principal.js, dans un ordre fixe.
-function initEtat() {
-  try { if (DEMO && localStorage.getItem(DEMO_KEY)) { DEMO = false; container.classList.remove('is-demo'); } } catch (e) { /* stockage indisponible */ }
-  if (zoomParam && isFinite(parseFloat(zoomParam[1]))) MOBILE_ZOOM = Math.max(0.3, Math.min(1, parseFloat(zoomParam[1])));
-  updateZoom();
-}
-
-// Demarrage du module : appele une seule fois par principal.js, dans un ordre fixe.
 function initMessages() {
   if (explainClose) explainClose.addEventListener('click', function (evt) { evt.stopPropagation(); hideExplain(); });
-  if (explainAck) explainAck.addEventListener('click', function (evt) { evt.stopPropagation(); leachTipSeen |= explainAckBit; hideExplain(); });
+  if (explainAck) explainAck.addEventListener('click', function (evt) { evt.stopPropagation(); partie.leachTipSeen |= explainAckBit; hideExplain(); });
   if (deathBtn) deathBtn.addEventListener('click', function (evt) {
     evt.stopPropagation();
-    if (!deathLocate || mode !== 'exploded') return;
+    if (!deathLocate || partie.mode !== 'exploded') return;
     // Glissement doux vers la position (clampe aux bornes), gere dans step().
-    camGoal = { x: clamp(deathLocate.x - W / 2, 0, Math.max(0, worldW - W)), y: clamp(deathLocate.y - H / 2, camMinY(), Math.max(camMinY(), worldH - H)) };
+    vue.camGoal = { x: clamp(deathLocate.x - vue.W / 2, 0, Math.max(0, vue.worldW - vue.W)), y: clamp(deathLocate.y - vue.H / 2, camMinY(), Math.max(camMinY(), vue.worldH - vue.H)) };
     hideExplain();
     startLoop();
   });
@@ -6940,8 +6772,8 @@ function initTutoriel() {
       requestAnimationFrame(stepGuideArrow);
       if (toolsArrow.classList.contains('d-none')) { arrowInit = false; return; }
       // Du mycelium vivant pres d'un arbre mature compte comme verse, meme si le clic etait un peu loin.
-      if (!guideFlags.poured) for (var pc = 0; pc < colonised.length; pc++) if (colonised[pc].myc > 0 && underMatureTree(colonised[pc].x)) { guideSet('poured'); break; }
-      if (guideFlags.poured && tool === 'hand') guideSet('hand');
+      if (!guideFlags.poured) for (var pc = 0; pc < monde.colonised.length; pc++) if (monde.colonised[pc].myc > 0 && underMatureTree(monde.colonised[pc].x)) { guideSet('poured'); break; }
+      if (guideFlags.poured && partie.tool === 'hand') guideSet('hand');
       var st = guideCurrent();
       var ht = st && st.hint ? (typeof st.hint === 'function' ? st.hint() : st.hint) : null;
       if (ht !== guideStickyText) {
@@ -6988,11 +6820,11 @@ function initTutoriel() {
 // Demarrage du module : appele une seule fois par principal.js, dans un ordre fixe.
 function initTresors() {
   try {
-    treasureDefs = JSON.parse(canvas.getAttribute('data-treasures') || '[]');
+    partie.treasureDefs = JSON.parse(canvas.getAttribute('data-treasures') || '[]');
   } catch (e) {
-    treasureDefs = [];
+    partie.treasureDefs = [];
   }
-  treasureDefs.forEach(function (def) {
+  partie.treasureDefs.forEach(function (def) {
     tipImgs(def).forEach(function (im) { new Image().src = im.src; }); // prechargees : l'infobulle s'affiche sans trou
     var st = def.strain;
     if (!st || !st.id || strainById[st.id] || !/^#[0-9a-f]{6}$/i.test(st.tint || '')) return;
@@ -7014,7 +6846,7 @@ function initTresors() {
 // Demarrage du module : appele une seule fois par principal.js, dans un ordre fixe.
 function initTerrain() {
   img.onload = function () {
-    imgReady = true;
+    partie.imgReady = true;
     // Canvas pret : on montre la legende, cachee par defaut pour les visiteurs
     // reduced-motion / no-JS qui ne verront jamais l'animation tourner.
     setCaption(CAPTION_BEFORE);
@@ -7034,14 +6866,14 @@ function initSauvegarde() {
   // Un reset fait dans un autre onglet efface la cle : cet onglet arrete de sauver son ancien
   // monde (sinon il la reecrit dans la seconde qui suit) et se recharge.
   window.addEventListener('storage', function (e) {
-    if (e.key === WORLD_KEY && e.newValue === null && !worldSaveOff) {
-      worldSaveOff = true;
+    if (e.key === WORLD_KEY && e.newValue === null && !partie.worldSaveOff) {
+      partie.worldSaveOff = true;
       location.reload();
     }
   });
   window.sporaResetWorld = function () {
     try { localStorage.removeItem(DEMO_KEY); } catch (e) { /* rien a effacer */ }
-    worldSaveOff = true;
+    partie.worldSaveOff = true;
     try { localStorage.removeItem(WORLD_KEY); } catch (e) { /* rien a effacer */ }
     guideReset();
     location.reload();
@@ -7067,7 +6899,7 @@ function initOutils() {
 
 // Demarrage du module : appele une seule fois par principal.js, dans un ordre fixe.
 function initArbres() {
-  mycFedOnce = guideFlags.fed;
+  partie.mycFedOnce = guideFlags.fed;
 }
 
 // Demarrage du module : appele une seule fois par principal.js, dans un ordre fixe.
@@ -7112,9 +6944,9 @@ function initEvenements() {
     // dessus remontait jusqu'a ce listener et redeclenchait explode()/build() en plus
     // de l'action du bouton lui-meme.)
     if (evt.target.closest('#logo-explosion-rebuild, #logo-explosion-fullscreen, .logo-explosion-scroll, .logo-explosion-tip, .logo-explosion-shelf-cue,.logo-explosion-compass, .logo-explosion-tools, .logo-explosion-strains, .logo-explosion-treasures, .logo-explosion-challenges-badge, .logo-explosion-explain-locate, .logo-explosion-explain-close, .logo-explosion-explain-ack, .logo-explosion-end')) return;
-    if (mode === 'assembled') updateZoom(); // le zoom du monde qui va etre construit, avant de convertir le clic
+    if (partie.mode === 'assembled') updateZoom(); // le zoom du monde qui va etre construit, avant de convertir le clic
     var pos = getRelativePos(evt);
-    if (mode === 'assembled') {
+    if (partie.mode === 'assembled') {
       // Seul un clic sur le logo (ou sa zone "play" juste en dessous) declenche
       // l'explosion : avant, n'importe quel clic dans la boite (meme le vide autour)
       // le faisait, ce qui ne correspond pas au curseur special affiche uniquement
@@ -7123,7 +6955,7 @@ function initEvenements() {
       if (holdTouch) return; // au doigt : appui maintenu, voir plus bas
       // camX vient d'etre (re)centre par build() : + camX donne la position monde de
       // l'origine de l'explosion, coherente avec les coord. monde des facettes.
-      if (imgReady && build()) explode(pos.x + camX, pos.y + camY);
+      if (partie.imgReady && build()) explode(pos.x + vue.camX, pos.y + vue.camY);
       return;
     }
     // Une fois explose, tout passe par les evenements pointer du canvas (pelle + taps).
@@ -7132,7 +6964,7 @@ function initEvenements() {
     holdWrap.style.setProperty('--hold-ms', HOLD_MS + 'ms');
     holdWrap.addEventListener('pointerdown', function (evt) {
       holdTouch = evt.pointerType !== 'mouse';
-      if (!holdTouch || mode !== 'assembled' || !imgReady) return;
+      if (!holdTouch || partie.mode !== 'assembled' || !partie.imgReady) return;
       updateZoom();
       var pos = getRelativePos(evt);
       cancelHold();
@@ -7142,7 +6974,7 @@ function initEvenements() {
       holdFollow(evt);
       holdTimer = setTimeout(function () {
         cancelHold();
-        if (mode === 'assembled' && build()) explode(pos.x + camX, pos.y + camY);
+        if (partie.mode === 'assembled' && build()) explode(pos.x + vue.camX, pos.y + vue.camY);
       }, HOLD_MS);
     });
     holdWrap.addEventListener('pointermove', function (evt) { if (holdTimer) holdFollow(evt); });
@@ -7163,24 +6995,24 @@ function initEvenements() {
     holdWrap.addEventListener('contextmenu', function (evt) { if (holdTouch) evt.preventDefault(); });
   }
   canvas.addEventListener('pointerdown', function (evt) {
-    if (mode !== 'exploded') return;
-    edgeTouch = evt.pointerType !== 'mouse';
+    if (partie.mode !== 'exploded') return;
+    vue.edgeTouch = evt.pointerType !== 'mouse';
     var screenPos = getRelativePos(evt);
-    var pos = { x: screenPos.x + camX, y: screenPos.y + camY };
-    if (evt.pointerType === 'mouse') { hoverScreenX = screenPos.x; hoverScreenY = screenPos.y; }
+    var pos = { x: screenPos.x + vue.camX, y: screenPos.y + vue.camY };
+    if (evt.pointerType === 'mouse') { vue.hoverScreenX = screenPos.x; vue.hoverScreenY = screenPos.y; }
     try { canvas.setPointerCapture(evt.pointerId); } catch (e) { /* pas grave */ }
-    pointerDown = pos;
-    dragMoved = false;
+    vue.pointerDown = pos;
+    vue.dragMoved = false;
     // Clic sur un tresor pas encore deterre : rappelle comment creuser.
     var hintT = treasureGlintAt(evt);
     if (hintT) showDigTip(hintT);
     // Un clic sur la pelle plantee la prend quel que soit l'outil : la main se selectionne toute seule.
-    if (tool !== 'hand' && !shovel.on && shovelHit(pos.x, pos.y, evt.pointerType !== 'mouse')) setTool('hand');
-    if (tool === 'hand') {
+    if (partie.tool !== 'hand' && !shovel.on && shovelHit(pos.x, pos.y, evt.pointerType !== 'mouse')) setTool('hand');
+    if (partie.tool === 'hand') {
       // La pelle plantee est prioritaire, mais seulement si le clic tombe sur elle (voir aussi plus haut : ce clic selectionne la main).
       if (!shovel.on && shovelHit(pos.x, pos.y, evt.pointerType !== 'mouse')) {
         leaveHand();
-        pressCaught = true;
+        vue.pressCaught = true;
         openTip(null);
         grabShovel(pos, evt.pointerType !== 'mouse');
         canvas.style.cursor = '';
@@ -7194,28 +7026,28 @@ function initEvenements() {
       // derriere lui, le tap au relachement le recolte (harvestAt). Sinon feuille, branche, terre.
       // Un papillon sous le curseur est prioritaire : on l'attrape, rien d'autre (ni au tap).
       var bfly = insectAt(pos.x, pos.y);
-      pressCaught = !!bfly;
+      vue.pressCaught = !!bfly;
       if (bfly) {
         dropHeldInsect(); // un seul a la fois (appui multi-pointeurs)
-        heldSX = screenPos.x; heldSY = screenPos.y;
+        vue.heldSX = screenPos.x; vue.heldSY = screenPos.y;
         catchInsect(bfly);
       } else if (harvestableNear(pos.x, pos.y)) {
         // Cueillette des l'appui (pas seulement au relachement) : maintenir le clic fait aussi sortir le champignon.
         // Avant le tresor : un champignon a cueillir devant/pres d'un tresor deterre ne doit pas etre masque par lui.
         harvestAt(pos);
-        pressCaught = true;
-      } else if ((treasureGrab = grabTreasureAt(pos))) {
-        pressCaught = true; // un tresor deterre se deplace a la main : le champignon et la bulle suivent
+        vue.pressCaught = true;
+      } else if ((vue.treasureGrab = grabTreasureAt(pos))) {
+        vue.pressCaught = true; // un tresor deterre se deplace a la main : le champignon et la bulle suivent
       } else if (!handGrabTree(pos)) pickUpHand(pos);
-      if (pressCaught) hand.flash = performance.now();
+      if (vue.pressCaught) hand.flash = performance.now();
       startLoop(); // le poing se ferme, meme sans rien dans la main
       return;
     }
-    if (tool === 'mycelium') {
-      if (!unlockedStrains.length) { setCaption(CAPTION_NEED_STRAIN); return; }
+    if (partie.tool === 'mycelium') {
+      if (!partie.unlockedStrains.length) { setCaption(CAPTION_NEED_STRAIN); return; }
       if (!ensureBag()) { setCaption(CAPTION_NEED_MONEY); return; }
       guideSet('strain');
-      if (!mycFedOnce) {
+      if (!partie.mycFedOnce) {
         if (underMatureTree(pos.x)) guideSet('poured');
         else if (matureTrees().length && !guideFlags.poured) setCaption(CAPTION_MYC_CLOSER);
         else if (noWoodNear(pos.x)) setCaption(CAPTION_MYC_NO_WOOD);
@@ -7226,49 +7058,49 @@ function initEvenements() {
       startLoop();
       return;
     }
-    if (tool === 'tree') return; // se plante au relachement (tap), pas d'outil traine au curseur
-    if (tool === 'fertilizer') { openTip(null); dropFertilizer(pos.x); return; }
-    if (tool === 'grass') { openTip(null); seedGrass(pos.x); return; }
+    if (partie.tool === 'tree') return; // se plante au relachement (tap), pas d'outil traine au curseur
+    if (partie.tool === 'fertilizer') { openTip(null); dropFertilizer(pos.x); return; }
+    if (partie.tool === 'grass') { openTip(null); seedGrass(pos.x); return; }
   });
   canvas.addEventListener('pointermove', function (evt) {
-    if (mode !== 'exploded') return;
-    edgeTouch = evt.pointerType !== 'mouse';
+    if (partie.mode !== 'exploded') return;
+    vue.edgeTouch = evt.pointerType !== 'mouse';
     var screenPos = getRelativePos(evt);
-    var pos = { x: screenPos.x + camX, y: screenPos.y + camY };
-    if (evt.pointerType === 'mouse') { hoverScreenX = screenPos.x; hoverScreenY = screenPos.y; }
-    if (tool === 'mycelium') {
+    var pos = { x: screenPos.x + vue.camX, y: screenPos.y + vue.camY };
+    if (evt.pointerType === 'mouse') { vue.hoverScreenX = screenPos.x; vue.hoverScreenY = screenPos.y; }
+    if (partie.tool === 'mycelium') {
       if (!bag.on) enterBag(pos);
       bag.x = pos.x; bag.y = pos.y;
-    } else if (tool === 'hand') {
+    } else if (partie.tool === 'hand') {
       if (shovel.on) {
         if (!shovel.released) { shovel.gx = pos.x; shovel.gy = pos.y; }
-      } else if (!hand.on && (evt.pointerType === 'mouse' || pointerDown)) { enterHand(pos); hand.touch = evt.pointerType !== 'mouse'; }
+      } else if (!hand.on && (evt.pointerType === 'mouse' || vue.pointerDown)) { enterHand(pos); hand.touch = evt.pointerType !== 'mouse'; }
       hand.x = pos.x; hand.y = pos.y;
-    } else if (tool === 'fertilizer' && pointerDown) {
+    } else if (partie.tool === 'fertilizer' && vue.pointerDown) {
       dropFertilizer(pos.x);
-    } else if (tool === 'grass' && pointerDown) {
+    } else if (partie.tool === 'grass' && vue.pointerDown) {
       seedGrass(pos.x);
     }
-    if (treasureGrab && pointerDown && dragMoved) { moveTreasure(treasureGrab.t, pos.x + treasureGrab.dx); }
-    if (heldInsect && pointerDown) { heldSX = screenPos.x; heldSY = screenPos.y; }
+    if (vue.treasureGrab && vue.pointerDown && vue.dragMoved) { moveTreasure(vue.treasureGrab.t, pos.x + vue.treasureGrab.dx); }
+    if (monde.heldInsect && vue.pointerDown) { vue.heldSX = screenPos.x; vue.heldSY = screenPos.y; }
     if (evt.pointerType === 'mouse') {
       canvas.style.cursor = (!shovel.on && shovelHit(pos.x, pos.y, false)) ? 'grab'
-        : (tool === 'hand' && insectAt(pos.x, pos.y)) ? 'pointer' : '';
+        : (partie.tool === 'hand' && insectAt(pos.x, pos.y)) ? 'pointer' : '';
     }
-    if (evt.pointerType === 'mouse' && !pointerDown) {
+    if (evt.pointerType === 'mouse' && !vue.pointerDown) {
       // Survoler un tresor deja deterre rouvre son infobulle sans avoir a cliquer.
       var hoverT = treasureNear(pos.x, pos.y);
       // Pas de survol tant qu'un saviez-vous est affiche : il ne reviendrait pas (le clic ouvre quand meme).
       var onT = !!(hoverT && hoverT.revealed);
-      if (onT && !hoverT.tipClosed && factShown < 0) openTip(hoverT);
+      if (onT && !hoverT.tipClosed && partie.factShown < 0) openTip(hoverT);
       tipAway(!onT);
       // Survoler le scintillement d'un tresor enfoui ouvre la bulle "creusez..." (sans minuterie).
       var glintT = treasureGlintAt(evt);
-      if (glintT) showDigTip(glintT, true); else if (digTipHover) hideDigTip();
+      if (glintT) showDigTip(glintT, true); else if (partie.digTipHover) hideDigTip();
     }
-    if (pointerDown && Math.hypot(pos.x - pointerDown.x, pos.y - pointerDown.y) > 6) dragMoved = true;
+    if (vue.pointerDown && Math.hypot(pos.x - vue.pointerDown.x, pos.y - vue.pointerDown.y) > 6) vue.dragMoved = true;
     // Doigt appuye qui a glisse : sa position sert au defilement pres des bords, comme le survol souris.
-    if (edgeTouch && pointerDown && dragMoved) { hoverScreenX = screenPos.x; hoverScreenY = screenPos.y; }
+    if (vue.edgeTouch && vue.pointerDown && vue.dragMoved) { vue.hoverScreenX = screenPos.x; vue.hoverScreenY = screenPos.y; }
     startLoop();
   });
   canvas.addEventListener('pointerup', function (evt) { endPress(evt, true); });
@@ -7276,11 +7108,11 @@ function initEvenements() {
   window.addEventListener('blur', dropHeldInsect);
   canvas.addEventListener('pointerleave', function (evt) {
     if (evt.pointerType === 'mouse') tipAway(true); // vers la carte : son pointerenter annule
-    if (evt.pointerType === 'mouse' && !pointerDown) {
+    if (evt.pointerType === 'mouse' && !vue.pointerDown) {
       leaveShovel();
       leaveBag();
       leaveHand();
-      hoverScreenX = null; hoverScreenY = null;
+      vue.hoverScreenX = null; vue.hoverScreenY = null;
     }
   });
   if (rebuildBtn) rebuildBtn.addEventListener('click', resetAllAndRebuild); // la fleche remet tout a zero (sauvegarde incluse), avec l'animation
@@ -7316,18 +7148,18 @@ function initEvenements() {
     window.addEventListener('scroll', syncDemoEndTop, { passive: true });
   }
   container.addEventListener('pointerdown', function () {
-    if (mode === 'exploded') compactHeaderForGame();
+    if (partie.mode === 'exploded') compactHeaderForGame();
   });
   if (siteHeader) {
     document.addEventListener('pointermove', function (evt) {
       // evt.buttons : pas de depliage pendant qu'on joue (outil appuye) pres du haut.
-      if (evt.pointerType !== 'mouse' || evt.buttons || mode !== 'exploded') return;
+      if (evt.pointerType !== 'mouse' || evt.buttons || partie.mode !== 'exploded') return;
       var r = siteHeader.getBoundingClientRect();
       // contains : le mini-panier ouvert deborde du rectangle du header.
       setHeaderHover(siteHeader.contains(evt.target) || (evt.clientX >= r.left && evt.clientX <= r.right && evt.clientY >= r.top && evt.clientY <= r.bottom));
     });
     document.documentElement.addEventListener('mouseleave', function () {
-      if (mode === 'exploded') setHeaderHover(false);
+      if (partie.mode === 'exploded') setHeaderHover(false);
     });
   }
   if (fullscreenBtn) {
@@ -7353,8 +7185,8 @@ function initEvenements() {
   // sans attendre les minutes reelles de decomposition/croissance.
   if (speedInput) {
     speedInput.addEventListener('input', function () {
-      timeScale = parseFloat(this.value) || 1;
-      if (speedVal) speedVal.textContent = timeScale + '×';
+      temps.timeScale = parseFloat(this.value) || 1;
+      if (speedVal) speedVal.textContent = temps.timeScale + '×';
       startLoop();
     });
   }
@@ -7363,38 +7195,38 @@ function initEvenements() {
   if (speedBtn) {
     var SPEED_LEVELS = [1, 3, 10];
     speedBtn.addEventListener('click', function () {
-      var i = SPEED_LEVELS.indexOf(timeScale);
-      timeScale = SPEED_LEVELS[(i + 1) % SPEED_LEVELS.length];
-      speedBtn.querySelector('.logo-explosion-speed-btn-val').textContent = '×' + timeScale;
-      speedBtn.classList.toggle('is-fast', timeScale > 1);
-      speedBtn.setAttribute('aria-label', 'Vitesse de simulation : ' + (timeScale === 1 ? 'normale' : 'x' + timeScale));
-      speedBtn.querySelector('.spd-2').style.display = timeScale > 1 ? '' : 'none';
-      speedBtn.querySelector('.spd-3').style.display = timeScale === 10 ? '' : 'none';
-      if (speedInput) speedInput.value = timeScale;
-      if (speedVal) speedVal.textContent = timeScale + '×';
+      var i = SPEED_LEVELS.indexOf(temps.timeScale);
+      temps.timeScale = SPEED_LEVELS[(i + 1) % SPEED_LEVELS.length];
+      speedBtn.querySelector('.logo-explosion-speed-btn-val').textContent = '×' + temps.timeScale;
+      speedBtn.classList.toggle('is-fast', temps.timeScale > 1);
+      speedBtn.setAttribute('aria-label', 'Vitesse de simulation : ' + (temps.timeScale === 1 ? 'normale' : 'x' + temps.timeScale));
+      speedBtn.querySelector('.spd-2').style.display = temps.timeScale > 1 ? '' : 'none';
+      speedBtn.querySelector('.spd-3').style.display = temps.timeScale === 10 ? '' : 'none';
+      if (speedInput) speedInput.value = temps.timeScale;
+      if (speedVal) speedVal.textContent = temps.timeScale + '×';
       startLoop();
     });
   }
   if (grassNutriInput) {
     grassNutriInput.addEventListener('input', function () {
       var v = parseFloat(this.value);
-      grassNutriMult = v >= 0 ? v : 0;
+      temps.grassNutriMult = v >= 0 ? v : 0;
     });
   }
   if (grassMycNutriInput) {
     grassMycNutriInput.addEventListener('input', function () {
       var v = parseFloat(this.value);
-      grassMycNutriMult = v >= 0 ? v : 0;
+      temps.grassMycNutriMult = v >= 0 ? v : 0;
     });
     var v = parseFloat(grassMycNutriInput.value);
-    grassMycNutriMult = v >= 0 ? v : 0;
+    temps.grassMycNutriMult = v >= 0 ? v : 0;
   }
   // Frequence de la pluie naturelle (voir le cycle meteo pres de updateWeather) : 0 = ne
   // pleut jamais, 100 = averses longues et frequentes.
   if (rainInput) {
     rainInput.addEventListener('input', function () {
-      rainLevel = (parseFloat(this.value) || 0) / 100;
-      if (rainLevel <= 0) stopShower();
+      temps.rainLevel = (parseFloat(this.value) || 0) / 100;
+      if (temps.rainLevel <= 0) stopShower();
     });
   }
   // Frequence de la secheresse naturelle (voir DROUGHT_* et updateWeather) : 0 = ne seche
@@ -7402,8 +7234,8 @@ function initEvenements() {
   // restent mutuellement exclusifs cote simulation (voir startShower).
   if (droughtInput) {
     droughtInput.addEventListener('input', function () {
-      droughtLevel = (parseFloat(this.value) || 0) / 100;
-      if (droughtLevel <= 0) weather.drought = false;
+      temps.droughtLevel = (parseFloat(this.value) || 0) / 100;
+      if (temps.droughtLevel <= 0) weather.drought = false;
       updateDroughtIndicator();
     });
   }
@@ -7412,8 +7244,8 @@ function initEvenements() {
   // averse deja en cours ; 0 = jamais de tempete, juste de la pluie normale.
   if (stormInput) {
     stormInput.addEventListener('input', function () {
-      stormLevel = (parseFloat(this.value) || 0) / 100;
-      if (stormLevel <= 0) weather.storm = false;
+      temps.stormLevel = (parseFloat(this.value) || 0) / 100;
+      if (temps.stormLevel <= 0) weather.storm = false;
       updateStormIndicator();
     });
   }
@@ -7428,7 +7260,7 @@ function initEvenements() {
       var w = container.getBoundingClientRect().width;
       if (w === lastWidth) return;
       lastWidth = w;
-      if (rafId !== null) { cancelAnimationFrame(rafId); rafId = null; }
+      if (vue.rafId !== null) { cancelAnimationFrame(vue.rafId); vue.rafId = null; }
       resetToLogo();
     }, 200);
   });
