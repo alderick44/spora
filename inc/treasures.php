@@ -4,7 +4,7 @@ function spora_get_treasures() {
     // "Tresors" enfouis dans la terre du logo explose : on creuse pour les deterrer.
     // x = position en fraction de la largeur du MONDE explorable (pas juste du logo, le
     // monde continue horizontalement au-dela de la boite) ; species = couleur du champignon
-    // (0 gris, 1 rose, 2 hydne, 3 huitre, 4 shiitake, voir SPECIES dans logo-explosion.js).
+    // (0 gris, 1 rose, 2 hydne, 3 huitre, 4 shiitake, voir SPECIES dans jeu/config.js).
     // depth (optionnel) = enfouissement, en fraction de la hauteur de la boite sous le niveau
     // d'origine du sol (0 = a la surface, se deterre au moindre passage ; borne par DEPTH_MULT). Le premier tresor
     // porte le repere (halo + fleche) : garde-le peu profond (ex. 0.06) mais pas a 0.

@@ -21,7 +21,7 @@
     text-align: center;
 }
 /* Message dans la scene, facon Kingdom Two Crowns : petite banniere en bas de la boite,
-   qui apparait puis s'efface toute seule (voir setCaption dans logo-explosion.js). */
+   qui apparait puis s'efface toute seule (voir setCaption dans jeu/messages.js). */
 .logo-explosion-caption{
     position: absolute;
     left: 50%;
@@ -49,7 +49,7 @@
 }
 /* Explications du jeu (haut-gauche, vert mousse) et "Le saviez-vous ?" (bas-droite, note de
    carnet) : deux canaux distincts de la legende brune, geres par showExplain/showFact dans
-   logo-explosion.js (jamais affiches en meme temps). */
+   jeu/messages.js (jamais affiches en meme temps). */
 .logo-explosion-explain,
 .logo-explosion-fact{
     position: absolute;
@@ -190,7 +190,7 @@ body.home .logo-explosion-inner.is-fullscreen{
     height: 100%;
 }
 #logo-explosion-fallback-wrap{
-    /* Porte la position/taille du wordmark (logo-explosion.js mesure #logo-explosion-fallback
+    /* Porte la position/taille du wordmark (jeu/terrain.js mesure #logo-explosion-fallback
        lui-meme au clic : l'image doit donc rester a 100% de cette boite, sans marge). */
     position: absolute;
     top: 50%;
@@ -202,7 +202,7 @@ body.home .logo-explosion-inner.is-fullscreen{
        ce bouton play rend le clic evident des le survol. */
     cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='36' viewBox='0 0 36 36'%3E%3Ccircle cx='18' cy='18' r='16' fill='%239A2C19'/%3E%3Cpath d='M14 10l13 8-13 8z' fill='white'/%3E%3C/svg%3E") 18 18, pointer;
 }
-/* Une fois explose, logo-explosion.js met #logo-explosion-fallback en d-none : la boite
+/* Une fois explose, jeu/physique.js met #logo-explosion-fallback en d-none : la boite
    (et son badge) disparaissent avec, sans code JS supplementaire. */
 #logo-explosion-fallback-wrap:has(#logo-explosion-fallback.d-none){
     display: none;
@@ -213,7 +213,7 @@ body.home .logo-explosion-inner.is-fullscreen{
     height: auto;
 }
 /* Zone de detection fixe (jamais deplacee) : un vrai :hover CSS dessus ne papillote pas,
-   contrairement au badge qu'il contient qui suit le curseur (voir logo-explosion.js). Des
+   contrairement au badge qu'il contient qui suit le curseur (voir jeu/amorce.js). Des
    qu'on l'atteint, elle affiche le meme curseur "play" que le logo et cache le badge. */
 .logo-explosion-play-zone{
     position: absolute;
@@ -257,7 +257,7 @@ body.home .logo-explosion-inner.is-fullscreen{
     }
 }
 /* Anneau autour du badge : se remplit pendant l'appui maintenu au doigt (.is-holding,
-   pose par logo-explosion.js qui fournit aussi la duree --hold-ms). */
+   pose par jeu/amorce.js qui fournit aussi la duree --hold-ms). */
 .logo-explosion-play-ring{
     position: absolute;
     inset: -9px;
@@ -279,7 +279,7 @@ body.home .logo-explosion-inner.is-fullscreen{
     transition: stroke-dashoffset .2s ease-out;
 }
 /* Tap trop court : le badge sursaute et le mot "Maintenez" apparait dessous (.is-hint,
-   pose ~2 s par logo-explosion.js). Rien d'affiche au repos. */
+   pose ~2 s par jeu/amorce.js). Rien d'affiche au repos. */
 .logo-explosion-play-hint{
     position: absolute;
     top: calc(50% + 46px);
@@ -402,7 +402,7 @@ body.home .logo-explosion-tools{
     top: calc(var(--home-header-h) + 8px);
 }
 /* Engrenage : ouvre le panneau de parametres de simulation (voir DEBUG_FIELDS dans
-   logo-explosion.js). Outil de debug/experimentation, comme .logo-explosion-speed. */
+   jeu/config.js). Outil de debug/experimentation, comme .logo-explosion-speed. */
 .logo-explosion-debug-toggle{
     position: absolute;
     bottom: 8px;
@@ -546,7 +546,7 @@ body.home .logo-explosion-tools{
     background: rgba(58, 42, 24, .6);
 }
 /* Solde accumule en recoltant les champignons a la main : n'apparait qu'a la
-   premiere vente (voir earn() dans logo-explosion.js), pas de "0 $" avant. */
+   premiere vente (voir earn() dans jeu/economie.js), pas de "0 $" avant. */
 .logo-explosion-money{
     display: grid;
     place-items: center;
@@ -561,7 +561,7 @@ body.home .logo-explosion-tools{
     white-space: nowrap;
 }
 /* Vitesse, meteo et nutriments du gazon : vivent dans la section "Meteo et rythme" du
-   panneau d'options (deplaces par buildDebugPanel dans logo-explosion.js). */
+   panneau d'options (deplaces par buildDebugPanel dans jeu/debug.js). */
 .logo-explosion-speed{
     display: grid;
     grid-template-columns: auto 1fr;
@@ -1569,7 +1569,7 @@ body.home .logo-explosion-tools-arrow{
 }
 
 /* Bouton de vitesse (bas gauche) : boucle normal -> x3 -> x10, meme style que les outils.
-   Les chevrons allumes montrent le niveau (voir speedBtn dans logo-explosion.js). */
+   Les chevrons allumes montrent le niveau (voir speedBtn dans jeu/evenements.js). */
 .logo-explosion-speed-btn{
     position: absolute;
     bottom: 8px;
@@ -1635,7 +1635,7 @@ body.home .logo-explosion-strains{
 }
 /* Mobile : le header replie pendant le jeu est bien plus court que --home-header-h (header
    deplie du desktop), les controles du haut flottaient donc trop bas. Ils se calent sur sa
-   vraie hauteur, mesuree par logo-explosion.js (--game-ui-top). Pose sur les enfants, pas
+   vraie hauteur, mesuree par jeu/evenements.js (--game-ui-top). Pose sur les enfants, pas
    sur la boite : sa hauteur a elle continue d'utiliser --home-header-h. */
 @media (max-width: 767.98px){
     body.home .logo-explosion-inner > *{
@@ -1657,7 +1657,7 @@ body.home .logo-explosion-strains{
         padding-top: 0;
     }
     /* Fleche "monter" : dans la bande du header replie, centree en hauteur (position mesuree
-       par logo-explosion.js), au lieu de la ligne sous le header pensee pour le desktop.
+       par jeu/evenements.js), au lieu de la ligne sous le header pensee pour le desktop.
        z-index au-dessus du .z-3 du header, sinon son flou la brouille. Menu mobile ouvert
        (header deplie) : elle reste sous le header. */
     body.home:has(.header.is-compact) .logo-explosion-scroll-up{

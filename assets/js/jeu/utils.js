@@ -6,8 +6,7 @@ export function shade(rgb, k) {
 }
 export function rgbStr(c) { return 'rgb(' + c[0] + ',' + c[1] + ',' + c[2] + ')'; }
 export function lerp(a, b, t) { return a + (b - a) * t; }
-// Melange partiel de deux couleurs [r,g,b] (k = part de b), et couleur hex teintee par une
-// souche (rendu du sac) ; currentStrain = souche du sac, null si standard.
+// Melange partiel de deux couleurs [r,g,b] (k = part de b).
 export function mixRgb(a, b, k) { return [lerp(a[0], b[0], k), lerp(a[1], b[1], k), lerp(a[2], b[2], k)]; }
 export function easeOutBack(t) { var c = 1.7; return 1 + (c + 1) * Math.pow(t - 1, 3) + c * Math.pow(t - 1, 2); }
 export function easeInOut(t) { return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; }

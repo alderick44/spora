@@ -1,11 +1,11 @@
 <?php
 $spora_treasures = spora_get_treasures();
-// Mode demo : meme jeu (logo-explosion.js), avec des outils en moins (voir .is-demo dans
+// Mode demo : meme jeu (assets/js/jeu/), avec des outils en moins (voir .is-demo dans
 // style.css), un seul tresor (la premiere souche) et un ecran de fin a la premiere recolte : boutique, ou continuer
 // (le mode demo se desactive alors pour ce visiteur). false = jeu complet d'emblee.
 $spora_demo = true;
 // Essai mobile : sur ecran etroit, la carte du tresor selectionne s'affiche dans une boite sous le bouton
-// "Visitez notre boutique!" au lieu de flotter dans le jeu (voir shelfEl dans logo-explosion.js). false = bulle partout.
+// "Visitez notre boutique!" au lieu de flotter dans le jeu (voir shelfEl dans jeu/etat.js). false = bulle partout.
 $spora_tip_shelf = true;
 ?>
 <?php get_header(); ?>
