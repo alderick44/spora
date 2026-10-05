@@ -20,7 +20,8 @@ import { weather, rainLeaf } from './meteo.js';
 import { demoGuard, treeScale } from './arbres.js';
 import { heldByMycelium } from './mycelium.js';
 import { updateMoneyUI } from './economie.js';
-import { leachTip, setCaption, startLoop, challengeDone, hand } from './principal.js';
+import { hand } from './outils.js';
+import { leachTip, setCaption, startLoop, challengeDone } from './principal.js';
 
 var fertLastAt = 0;                     // dernier depot de fertilisant (limite le rythme pendant un glissement)
 var grassLastAt = 0;                    // dernier semis de gazon (limite le rythme pendant un glissement)

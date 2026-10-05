@@ -12,9 +12,8 @@ import { vue, monde, ctx, partie, canvas, temps } from './etat.js';
 import { drawLakes, surfaceAt } from './terrain.js';
 import { drawRain } from './meteo.js';
 import { drawRoots, drawTree, drawMycHalo, shadeRgb } from './arbres.js';
-import {
-  drawNuggets, drawGoldBits, drawShovel, drawBag, drawHand, positionTreasureOverlays, strainOrder
-} from './principal.js';
+import { drawShovel, drawBag, drawHand } from './outils.js';
+import { drawNuggets, drawGoldBits, positionTreasureOverlays, strainOrder } from './principal.js';
 
 var hillRidges = [];
 export function buildHills() {

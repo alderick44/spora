@@ -19,9 +19,8 @@ import { weather } from './meteo.js';
 import { isNutriRipe, spawnFlower, spawnNutrientShard, toEarthColor } from './flore.js';
 import { sprout } from './mycelium.js';
 import { nextTreeCost, updateMoneyUI } from './economie.js';
-import {
-  guideFlags, guideCurrent, startLoop, setCaption, leafAgeOf, guideSet, hand, handTension
-} from './principal.js';
+import { leafAgeOf, hand, handTension } from './outils.js';
+import { guideFlags, guideCurrent, startLoop, setCaption, guideSet } from './principal.js';
 
 var lastRainAt = -1e9;
 export function matureTrees() {
