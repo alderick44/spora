@@ -6,9 +6,10 @@ import {
 import { partie, vue, monde, temps, DEMO_PAGE, container, moneyEl } from './etat.js';
 import { resetTiles } from './rendu.js';
 import { surfaceAt, isRocky, isSubmerged, rebuildLakesFromRocky, pileRemove } from './terrain.js';
+import { makeTree, unlockedSlots, addLeaf } from './arbres.js';
 import {
-  FACTS, CHALLENGES, updateChallengeUI, strainOrder, updateMoneyUI, makeTree, unlockedSlots, addLeaf,
-  guideReset, resetPatches, refreshStrainBar, rebuild, infect, strainById
+  FACTS, CHALLENGES, updateChallengeUI, strainOrder, updateMoneyUI, guideReset, resetPatches,
+  refreshStrainBar, rebuild, infect, strainById
 } from './principal.js';
 
 var playerSig = null;
