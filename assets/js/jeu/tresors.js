@@ -22,7 +22,7 @@ import { setCaption } from './messages.js';
 import { updateChallengeUI } from './defis.js';
 import { guideFlags, guideCurrent, guideSet } from './tutoriel.js';
 import { startLoop } from './physique.js';
-import { siteHeader, getRelativePos } from './principal.js';
+import { siteHeader, getRelativePos } from './evenements.js';
 
 var treasuresFound = 0;                 // tresors deterres depuis la derniere explosion (repart a 0 au rebuild)
 export var strainById = { standard: STRAIN_STD };

@@ -26,7 +26,7 @@ import {
   updateStrainBar, setupTreasures, stepGoldBits, reveal, clearTreasures, clearMycTip, hideDemoEnd
 } from './tresors.js';
 import { flushDeathAlert, msgTick, resetPatches, hideMsgs, setCaption } from './messages.js';
-import { compactHeaderForGame, camMinY, camHomeY, releaseHeader, hideDebugPanel } from './principal.js';
+import { compactHeaderForGame, camMinY, camHomeY, releaseHeader, hideDebugPanel } from './evenements.js';
 
 var chBadgeEl = document.getElementById('logo-explosion-challenges');
 var lastRealNow = null;
