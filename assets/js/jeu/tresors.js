@@ -16,8 +16,10 @@ import { foundList, savePlayerIfChanged } from './sauvegarde.js';
 import { updateMoneyUI } from './economie.js';
 import { shovel, shovelPlant, setTool } from './outils.js';
 import {
-  tipImgs, guideFlags, positionTreasureOverlays, startLoop, setCaption, guideCurrent, hideDigTip,
-  siteHeader, updateChallengeUI, guideSet, buildTip, tipIdle, getRelativePos, tapTip, openTip, tipAway
+  tipImgs, positionTreasureOverlays, hideDigTip, buildTip, tipIdle, tapTip, openTip, tipAway
+} from './cartes.js';
+import {
+  guideFlags, startLoop, setCaption, guideCurrent, siteHeader, updateChallengeUI, guideSet, getRelativePos
 } from './principal.js';
 
 var treasuresFound = 0;                 // tresors deterres depuis la derniere explosion (repart a 0 au rebuild)

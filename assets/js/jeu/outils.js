@@ -22,7 +22,8 @@ import { earn } from './economie.js';
 import {
   tryDig, treasureNear, digAt, queueDemoEnd, currentStrain, tintCol, updateStrainBar
 } from './tresors.js';
-import { openTip, guideSet, chUnlocked, challengeDone, setCaption, startLoop } from './principal.js';
+import { openTip } from './cartes.js';
+import { guideSet, chUnlocked, challengeDone, setCaption, startLoop } from './principal.js';
 
 export var shovel = {
   on: false, held: false, pouring: false, hideWhenEmpty: false, released: false,
