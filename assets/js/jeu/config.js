@@ -10,7 +10,7 @@ export var ZOOM_MAX_W = 768;                   // en dessous de cette largeur (C
 
 // Legende sous la boite : indique quoi faire puis ce qui se passe, mise a jour aux
 // moments cles (image prete, explosion, premier champignon issu du mycelium, rebuild).
-export var CAPTION_BEFORE = ''; // au doigt, c'est l'anneau du badge "play" qui invite (voir HOLD_MS)
+export var CAPTION_BEFORE = ''; // au doigt, c'est l'anneau du badge "play" qui invite (voir HOLD_MS dans amorce.js)
 var CAPTION_EXPLODED = 'Récoltez à la main, creusez à la pelle ou martelez du poing (maintenez le clic) pour trouver les trésors, ou versez du mycélium.';
 export var CAPTION_MYC = 'Le mycélium décompose le bois mort et rend ses nutriments au sol.';
 export var CAPTION_NEED_MONEY = 'Il faut 20 $ pour un sac de mycélium — récoltez des champignons à la main.';
@@ -772,13 +772,6 @@ export var TIP_IDLE_MS = 8000, TIP_SWIPE_PX = 30;
 export var NO_HOVER = !!(window.matchMedia && window.matchMedia('(hover: none)').matches);
 export var DIG_TIP_MS = 5000;
 
-// Au doigt, un simple tap ne lance pas le jeu (trop facile a declencher en faisant
-// defiler la page) : il faut maintenir HOLD_MS, pendant que l'anneau du badge "play"
-// se remplit (.is-holding dans style.css). La souris garde le clic simple ci-dessus.
-export var HOLD_MS = 800;
-export var HOLD_HINT_MS = 2000; // duree du mot "Maintenez" apres un tap trop court
-export var HOLD_FOLLOW_EASE = 0.4; // lissage du badge qui suit le doigt (voir stepMagnet)
-export var HOLD_LIFT = 60;       // px, le badge se tient au-dessus du doigt pour rester visible
 // Jeu actif : le header se deplie au survol (souris seulement) et se replie peu apres
 // que la souris en sort. On mesure le rectangle plutot que d'ecouter mouseenter : le
 // header de l'accueil est en pointer-events:none hors de ses liens.

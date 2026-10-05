@@ -1,7 +1,7 @@
-// Evenements : souris et doigt, badge de lancement, en-tete du site, plein ecran, redimensionnement.
+// Evenements : souris et doigt, lancement du jeu, en-tete du site, plein ecran, redimensionnement.
 import { clamp } from './utils.js';
 import {
-  HOLD_FOLLOW_EASE, HOLD_LIFT, HOLD_MS, HOLD_HINT_MS, CAPTION_NEED_STRAIN, CAPTION_NEED_MONEY,
+  CAPTION_NEED_STRAIN, CAPTION_NEED_MONEY,
   CAPTION_MYC_CLOSER, CAPTION_MYC_NO_WOOD, HEADER_HOVER_LEAVE, DEPTH_MULT, SKY_EXTRA
 } from './config.js';
 import {
@@ -10,7 +10,7 @@ import {
   scrollRightBtn, scrollUpBtn, scrollDownBtn
 } from './etat.js';
 import { resetTiles } from './rendu.js';
-import { build, sizeCanvas } from './terrain.js';
+import { build, sizeCanvas, whenImgReady } from './terrain.js';
 import { resetAllAndRebuild } from './sauvegarde.js';
 import { stopShower, weather, updateDroughtIndicator, updateStormIndicator } from './meteo.js';
 import { underMatureTree, matureTrees, noWoodNear, plantTree } from './arbres.js';
@@ -25,13 +25,6 @@ import { treasureGlintAt, showDigTip, openTip, tipAway, hideDigTip, tapTip } fro
 import { setCaption } from './messages.js';
 import { guideSet, guideFlags } from './tutoriel.js';
 import { explode, startLoop, resetToLogo } from './physique.js';
-
-// Effet magnetique du badge "play" : des qu'on bouge la souris sur la page, le badge
-// se decale vers le curseur (jusqu'a MAGNET_MAX). Purement decoratif : pilote --mx/--my
-// lus par le transform CSS du badge. Le hover/curseur reel est gere par la zone fixe
-// autour de lui (.logo-explosion-play-zone dans style.css), pas par le badge lui-meme
-// qui bouge — sinon le :hover papillote pendant qu'il se deplace.
-var playBadge = document.querySelector('.logo-explosion-play-badge');
 
 // --- Evenements --------------------------------------------------------------------
 export function getRelativePos(evt) {
@@ -48,22 +41,6 @@ export function getRelativePos(evt) {
 function getWorldPos(evt) {
   var p = getRelativePos(evt);
   return { x: p.x + vue.camX, y: p.y + vue.camY };
-}
-var holdWrap = document.getElementById('logo-explosion-fallback-wrap');
-var holdTimer = null, holdHintTimer = null, holdTouch = false;
-function cancelHold() {
-  clearTimeout(holdTimer);
-  holdTimer = null;
-  holdWrap.classList.remove('is-holding');
-  if (holdTouch) { magnetTx = 0; magnetTy = 0; } // le badge retourne a sa place
-}
-// Le badge vient sous le doigt et le suit : reutilise --mx/--my du magnetisme souris,
-// sans la borne MAGNET_MAX (le doigt peut etre sur le logo, loin de la zone du badge).
-function holdFollow(evt) {
-  if (!playBadge) return;
-  var zr = playBadge.parentElement.getBoundingClientRect();
-  magnetTx = evt.clientX - (zr.left + zr.width / 2);
-  magnetTy = evt.clientY - (zr.top + zr.height / 2) - HOLD_LIFT;
 }
 
 function endPress(evt, allowTap) {
@@ -227,100 +204,22 @@ function bindScrollArrow(btn, dir, vertical) {
 var lastWidth;
 var resizeTimeout = null;
 
-var magnetTx, magnetTy, magnetCx, magnetCy;
-// Demarrage du module : appele une seule fois par principal.js, dans un ordre fixe.
-export function initBadge() {
-  if (playBadge) {
-    var MAGNET_MAX = 80;     // px, decalage max du badge
-    var MAGNET_EASE = 0.09;  // lissage du suivi (pas de saut brusque)
-    magnetTx = 0, magnetTy = 0, magnetCx = 0, magnetCy = 0;
-    var badgeZone = playBadge.parentElement;
-
-    // pointermove filtre sur la souris, pas mousemove : apres un tap, le navigateur envoie
-    // un faux mousemove qui laisserait le badge decale vers l'endroit touche.
-    document.addEventListener('pointermove', function (evt) {
-      if (evt.pointerType !== 'mouse') return;
-      var zr = badgeZone.getBoundingClientRect();
-      var bx = zr.left + zr.width / 2, by = zr.top + zr.height / 2;
-      var dx = evt.clientX - bx, dy = evt.clientY - by;
-      var dist = Math.hypot(dx, dy);
-      var radius = Math.max(window.innerWidth, 900); // couvre toute la largeur de l'ecran
-      if (dist > radius) { magnetTx = 0; magnetTy = 0; return; }
-      // Vise la position reelle du curseur, bornee a MAGNET_MAX.
-      var k = dist > MAGNET_MAX ? MAGNET_MAX / dist : 1;
-      magnetTx = dx * k; magnetTy = dy * k;
-    });
-    document.addEventListener('mouseleave', function () { magnetTx = 0; magnetTy = 0; });
-
-    (function stepMagnet() {
-      var ease = holdTimer ? HOLD_FOLLOW_EASE : MAGNET_EASE; // au doigt : colle de pres
-      magnetCx += (magnetTx - magnetCx) * ease;
-      magnetCy += (magnetTy - magnetCy) * ease;
-      playBadge.style.setProperty('--mx', magnetCx.toFixed(2) + 'px');
-      playBadge.style.setProperty('--my', magnetCy.toFixed(2) + 'px');
-      requestAnimationFrame(stepMagnet);
-    })();
-  }
+// Lancement du jeu, demande par amorce.js (clic a la souris ou appui maintenu au doigt sur le
+// logo) : clientX/clientY = point de l'ecran d'ou part l'explosion.
+export function peutLancer() { return partie.mode === 'assembled'; }
+export function lancer(clientX, clientY) {
+  if (partie.mode !== 'assembled') return;
+  // Image du logo pas encore chargee (le jeu vient d'arriver) : le lancement l'attend.
+  if (!partie.imgReady) { whenImgReady(function () { lancer(clientX, clientY); }); return; }
+  updateZoom(); // le zoom du monde qui va etre construit, avant de convertir le clic
+  var pos = getRelativePos({ clientX: clientX, clientY: clientY });
+  // camX vient d'etre (re)centre par build() : + camX donne la position monde de
+  // l'origine de l'explosion, coherente avec les coord. monde des facettes.
+  if (build()) explode(pos.x + vue.camX, pos.y + vue.camY);
 }
 
 // Demarrage du module : appele une seule fois par principal.js, dans un ordre fixe.
 export function initEvenements() {
-  container.addEventListener('click', function (evt) {
-    // Le bouton, les fleches et les infobulles sont dans la boite : leurs clics ne creusent pas.
-    // (bug corrige : le bouton plein ecran manquait ici, un clic
-    // dessus remontait jusqu'a ce listener et redeclenchait explode()/build() en plus
-    // de l'action du bouton lui-meme.)
-    if (evt.target.closest('#logo-explosion-rebuild, #logo-explosion-fullscreen, .logo-explosion-scroll, .logo-explosion-tip, .logo-explosion-shelf-cue,.logo-explosion-compass, .logo-explosion-tools, .logo-explosion-strains, .logo-explosion-treasures, .logo-explosion-challenges-badge, .logo-explosion-explain-locate, .logo-explosion-explain-close, .logo-explosion-explain-ack, .logo-explosion-end')) return;
-    if (partie.mode === 'assembled') updateZoom(); // le zoom du monde qui va etre construit, avant de convertir le clic
-    var pos = getRelativePos(evt);
-    if (partie.mode === 'assembled') {
-      // Seul un clic sur le logo (ou sa zone "play" juste en dessous) declenche
-      // l'explosion : avant, n'importe quel clic dans la boite (meme le vide autour)
-      // le faisait, ce qui ne correspond pas au curseur special affiche uniquement
-      // au-dessus du logo.
-      if (!evt.target.closest('#logo-explosion-fallback-wrap')) return;
-      if (holdTouch) return; // au doigt : appui maintenu, voir plus bas
-      // camX vient d'etre (re)centre par build() : + camX donne la position monde de
-      // l'origine de l'explosion, coherente avec les coord. monde des facettes.
-      if (partie.imgReady && build()) explode(pos.x + vue.camX, pos.y + vue.camY);
-      return;
-    }
-    // Une fois explose, tout passe par les evenements pointer du canvas (pelle + taps).
-  });
-  if (holdWrap) {
-    holdWrap.style.setProperty('--hold-ms', HOLD_MS + 'ms');
-    holdWrap.addEventListener('pointerdown', function (evt) {
-      holdTouch = evt.pointerType !== 'mouse';
-      if (!holdTouch || partie.mode !== 'assembled' || !partie.imgReady) return;
-      updateZoom();
-      var pos = getRelativePos(evt);
-      cancelHold();
-      clearTimeout(holdHintTimer);
-      holdWrap.classList.remove('is-hint');
-      holdWrap.classList.add('is-holding');
-      holdFollow(evt);
-      holdTimer = setTimeout(function () {
-        cancelHold();
-        if (partie.mode === 'assembled' && build()) explode(pos.x + vue.camX, pos.y + vue.camY);
-      }, HOLD_MS);
-    });
-    holdWrap.addEventListener('pointermove', function (evt) { if (holdTimer) holdFollow(evt); });
-    // Doigt releve avant la fin : on explique le geste (sursaut + "Maintenez").
-    holdWrap.addEventListener('pointerup', function () {
-      if (holdTimer) {
-        holdWrap.classList.add('is-hint');
-        clearTimeout(holdHintTimer);
-        holdHintTimer = setTimeout(function () { holdWrap.classList.remove('is-hint'); }, HOLD_HINT_MS);
-      }
-      cancelHold();
-    });
-    // pointercancel : le doigt a commence a faire defiler la page, on abandonne sans rien dire.
-    ['pointercancel', 'pointerleave'].forEach(function (n) {
-      holdWrap.addEventListener(n, cancelHold);
-    });
-    // Appui long sur une image : pas de menu contextuel du navigateur.
-    holdWrap.addEventListener('contextmenu', function (evt) { if (holdTouch) evt.preventDefault(); });
-  }
   canvas.addEventListener('pointerdown', function (evt) {
     if (partie.mode !== 'exploded') return;
     vue.edgeTouch = evt.pointerType !== 'mouse';

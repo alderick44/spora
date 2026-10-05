@@ -10,13 +10,15 @@ import { initDefis } from './defis.js';
 import { initTutoriel } from './tutoriel.js';
 import { initDebug } from './debug.js';
 import { initPhysique } from './physique.js';
-import { initBadge, initEvenements } from './evenements.js';
+import { initEvenements } from './evenements.js';
+
+// Appeles par amorce.js : le clic et l'appui maintenu sur le logo y sont geres.
+export { lancer, peutLancer } from './evenements.js';
 
 // Demarrage : meme ordre a chaque etape du decoupage.
 initEtat();
 initMessages();
 initDefis();
-initBadge();
 initTutoriel();
 initTresors();
 initTerrain();

@@ -393,6 +393,12 @@ export function restColumn(x) {
   return c;
 }
 
+// Appelle fn une fois l'image du logo chargee (tout de suite si elle l'est deja).
+export function whenImgReady(fn) {
+  if (partie.imgReady) fn();
+  else img.addEventListener('load', fn, { once: true });
+}
+
 // Demarrage du module : appele une seule fois par principal.js, dans un ordre fixe.
 export function initTerrain() {
   img.onload = function () {
