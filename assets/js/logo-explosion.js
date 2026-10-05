@@ -32,6 +32,10 @@
   var stormInput = document.getElementById('logo-explosion-storm');
   var stormIndicator = document.getElementById('logo-explosion-storm-indicator');
   var caption = document.getElementById('logo-explosion-caption');
+  // Essai mobile ($spora_tip_shelf dans front-page.php) : sur ecran etroit, la carte du tresor
+  // selectionne se range dans cette boite, sous le bouton de la boutique (voir openTip).
+  var shelfEl = document.getElementById('logo-explosion-shelf');
+  var shelfMq = shelfEl && window.matchMedia ? window.matchMedia('(max-width: 767.98px)') : null;
   var speedBtn = document.getElementById('logo-explosion-speed-btn');
   var toolsArrow = document.getElementById('logo-explosion-tools-arrow');
   var moneyEl = document.getElementById('logo-explosion-money');
@@ -1224,6 +1228,8 @@
   var worldW = 0, camMargin = 0, camX = 0;
   var worldH = 0, camY = 0;
   var hoverScreenX = null, hoverScreenY = null; // position souris (coord. ecran), pour le defilement aux bords
+  var CAMERA_EDGE_TOUCH = 0.16;           // meme zone, au doigt : plus etroite (le doigt travaille partout sur l'ecran)
+  var edgeTouch = false;                  // hoverScreenX/Y viennent d'un doigt appuye qui glisse, pas d'une souris
   var mobileArrow = 0;                    // -1/0/1 : fleches tactiles mobiles maintenues (horizontal)
   var mobileArrowY = 0;                   // -1/0/1 : fleches tactiles mobiles maintenues (vertical)
 
@@ -1253,7 +1259,7 @@
   var unlockedStrains = [];
   var bagStrain = 'standard';
   treasureDefs.forEach(function (def) {
-    if (def.img) new Image().src = def.img; // prechargee : l'infobulle s'affiche sans trou
+    tipImgs(def).forEach(function (im) { new Image().src = im.src; }); // prechargees : l'infobulle s'affiche sans trou
     var st = def.strain;
     if (!st || !st.id || strainById[st.id] || !/^#[0-9a-f]{6}$/i.test(st.tint || '')) return;
     var tint = hexToRgb(st.tint);
@@ -1634,6 +1640,7 @@
   // deterres ne sont pas regeneres enterres au premier setupTreasures apres le chargement.
   var MONEY_MAX = 1e9;
   var restoredFound = [];   // titres deterres lus dans la sauvegarde, consommes par setupTreasures
+  var foundFx = {};         // titre -> position x (fraction de worldW) des tresors deterres : ils reviennent la ou ils etaient
   var skippedFound = [];    // titres ecartes de la generation du monde en cours (deja deterres)
   var playerSig = null;
   function knownTitle(t) { return typeof t === 'string' && treasureDefs.some(function (d) { return d.title === t; }); }
@@ -1643,9 +1650,10 @@
     return out;
   }
   function playerState() {
-    return { money: Math.min(MONEY_MAX, Math.max(0, Math.floor(money) || 0)), revealed: moneyRevealed ? 1 : 0, freeBag: usedFreeBag ? 1 : 0, strains: unlockedStrains.slice(), bag: bagStrain, found: foundList(), leachTips: leachTipSeen, facts: factSeen, ch: chDone, chTrees: chPlanted, chHarv: chHarv.slice(), freeTrees: freeTrees };
+    treasures.forEach(function (t) { if (t.revealed && worldW > 0) foundFx[t.def.title] = Math.round(t.x / worldW * 1000) / 1000; });
+    return { money: Math.min(MONEY_MAX, Math.max(0, Math.floor(money) || 0)), revealed: moneyRevealed ? 1 : 0, freeBag: usedFreeBag ? 1 : 0, strains: unlockedStrains.slice(), bag: bagStrain, found: foundList(), leachTips: leachTipSeen, facts: factSeen, ch: chDone, chTrees: chPlanted, chHarv: chHarv.slice(), freeTrees: freeTrees, fx: foundFx };
   }
-  function playerSigOf(p) { return p.money + '|' + p.revealed + '|' + p.freeBag + '|' + p.strains.join() + '|' + p.bag + '|' + p.found.join('/') + '|' + p.leachTips + '|' + p.facts + '|' + p.ch + '|' + p.chTrees + '|' + p.chHarv.join() + '|' + p.freeTrees; }
+  function playerSigOf(p) { return p.money + '|' + p.revealed + '|' + p.freeBag + '|' + p.strains.join() + '|' + p.bag + '|' + p.found.join('/') + '|' + p.leachTips + '|' + p.facts + '|' + p.ch + '|' + p.chTrees + '|' + p.chHarv.join() + '|' + p.freeTrees + '|' + JSON.stringify(p.fx); }
   function restorePlayer() {
     try {
       var d = JSON.parse(localStorage.getItem(WORLD_KEY)), p = d && d.v === WORLD_VERSION ? d.player : null;
@@ -1660,6 +1668,7 @@
       for (var hi = 0; hi < 3; hi++) chHarv[hi] = Array.isArray(p.chHarv) ? Math.max(0, Math.min(CH_HARVEST_GOAL, p.chHarv[hi] | 0)) : 0;
       freeTrees = Math.max(0, Math.min(99, p.freeTrees | 0));
       updateChallengeUI();
+      if (p.fx && typeof p.fx === 'object') Object.keys(p.fx).forEach(function (k) { if (knownTitle(k) && typeof p.fx[k] === 'number' && isFinite(p.fx[k])) foundFx[k] = Math.max(0, Math.min(1, p.fx[k])); });
       // Les souches suivent le NOMBRE de tresors deterres (1er = strophaire, 2e = pleurote...) : on ignore
       // la liste sauvee, qui pouvait contenir le strophaire d'office (ancienne version).
       // On ne compte que les titres CONNUS et uniques (un ancien titre, ex. 'Mycélium en vrac', decalait l'ordre).
@@ -1831,7 +1840,7 @@
     resetPatches();
     leachTipSeen = 0; grassLost = 0; factSeen = 0; branchTorn = false; chDone = 0; chPlanted = 0; chHarv = [0, 0, 0]; freeTrees = 0; chPending = []; chHoldSince = [0, 0, 0];
     updateChallengeUI();
-    restoredFound = []; skippedFound = []; restoredTrees = null;
+    restoredFound = []; skippedFound = []; foundFx = {}; restoredTrees = null;
     playerSig = playerSigOf(playerState());
     if (moneyEl) moneyEl.classList.add("d-none");
     updateMoneyUI();
@@ -2064,7 +2073,7 @@
   // Vitesse de defilement selon la position ecran du curseur : nulle au centre, augmente
   // en approchant des CAMERA_EDGE derniers % de chaque bord de la boite.
   function cameraSpeed(screenX) {
-    var edge = W * CAMERA_EDGE;
+    var edge = W * (edgeTouch ? CAMERA_EDGE_TOUCH : CAMERA_EDGE);
     if (screenX < edge) {
       var k = 1 - screenX / edge;
       return -CAMERA_MAX * k * k;
@@ -2079,14 +2088,17 @@
   // Meme logique, axe vertical : pres du haut de la boite ca remonte (camY vers 0), pres
   // du bas ca descend (camY vers worldH - H, plus profond).
   function cameraSpeedY(screenY) {
-    var edge = H * CAMERA_EDGE;
+    var edge = H * (edgeTouch ? CAMERA_EDGE_TOUCH : CAMERA_EDGE);
     var y = Math.max(0, screenY - CAMERA_TOP_DEADZONE / ZOOM); // la zone cachee par le header est en px CSS
     if (y < edge) {
       var k = 1 - y / edge;
       return -CAMERA_MAX_Y * k * k;
     }
-    if (screenY > H - edge) {
-      var k2 = 1 - (H - screenY) / edge;
+    // Le bas de la boite peut depasser l'ecran (100vh sur mobile, barre du navigateur) : la
+    // zone part du bas VISIBLE, sinon le doigt ne l'atteint presque pas.
+    var bottom = edgeTouch ? Math.min(H, (window.innerHeight - canvas.getBoundingClientRect().top) / ZOOM) : H;
+    if (screenY > bottom - edge) {
+      var k2 = Math.min(1, 1 - (bottom - screenY) / edge);
       return CAMERA_MAX_Y * k2 * k2;
     }
     return 0;
@@ -2796,7 +2808,7 @@
     var t = treasureNear(pos.x, pos.y);
     if (t) {
       if (t.revealed) {
-        openTip(t);
+        openTip(t, true);
       } else {
         digAt(t);
         tryDig(t, 1);
@@ -3544,6 +3556,23 @@
     }
   }
 
+  // Logo de l'etiquette : rasterise une seule fois dans un petit canvas (redessiner le SVG a
+  // chaque frame, avec une rotation qui change, couterait cher).
+  var bagLogo = null;
+  (function () {
+    var url = canvas.getAttribute('data-bag-logo-url');
+    if (!url) return;
+    var im = new Image();
+    im.onload = function () {
+      var c = document.createElement('canvas');
+      c.width = 200;
+      c.height = Math.round(200 * im.naturalHeight / im.naturalWidth) || 162;
+      c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
+      bagLogo = c;
+    };
+    im.src = url;
+  })();
+
   function drawBag() {
     if (!bag.on) return;
     var k = clamp(U / 500, 0.7, 1.3);
@@ -3551,24 +3580,34 @@
     ctx.translate(bag.x, bag.y);
     ctx.rotate(bag.rot);
     ctx.scale(k, k);
-    // Goulot (plastique froisse), puis le corps : plastique clair autour du grain colonise
-    // (teinte selon la souche choisie, voir tintCol).
+    // Sachet blanc opaque, comme le produit vendu. Il verse par un coin coupe, pose sur le
+    // curseur ; le logo se lit a l'endroit quand le sac verse.
     var cs = currentStrain();
-    ctx.fillStyle = '#c9cfd0';
-    poly([[-6, 0], [0, 0], [-6, -12], [-17, -12]]);
-    ctx.fillStyle = '#b3babc';
-    poly([[0, 0], [6, 0], [17, -12], [-6, -12]]);
-    ctx.fillStyle = '#dde2e2';
-    poly([[-17, -12], [17, -12], [15, -64], [-15, -64]]);
-    ctx.fillStyle = tintCol('#f1ebdd', cs);
-    poly([[-14, -15], [14, -15], [-12, -40]]);
+    ctx.fillStyle = '#f5f3ee';
+    poly([[-39, 3], [-4, 3], [3, -4], [3, -73], [1, -75], [-37, -75], [-39, -73]]);
+    // Reflet a gauche.
+    ctx.fillStyle = '#fdfcfa';
+    poly([[-39, 3], [-39, -71], [-31, -71]]);
+    // Soudure du haut.
+    ctx.fillStyle = '#dcd9d0';
+    poly([[-39, -71], [3, -71], [3, -73], [1, -75], [-37, -75], [-39, -73]]);
+    // Pastille filtrante.
+    ctx.fillStyle = '#e4e2da';
+    poly([[-22, -59], [-14, -59], [-14, -67], [-22, -67]]);
+    ctx.fillStyle = '#d3d0c6';
+    poly([[-22, -59], [-14, -59], [-14, -67]]);
+    // Logo imprime sur le sac.
+    if (bagLogo) ctx.drawImage(bagLogo, -34, -56, 32, 32 * bagLogo.height / bagLogo.width);
+    // Bande a la couleur de la souche choisie (le sac opaque ne montre plus le mycelium).
+    ctx.fillStyle = cs.tint || '#b8735a';
+    poly([[-39, -22], [3, -22], [3, -15], [-39, -15]]);
+    // Ombre du cote droit et du fond, pour le volume.
+    ctx.fillStyle = 'rgba(40, 30, 10, 0.08)';
+    poly([[3, -4], [3, -73], [1, -75], [-7, -75]]);
+    poly([[-39, 3], [-4, 3], [-39, -6]]);
+    // Coin coupe : on y voit le grain colonise.
     ctx.fillStyle = tintCol('#e4dac5', cs);
-    poly([[14, -15], [12, -61], [-12, -40]]);
-    ctx.fillStyle = tintCol('#f7f3ea', cs);
-    poly([[-12, -40], [12, -61], [-12, -61]]);
-    // Filtre du sac.
-    ctx.fillStyle = '#cbbf9f';
-    poly([[-6, -50], [6, -50], [6, -58], [-6, -58]]);
+    poly([[-4, 3], [3, -4], [0.5, -6.5], [-6.5, 0.5]]);
     ctx.restore();
   }
 
@@ -6393,6 +6432,11 @@
   // Un tresor enfoui : sa facette doree et son repere (halo + poing ou pelle fantome, en
   // alternance), pose a la surface au-dessus de lui : il montre ou creuser meme quand le
   // tresor est enfoui hors de la vue.
+  // Un tresor deja deterre revient a sa derniere position ; sinon sa place d'origine.
+  function replayX(def) {
+    if (skippedFound.indexOf(def.title) !== -1 && foundFx[def.title] !== undefined) return foundFx[def.title] * worldW;
+    return clearOfRock(DEMO ? camMargin + W * DEMO_TREASURE_X : def.x * worldW);
+  }
   function buildTreasure(def) {
     var glint = document.createElement('span');
     glint.className = 'logo-explosion-glint';
@@ -6410,7 +6454,7 @@
     // repartis sur toute la zone explorable, pas seulement sous le logo.
     // Demo : la camera ne defile pas, le tresor est donc place dans la vue de depart.
     return {
-      def: def, x: clearOfRock(DEMO ? camMargin + W * DEMO_TREASURE_X : def.x * worldW), y: ty, deep: depth > 0, dig: 0, revealed: false, ready: false,
+      def: def, x: replayX(def), y: ty, deep: depth > 0, dig: 0, revealed: false, ready: false,
       mushroom: null, glint: glint, tip: null, hint: hint, nugget: null, nx: 0, sparks: null
     };
   }
@@ -6428,12 +6472,23 @@
     updateTreasureUI();
     if (guideFlags.harvest) queueDemoEnd(); // demo deja finie avant un rechargement : l'ecran de fin revient
     treasures = buriedDefs().map(buildTreasure);
+    // Demo : le 1er tresor deja deterre lors d'une visite precedente reste a l'ecran, deterre
+    // d'office (sinon l'accueil n'en montrerait aucun avant la fin du tutoriel).
+    var replays = (DEMO ? treasureDefs.slice(0, 1) : treasureDefs).filter(function (def) { return skippedFound.indexOf(def.title) !== -1; }).map(buildTreasure);
+    replays.forEach(function (r) { treasures.push(r); });
     // On laisse la terre retomber avant de montrer ou creuser ; positionTreasureOverlays
     // decide ensuite, a chaque frame, si chaque repere est visible (t.ready).
     var mine = treasures;
     setTimeout(function () {
       if (mode !== 'exploded' || mine !== treasures) return; // rebuild (ou nouvelle explosion) entre-temps
       treasures.forEach(function (t) { t.ready = true; });
+      if (replays.length) {
+        // Restent dans skippedFound jusqu'ici pour ne pas sortir de la sauvegarde ; reveal() les recompte
+        // (dans l'ordre des defs : le contenu montre suit le rang de deterrage).
+        skippedFound = skippedFound.filter(function (ti) { return !replays.some(function (r) { return r.def.title === ti; }); });
+        treasuresFound = skippedFound.length;
+        replays.forEach(reveal);
+      }
       positionTreasureOverlays();
     }, 1600);
   }
@@ -6609,6 +6664,38 @@
   if (demoEndEl) demoEndEl.addEventListener('click', function (evt) {
     if (evt.target.closest('[data-demo-continue]')) endDemo();
   });
+
+  // Avertissement avant de quitter le jeu : le lien "Voir le produit" d'une infobulle ouvre
+  // d'abord ce voile (meme style que l'ecran de fin), le visiteur confirme ou reste.
+  // Le credit d'une photo passe par le meme voile, avec d'autres textes : il mene a un autre
+  // site, ouvert dans un nouvel onglet (la partie reste ouverte ici).
+  var leaveEl = document.getElementById('logo-explosion-leave');
+  if (leaveEl) {
+    var leaveGo = leaveEl.querySelector('[data-leave-go]');
+    var leaveTitle = leaveEl.querySelector('.logo-explosion-end-title'), leaveText = leaveEl.querySelector('p');
+    // Textes du lien produit : ceux du HTML, remis en place apres un passage par le credit.
+    var leaveCopy = [leaveTitle.textContent, leaveText.textContent, leaveGo.textContent];
+    document.addEventListener('click', function (evt) {
+      var a = evt.target.closest && evt.target.closest('.logo-explosion-tip-body a, .logo-explosion-tip-credit a');
+      // Carte rangee sous le jeu (shelfEl) : memes liens, meme voile (il s'affiche dans la boite du jeu).
+      var shelved = !!(a && shelfEl && shelfEl.contains(a));
+      if (!a || !(shelved || container.contains(a))) return;
+      evt.preventDefault();
+      var ext = !!a.closest('.logo-explosion-tip-credit');
+      var copy = ext ? ['Quitter le site ?', 'La page d’origine de la photo s’ouvre sur un autre site (' + a.hostname + '), dans un nouvel onglet. Votre partie reste ouverte ici.', 'Ouvrir la page'] : leaveCopy;
+      leaveTitle.textContent = copy[0]; leaveText.textContent = copy[1]; leaveGo.textContent = copy[2];
+      leaveGo.href = a.href;
+      if (ext) { leaveGo.target = '_blank'; leaveGo.rel = 'noopener'; }
+      else { leaveGo.removeAttribute('target'); leaveGo.removeAttribute('rel'); }
+      leaveEl.classList.remove('d-none');
+      if (shelved) leaveEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); // la boite du jeu peut etre en partie hors ecran
+      leaveEl.querySelector('[data-leave-stay]').focus({ preventScroll: true });
+    }, true);
+    leaveEl.addEventListener('click', function (evt) {
+      // Nouvel onglet : le jeu reste affiche, le voile n'a plus de raison de rester.
+      if (evt.target.closest('[data-leave-stay]') || (leaveGo.target === '_blank' && evt.target.closest('[data-leave-go]'))) leaveEl.classList.add('d-none');
+    });
+  }
 
   // Souches : le menu (boutons crees une fois, etat rafraichi apres chaque deblocage/choix).
   function buildStrainBar() {
@@ -6799,16 +6886,46 @@
     setTimeout(function () { if (t.tip) t.tip.classList.remove('is-reveal'); }, 1500);
     // Bulle fermee avec la croix : le survol ne la rouvre plus, seul un clic sur le champignon le fait.
     t.tip.querySelector('.logo-explosion-tip-close').addEventListener('click', function () { t.tipClosed = true; });
+    var grabbed = false, swipe = null, swiped = false;
     t.tip.addEventListener('pointerdown', function (evt) {
-      if (mode !== 'exploded' || tool !== 'hand' || evt.target.closest('a, button')) return;
+      grabbed = false; swipe = null; swiped = false;
+      tipIdle(); // un doigt sur la carte repousse sa fermeture d'office
+      if (evt.target.closest('a, button')) return;
+      // Au doigt, glisser sur la photo change de photo au lieu de deplacer le tresor (voir pointerup) ;
+      // carte en grand (.is-zoom), plus rien ne se deplace : tout glisser change de photo.
+      if (evt.pointerType !== 'mouse' && (t.tip.classList.contains('is-zoom') ||
+          (evt.target.tagName === 'IMG' && t.tip.querySelector('.logo-explosion-tip-nav')))) {
+        swipe = { x: evt.clientX, id: evt.pointerId };
+        return;
+      }
+      // Carte rangee sous le jeu (shelfEl) : elle ne sert pas de poignee au tresor.
+      if (mode !== 'exploded' || tool !== 'hand' || t.tip.parentNode !== container) return;
       var sp = getRelativePos(evt), wp = { x: sp.x + camX, y: sp.y + camY };
-      treasureGrab = { t: t, dx: t.x - wp.x };
-      pointerDown = wp; dragMoved = false; pressCaught = true;
+      treasureGrab = { t: t, dx: t.x - wp.x, fromTip: true, onImg: evt.target.tagName === 'IMG' };
+      pointerDown = wp; dragMoved = false; pressCaught = true; grabbed = true;
       try { canvas.setPointerCapture(evt.pointerId); } catch (e) { /* pas grave */ }
       evt.preventDefault();
     });
+    t.tip.addEventListener('pointerup', function (evt) {
+      if (!swipe || swipe.id !== evt.pointerId) return;
+      var dx = evt.clientX - swipe.x;
+      swipe = null;
+      if (Math.abs(dx) < TIP_SWIPE_PX) return; // simple tap : le clic ci-dessous s'en charge
+      swiped = true;
+      var nav = t.tip.querySelector(dx < 0 ? '.is-next' : '.is-prev');
+      if (nav) nav.click();
+    });
+    // Clic sur la carte (voir tapTip). Tresor saisi par la main : le pointeur est capture par le
+    // canvas ci-dessus, c'est endPress qui bascule (tap sans glisser), pas ce clic.
+    t.tip.addEventListener('click', function (evt) {
+      if (grabbed || swiped || evt.target.closest('a, button')) return;
+      tapTip(t, evt.target.tagName === 'IMG');
+    });
     // Pendant le tutoriel du mycelium, la bulle des tresors suivants ne s'ouvre pas seule (elle reste ouvrable au clic).
-    if (nDug <= 1 || !guideCurrent()) openTip(t);
+    if (nDug <= 1 || !guideCurrent()) { openTip(t); tipHoldUntil = performance.now() + TIP_REVEAL_HOLD_MS; }
+    // Souris sur la carte : elle reste ouverte ; sortie de la carte : voir tipAway.
+    t.tip.addEventListener('pointerenter', function () { tipAway(false); });
+    t.tip.addEventListener('pointerleave', function (evt) { if (evt.pointerType === 'mouse') tipAway(true); });
     treasuresFound++;
     updateTreasureUI();
     savePlayerIfChanged();
@@ -6909,43 +7026,197 @@
     close.textContent = '×';
     close.addEventListener('click', function (evt) {
       evt.stopPropagation();
+      // Carte rangee sous le jeu : elle y reste meme fermee, seule la croix la retire (retour dans le jeu, invisible).
+      if (shelfEl && tip.parentNode === shelfEl) container.appendChild(tip);
       openTip(null);
     });
     tip.appendChild(close);
-    if (def.img) {
+    // Plusieurs photos (voir tipImgs) : fleches et compteur sur la photo. Le credit de la photo
+    // affichee (licence libre) est pose en pale dans son coin bas gauche.
+    var imgs = tipImgs(def), credit = null;
+    if (imgs.length) {
+      tip.classList.add('has-img');
+      var media = document.createElement('div');
+      media.className = 'logo-explosion-tip-media';
       var im = document.createElement('img');
-      im.src = def.img;
       im.alt = '';
-      tip.appendChild(im);
+      media.appendChild(im);
+      credit = document.createElement('small');
+      credit.className = 'logo-explosion-tip-credit';
+      media.appendChild(credit);
+      var idx = 0, count = null;
+      var showImg = function () {
+        var cur = imgs[idx];
+        im.src = cur.src;
+        if (count) count.textContent = (idx + 1) + ' / ' + imgs.length;
+        credit.textContent = '';
+        credit.classList.toggle('d-none', !cur.credit);
+        if (!cur.credit) return;
+        var by = document.createElement(cur.credit_url ? 'a' : 'span');
+        if (cur.credit_url) { by.href = cur.credit_url; by.target = '_blank'; by.rel = 'noopener'; }
+        by.textContent = cur.credit;
+        credit.appendChild(by);
+      };
+      if (imgs.length > 1) {
+        count = document.createElement('span');
+        count.className = 'logo-explosion-tip-count';
+        // Des boutons : la main ne saisit pas le tresor dessus, et le clic n'agrandit pas la carte.
+        [-1, 1].forEach(function (dir) {
+          var nav = document.createElement('button');
+          nav.type = 'button';
+          nav.className = 'logo-explosion-tip-nav ' + (dir < 0 ? 'is-prev' : 'is-next');
+          nav.setAttribute('aria-label', dir < 0 ? 'Photo précédente' : 'Photo suivante');
+          nav.textContent = dir < 0 ? '‹' : '›';
+          nav.addEventListener('click', function (evt) {
+            evt.stopPropagation();
+            idx = (idx + dir + imgs.length) % imgs.length;
+            showImg();
+          });
+          media.appendChild(nav);
+        });
+        media.appendChild(count);
+      }
+      showImg();
+      tip.appendChild(media);
     }
     var body = document.createElement('div');
     body.className = 'logo-explosion-tip-body';
     var title = document.createElement('strong');
     title.textContent = def.title || '';
     body.appendChild(title);
+    // Carte a image : le texte et le lien sont replies sous le titre, et se deplient au survol
+    // ou au clic (.is-details, voir style.css). Sans image, tout reste visible.
+    var more = body;
+    if (imgs.length) {
+      var fold = document.createElement('div');
+      fold.className = 'logo-explosion-tip-more';
+      more = document.createElement('div');
+      fold.appendChild(more);
+      body.appendChild(fold);
+    }
     if (def.text) {
       var p = document.createElement('p');
       p.textContent = def.text;
-      body.appendChild(p);
+      more.appendChild(p);
     }
     if (def.url) {
       var a = document.createElement('a');
       a.href = def.url;
       a.textContent = def.cta || 'Voir le produit';
-      body.appendChild(a);
+      more.appendChild(a);
     }
     tip.appendChild(body);
     return tip;
   }
 
+  // Photos d'une carte, normalisees en { src, credit, credit_url } : def.img est une photo ou un
+  // tableau de photos, chacune une URL ou deja un objet de cette forme (voir $spora_treasures).
+  function tipImgs(def) {
+    return [].concat(def.img || []).map(function (im) { return typeof im === 'string' ? { src: im } : im; });
+  }
+
+  // Souris partie du champignon et de sa carte (away) : la carte d'un tresor se ferme apres
+  // TIP_AWAY_MS. Elle attend la fin d'un deplacement du tresor (la capture du pointeur fait
+  // "sortir" la souris de la carte) et laisse le temps de la voir juste apres le deterrage
+  // (tipHoldUntil). Souris seulement : au doigt, un tap ailleurs la ferme deja.
+  var TIP_AWAY_MS = 800, TIP_REVEAL_HOLD_MS = 4000, tipAwayTimer = 0, tipHoldUntil = 0;
+  function tipAway(away) {
+    if (!away) { clearTimeout(tipAwayTimer); tipAwayTimer = 0; return; }
+    if (tipAwayTimer) return;
+    tipAwayTimer = setTimeout(function check() {
+      var open = null;
+      treasures.forEach(function (t) { if (t.tip && t.tip.classList.contains('is-open')) open = t; });
+      var wait = (treasureGrab || (open && open.tip.matches(':hover'))) ? TIP_AWAY_MS : tipHoldUntil - performance.now();
+      if (open && wait > 0) { tipAwayTimer = setTimeout(check, wait); return; }
+      tipAwayTimer = 0;
+      if (open) openTip(null);
+    }, TIP_AWAY_MS);
+  }
+
+  // Ecran tactile (pas de survol) : la carte ouverte se ferme d'office apres TIP_IDLE_MS sans
+  // qu'on y touche, sauf en grand (.is-zoom : on regarde la photo). Rearmee par openTip et par
+  // tout appui sur la carte. A la souris c'est tipAway qui ferme.
+  var TIP_IDLE_MS = 8000, TIP_SWIPE_PX = 30, tipIdleTimer = 0;
+  var NO_HOVER = !!(window.matchMedia && window.matchMedia('(hover: none)').matches);
+  function tipIdle() {
+    clearTimeout(tipIdleTimer);
+    if (!NO_HOVER) return;
+    tipIdleTimer = setTimeout(function () {
+      var open = null;
+      treasures.forEach(function (t) { if (t.tip && t.tip.classList.contains('is-open')) open = t; });
+      if (!open) return;
+      if (open.tip.classList.contains('is-zoom')) tipIdle(); else openTip(null);
+    }, TIP_IDLE_MS);
+  }
+
+  // Tap sur la carte d'un tresor : sur la photo, agrandit / reduit la carte (le texte se deplie
+  // avec, voir .is-zoom ; sur ecran tactile elle prend alors toute la boite) ; ailleurs, deplie /
+  // replie le texte.
+  function tapTip(t, onImg) {
+    t.tip.classList.toggle(onImg ? 'is-zoom' : 'is-details');
+  }
+
   // Une seule infobulle ouverte a la fois : les tresors (et la bulle mycelium, active
   // valant la chaine 'myc') sont proches, elles se chevaucheraient.
-  function openTip(active) {
+  function openTip(active, tapped) {
+    var wasOpen = !!(active && active.tip && active.tip.classList.contains('is-open'));
     treasures.forEach(function (t) {
-      if (t.tip) t.tip.classList.toggle('is-open', t === active);
+      if (!t.tip) return;
+      t.tip.classList.toggle('is-open', t === active);
+      if (t !== active) t.tip.classList.remove('is-details', 'is-zoom'); // se rouvre repliee
     });
+    // Boite sous le jeu (ecran etroit) : elle garde la carte du dernier tresor selectionne, meme
+    // "fermee" (elle n'y depend pas de .is-open, voir style.css ; sa croix la retire) ; la
+    // precedente retourne dans le jeu, invisible. Ecran redevenu large : tout retourne dans le jeu.
+    if (shelfEl) {
+      var shelved = shelfMq && shelfMq.matches;
+      if (!shelved || (active && active !== 'myc' && active.tip && active.tip.parentNode !== shelfEl)) {
+        while (shelfEl.firstChild) container.appendChild(shelfEl.firstChild);
+        if (shelved) shelfEl.appendChild(active.tip);
+      }
+      if (shelved && active && active.tip && (tapped || !wasOpen)) shelfCue(active);
+    }
     if (mycTip) mycTip.classList.toggle('is-open', active === 'myc');
     if (!!active !== tipOpen) { tipOpen = !!active; tipChangeAt = performance.now(); } // voir leachTip
+    if (active && active !== 'myc') tipIdle(); else clearTimeout(tipIdleTimer);
+  }
+
+  // Carte rangee sous le jeu (shelfEl), souvent hors ecran : la ou la bulle serait apparue, une
+  // pastille (photo + titre) surgit au-dessus du champignon puis tombe vers le bas de la boite,
+  // en direction de la carte (animation CSS, --drop = distance jusqu'au bas de la boite). La
+  // carte s'illumine a l'arrivee (.is-fresh). Un tap sur la pastille fait defiler jusqu'a elle.
+  var shelfCueEl = null;
+  function shelfCue(t) {
+    if (shelfCueEl) shelfCueEl.remove();
+    var m = t.mushroom, cue = document.createElement('button');
+    if (!m) return;
+    cue.type = 'button';
+    cue.className = 'logo-explosion-shelf-cue';
+    var photo = t.tip.querySelector('img'), name = t.tip.querySelector('strong');
+    if (photo) {
+      var thumb = document.createElement('img');
+      thumb.src = photo.src;
+      thumb.alt = '';
+      cue.appendChild(thumb);
+    }
+    var label = document.createElement('span');
+    label.textContent = name ? name.textContent : '';
+    cue.appendChild(label);
+    // Overlay HTML : px CSS, donc * ZOOM (comme positionTipOverMushroom). 120 : reste sous le header.
+    var boxW = W * ZOOM, top = Math.max(120, (surfaceAt(m.x) - camY) * ZOOM - 70);
+    cue.style.left = Math.max(110, Math.min(boxW - 110, (m.x - camX) * ZOOM)) + 'px';
+    cue.style.top = top + 'px';
+    cue.style.setProperty('--drop', Math.max(80, container.clientHeight - top + 60) + 'px');
+    cue.addEventListener('click', function () { shelfEl.scrollIntoView({ behavior: 'smooth', block: 'center' }); });
+    cue.addEventListener('animationend', function () {
+      cue.remove();
+      if (shelfCueEl === cue) shelfCueEl = null;
+    });
+    container.appendChild(cue);
+    shelfCueEl = cue;
+    t.tip.classList.remove('is-fresh');
+    void t.tip.offsetWidth; // relance l'animation si la meme carte est rechoisie
+    t.tip.classList.add('is-fresh');
   }
 
   // Position d'une infobulle juste au-dessus du chapeau d'un champignon (monde -> ecran,
@@ -6958,8 +7229,11 @@
     var mScreenX = (m.x - camX) * ZOOM;
     var left = Math.max(half + 8, Math.min(W * ZOOM - half - 8, mScreenX));
     tipEl.style.left = left + 'px';
-    // Champignon sorti trop haut (terre decompactee) : la bulle reste dans l'ecran, sans fleche.
-    var minTop = tipEl.offsetHeight + 8, top = Math.max(capTop - 6, minTop);
+    // Champignon sorti trop haut (terre decompactee) ou carte agrandie : la bulle reste dans l'ecran,
+    // sans fleche, et sous le header qui flotte par-dessus le haut de la boite (accueil). Bornee a
+    // 150px comme --game-ui-top : menu mobile ouvert, le header est tres haut.
+    var hb = siteHeader ? siteHeader.getBoundingClientRect().bottom - container.getBoundingClientRect().top : 0;
+    var minTop = tipEl.offsetHeight + 8 + Math.max(0, Math.min(hb, 150)), top = Math.max(capTop - 6, minTop);
     tipEl.classList.toggle('is-clamped', top !== capTop - 6);
     tipEl.style.top = top + 'px';
     tipEl.style.setProperty('--arrow-dx', (mScreenX - left) + 'px');
@@ -7208,7 +7482,7 @@
     // (bug corrige : le bouton plein ecran manquait ici, un clic
     // dessus remontait jusqu'a ce listener et redeclenchait explode()/build() en plus
     // de l'action du bouton lui-meme.)
-    if (evt.target.closest('#logo-explosion-rebuild, #logo-explosion-fullscreen, .logo-explosion-scroll, .logo-explosion-tip, .logo-explosion-compass, .logo-explosion-tools, .logo-explosion-strains, .logo-explosion-treasures, .logo-explosion-challenges-badge, .logo-explosion-explain-locate, .logo-explosion-explain-close, .logo-explosion-explain-ack, .logo-explosion-end')) return;
+    if (evt.target.closest('#logo-explosion-rebuild, #logo-explosion-fullscreen, .logo-explosion-scroll, .logo-explosion-tip, .logo-explosion-shelf-cue,.logo-explosion-compass, .logo-explosion-tools, .logo-explosion-strains, .logo-explosion-treasures, .logo-explosion-challenges-badge, .logo-explosion-explain-locate, .logo-explosion-explain-close, .logo-explosion-explain-ack, .logo-explosion-end')) return;
     if (mode === 'assembled') updateZoom(); // le zoom du monde qui va etre construit, avant de convertir le clic
     var pos = getRelativePos(evt);
     if (mode === 'assembled') {
@@ -7287,11 +7561,13 @@
   // Pointer events : meme code pour souris, doigt et stylet.
   // Souris : la pelle suit le survol, bouton maintenu = elle ralentit (mode precis). Le
   // survol pres des bords de la boite fait aussi defiler le monde (voir cameraSpeed).
-  // Doigt : le bol suit le doigt, doigt leve = il se vide puis disparait ; le defilement
-  // se fait avec les fleches tactiles (pas de survol possible au doigt).
+  // Doigt : le bol suit le doigt, doigt leve = il se vide puis disparait. Deux facons de
+  // defiler : les fleches tactiles, ou amener l'outil tenu pres d'un bord (edgeTouch,
+  // voir cameraSpeed).
   var pressCaught = false;
   canvas.addEventListener('pointerdown', function (evt) {
     if (mode !== 'exploded') return;
+    edgeTouch = evt.pointerType !== 'mouse';
     var screenPos = getRelativePos(evt);
     var pos = { x: screenPos.x + camX, y: screenPos.y + camY };
     if (evt.pointerType === 'mouse') { hoverScreenX = screenPos.x; hoverScreenY = screenPos.y; }
@@ -7326,12 +7602,13 @@
         dropHeldInsect(); // un seul a la fois (appui multi-pointeurs)
         heldSX = screenPos.x; heldSY = screenPos.y;
         catchInsect(bfly);
-      } else if ((treasureGrab = grabTreasureAt(pos))) {
-        pressCaught = true; // un tresor deterre se deplace a la main : le champignon et la bulle suivent
       } else if (harvestableNear(pos.x, pos.y)) {
         // Cueillette des l'appui (pas seulement au relachement) : maintenir le clic fait aussi sortir le champignon.
+        // Avant le tresor : un champignon a cueillir devant/pres d'un tresor deterre ne doit pas etre masque par lui.
         harvestAt(pos);
         pressCaught = true;
+      } else if ((treasureGrab = grabTreasureAt(pos))) {
+        pressCaught = true; // un tresor deterre se deplace a la main : le champignon et la bulle suivent
       } else if (!handGrabTree(pos)) pickUpHand(pos);
       if (pressCaught) hand.flash = performance.now();
       startLoop(); // le poing se ferme, meme sans rien dans la main
@@ -7359,6 +7636,7 @@
 
   canvas.addEventListener('pointermove', function (evt) {
     if (mode !== 'exploded') return;
+    edgeTouch = evt.pointerType !== 'mouse';
     var screenPos = getRelativePos(evt);
     var pos = { x: screenPos.x + camX, y: screenPos.y + camY };
     if (evt.pointerType === 'mouse') { hoverScreenX = screenPos.x; hoverScreenY = screenPos.y; }
@@ -7385,18 +7663,23 @@
       // Survoler un tresor deja deterre rouvre son infobulle sans avoir a cliquer.
       var hoverT = treasureNear(pos.x, pos.y);
       // Pas de survol tant qu'un saviez-vous est affiche : il ne reviendrait pas (le clic ouvre quand meme).
-      if (hoverT && hoverT.revealed && !hoverT.tipClosed && factShown < 0) openTip(hoverT);
+      var onT = !!(hoverT && hoverT.revealed);
+      if (onT && !hoverT.tipClosed && factShown < 0) openTip(hoverT);
+      tipAway(!onT);
       // Survoler le scintillement d'un tresor enfoui ouvre la bulle "creusez..." (sans minuterie).
       var glintT = treasureGlintAt(evt);
       if (glintT) showDigTip(glintT, true); else if (digTipHover) hideDigTip();
     }
     if (pointerDown && Math.hypot(pos.x - pointerDown.x, pos.y - pointerDown.y) > 6) dragMoved = true;
+    // Doigt appuye qui a glisse : sa position sert au defilement pres des bords, comme le survol souris.
+    if (edgeTouch && pointerDown && dragMoved) { hoverScreenX = screenPos.x; hoverScreenY = screenPos.y; }
     startLoop();
   });
 
   function endPress(evt, allowTap) {
     dropHeldInsect(); // meme si pointerDown a deja ete remis a zero
     if (!pointerDown) return;
+    if (evt.pointerType !== 'mouse') { hoverScreenX = null; hoverScreenY = null; }
     if (tool === 'hand' && shovel.on) {
       releaseShovel();
       pressCaught = false;
@@ -7406,7 +7689,10 @@
     }
     if (tool === 'hand') {
       if (treasureGrab) {
-        if (allowTap && !dragMoved) { openTip(treasureGrab.t); pickTreasureStrain(treasureGrab.t); }
+        if (allowTap && !dragMoved) {
+          openTip(treasureGrab.t, true); pickTreasureStrain(treasureGrab.t);
+          if (treasureGrab.fromTip) tapTip(treasureGrab.t, treasureGrab.onImg);
+        }
         treasureGrab = null;
       }
       var hadGrip = !!hand.grip;
@@ -7433,7 +7719,7 @@
       // Au sac, un tap ne creuse pas : il rouvre seulement l'infobulle d'un tresor deja sorti.
       if (allowTap && !dragMoved) {
         var wp = getWorldPos(evt), t = treasureNear(wp.x, wp.y);
-        if (t && t.revealed) { openTip(t); pickTreasureStrain(t); } else openTip(null);
+        if (t && t.revealed) { openTip(t, true); pickTreasureStrain(t); } else openTip(null);
       }
       if (evt.pointerType !== 'mouse') leaveBag();
       pointerDown = null;
@@ -7462,6 +7748,7 @@
   canvas.addEventListener('pointercancel', function (evt) { endPress(evt, false); });
   window.addEventListener('blur', dropHeldInsect);
   canvas.addEventListener('pointerleave', function (evt) {
+    if (evt.pointerType === 'mouse') tipAway(true); // vers la carte : son pointerenter annule
     if (evt.pointerType === 'mouse' && !pointerDown) {
       leaveShovel();
       leaveBag();

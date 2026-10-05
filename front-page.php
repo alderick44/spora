@@ -19,6 +19,9 @@ $spora_treasures = [
 // style.css), un seul tresor (la premiere souche) et un ecran de fin a la premiere recolte : boutique, ou continuer
 // (le mode demo se desactive alors pour ce visiteur). false = jeu complet d'emblee.
 $spora_demo = true;
+// Essai mobile : sur ecran etroit, la carte du tresor selectionne s'affiche dans une boite sous le bouton
+// "Visitez notre boutique!" au lieu de flotter dans le jeu (voir shelfEl dans logo-explosion.js). false = bulle partout.
+$spora_tip_shelf = true;
 ?>
 <?php get_header(); ?>
     <main class="bg-secondary">
@@ -42,6 +45,7 @@ $spora_demo = true;
             id="logo-explosion-canvas"
             class="logo-explosion-layer d-none"
             data-logo-url="<?php echo esc_url( get_theme_file_uri( 'assets/icons/wordmark-sporacultus.png' ) ); ?>"
+            data-bag-logo-url="<?php echo esc_url( get_theme_file_uri( 'assets/icons/logo-spora.svg' ) ); ?>"
             data-treasures="<?php echo esc_attr( wp_json_encode( $spora_treasures ) ); ?>"
             aria-hidden="true"
           ></canvas>
@@ -153,6 +157,16 @@ $spora_demo = true;
             <div><strong class="logo-explosion-fact-title">Le saviez-vous ?</strong><p class="logo-explosion-fact-text"></p></div>
             <button type="button" class="logo-explosion-fact-close" aria-label="Fermer le saviez-vous">&times;</button>
           </aside>
+          <div id="logo-explosion-leave" class="logo-explosion-end d-none" role="dialog" aria-labelledby="logo-explosion-leave-title">
+            <div class="logo-explosion-end-box">
+              <strong id="logo-explosion-leave-title" class="logo-explosion-end-title">Quitter le jeu ?</strong>
+              <p>Ouvrir la page du produit vous fera quitter la partie en cours. Vous pourrez y revenir quand vous voulez.</p>
+              <div class="logo-explosion-end-actions">
+                <a class="btn btn-primary" href="/shop/" data-leave-go>Voir le produit</a>
+                <button type="button" class="btn btn-outline-secondary" data-leave-stay>Rester dans le jeu</button>
+              </div>
+            </div>
+          </div>
           <?php if ( $spora_demo ) : ?>
           <div id="logo-explosion-end" class="logo-explosion-end d-none" role="dialog" aria-labelledby="logo-explosion-end-title">
             <div class="logo-explosion-end-box">
@@ -168,6 +182,7 @@ $spora_demo = true;
         </div>
         <h1 class="logo-explosion-tagline">Mycélium et substrats pour cultiver vos champignons</h1>
         <a class="btn btn-primary mt-3" href="/shop/">Visitez notre boutique!</a>
+        <?php if ( $spora_tip_shelf ) : ?><div id="logo-explosion-shelf" class="logo-explosion-shelf"></div><?php endif; ?>
       </section>
       <div class="container pb-5">
         <section class="pt-5 mt-5">
