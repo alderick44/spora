@@ -185,7 +185,10 @@ $spora_tip_shelf = true;
             </div>
             <div class="col-12 col-lg-6">
               <img
-                src="<?php echo get_template_directory_uri();?>/assets/img/banner-mushroom-autumn.webp"
+                src="<?php echo get_template_directory_uri();?>/assets/img/banner-mushroom-autumn-1600.webp"
+                srcset="<?php echo get_template_directory_uri();?>/assets/img/banner-mushroom-autumn-800.webp 800w, <?php echo get_template_directory_uri();?>/assets/img/banner-mushroom-autumn-1600.webp 1600w"
+                sizes="(min-width: 992px) 50vw, 100vw"
+                width="1600" height="588" loading="lazy" decoding="async"
                 alt="Pleurote qui pousse dans les feuilles"
                 class="img-fluid rounded-2"/>
             </div>
@@ -197,7 +200,10 @@ $spora_tip_shelf = true;
             <div class="row py-5">
               <div class="col-12 col-lg-6">
                 <img
-                  src="<?php echo get_template_directory_uri(); ?>/assets/img/pleurote-feuilles-2022.webp"
+                  src="<?php echo get_template_directory_uri(); ?>/assets/img/pleurote-feuilles-2022-1600.webp"
+                  srcset="<?php echo get_template_directory_uri(); ?>/assets/img/pleurote-feuilles-2022-800.webp 800w, <?php echo get_template_directory_uri(); ?>/assets/img/pleurote-feuilles-2022-1600.webp 1600w"
+                  sizes="(min-width: 992px) 50vw, 100vw"
+                  width="1600" height="1060" loading="lazy" decoding="async"
                   alt="Pleurotes en huître qui poussent dans un tas de feuilles"
                   class="img-fluid rounded-2"/>
                 <p class="text-muted small mt-2 mb-0">Photo prise en juin 2022</p>
@@ -232,13 +238,19 @@ $spora_tip_shelf = true;
             <div class="col-md-5 col-12">
               <img
                 class="img-fluid rounded-2"
-                src="<?php echo get_template_directory_uri(); ?>/assets/img/GSM_Hotte.webp"
+                src="<?php echo get_template_directory_uri(); ?>/assets/img/GSM_Hotte-1600.webp"
+                srcset="<?php echo get_template_directory_uri(); ?>/assets/img/GSM_Hotte-800.webp 800w, <?php echo get_template_directory_uri(); ?>/assets/img/GSM_Hotte-1600.webp 1600w"
+                sizes="(min-width: 768px) 40vw, 100vw"
+                width="1600" height="1060" loading="lazy" decoding="async"
                 alt="Mycelium sur grain dans une hotte à flux laminaire"/>
             </div>
             <div class="col-md-5 col-12 text-md-end py-3">
               <img
                 class="img-fluid d-none d-md-block rounded-2"
-                src="<?php echo get_template_directory_uri(); ?>/assets/img/GSL-pack-crop.webp"
+                src="<?php echo get_template_directory_uri(); ?>/assets/img/GSL-pack-crop-1600.webp"
+                srcset="<?php echo get_template_directory_uri(); ?>/assets/img/GSL-pack-crop-800.webp 800w, <?php echo get_template_directory_uri(); ?>/assets/img/GSL-pack-crop-1600.webp 1600w"
+                sizes="(min-width: 768px) 40vw, 100vw"
+                width="1600" height="1060" loading="lazy" decoding="async"
                 alt="Pack de 5 sacs de mycelium sur grain"/>
             </div>
             <div class="col-12 py-4 text-center">
@@ -251,7 +263,10 @@ $spora_tip_shelf = true;
             <div class="col-10 col-lg-8 pt-md-5 mx-auto">
               <img
                 class="img-fluid rounded-2"
-                src="<?php echo get_template_directory_uri(); ?>/assets/img/jardin.webp"
+                src="<?php echo get_template_directory_uri(); ?>/assets/img/jardin-1600.webp"
+                srcset="<?php echo get_template_directory_uri(); ?>/assets/img/jardin-800.webp 800w, <?php echo get_template_directory_uri(); ?>/assets/img/jardin-1600.webp 1600w"
+                sizes="(min-width: 992px) 66vw, 83vw"
+                width="1600" height="1060" loading="lazy" decoding="async"
                 alt="Rang d'épinard dans un jardin"/>
             </div>
           </div>
