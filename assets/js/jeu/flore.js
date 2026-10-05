@@ -23,7 +23,7 @@ import { updateMoneyUI } from './economie.js';
 import { hand } from './outils.js';
 import { leachTip, setCaption } from './messages.js';
 import { challengeDone } from './defis.js';
-import { startLoop } from './principal.js';
+import { startLoop } from './physique.js';
 
 var fertLastAt = 0;                     // dernier depot de fertilisant (limite le rythme pendant un glissement)
 var grassLastAt = 0;                    // dernier semis de gazon (limite le rythme pendant un glissement)

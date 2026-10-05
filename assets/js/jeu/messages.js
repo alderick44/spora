@@ -11,7 +11,8 @@ import { savePlayerIfChanged } from './sauvegarde.js';
 import { weather } from './meteo.js';
 import { challengeTick } from './defis.js';
 import { guideCurrent } from './tutoriel.js';
-import { camMinY, startLoop } from './principal.js';
+import { startLoop } from './physique.js';
+import { camMinY } from './principal.js';
 
 var captionTimer = null;
 var leachTipAt = -1e9;

@@ -11,7 +11,7 @@ import { isRocky, isSubmerged, surfaceAt } from './terrain.js';
 import { weather } from './meteo.js';
 import { buildTip, openTip } from './cartes.js';
 import { setCaption, snapshotPatches, notePatchDeath } from './messages.js';
-import { startLoop } from './principal.js';
+import { startLoop } from './physique.js';
 
 var mycNextDeathCheck = 0;
 var mycBusyUntil = 0;

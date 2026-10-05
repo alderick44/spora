@@ -22,7 +22,7 @@ import { nextTreeCost, updateMoneyUI } from './economie.js';
 import { leafAgeOf, hand, handTension } from './outils.js';
 import { setCaption } from './messages.js';
 import { guideFlags, guideCurrent, guideSet } from './tutoriel.js';
-import { startLoop } from './principal.js';
+import { startLoop } from './physique.js';
 
 var lastRainAt = -1e9;
 export function matureTrees() {

@@ -26,7 +26,7 @@ import { openTip } from './cartes.js';
 import { setCaption } from './messages.js';
 import { chUnlocked, challengeDone } from './defis.js';
 import { guideSet } from './tutoriel.js';
-import { startLoop } from './principal.js';
+import { startLoop } from './physique.js';
 
 export var shovel = {
   on: false, held: false, pouring: false, hideWhenEmpty: false, released: false,
