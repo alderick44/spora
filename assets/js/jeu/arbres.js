@@ -16,9 +16,10 @@ import { poly } from './rendu.js';
 import { surfaceAt, isRocky, isSubmerged, pileRemove, triArea } from './terrain.js';
 import { nearestTreeX, savePlayerIfChanged, saveWorld } from './sauvegarde.js';
 import { weather } from './meteo.js';
+import { isNutriRipe, spawnFlower, spawnNutrientShard, toEarthColor } from './flore.js';
 import {
-  guideFlags, guideCurrent, startLoop, nextTreeCost, setCaption, updateMoneyUI, leafAgeOf, isNutriRipe,
-  spawnFlower, guideSet, sprout, spawnNutrientShard, toEarthColor, hand, handTension
+  guideFlags, guideCurrent, startLoop, nextTreeCost, setCaption, updateMoneyUI, leafAgeOf, guideSet, sprout,
+  hand, handTension
 } from './principal.js';
 
 var lastRainAt = -1e9;

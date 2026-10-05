@@ -9,7 +9,7 @@ import {
 import { temps, vue, droughtIndicator, stormIndicator, monde, ctx } from './etat.js';
 import { poly } from './rendu.js';
 import { surfaceAt, updateLakes } from './terrain.js';
-import { sinkCompactNutri, leach, decomposeDeadMyc } from './principal.js';
+import { sinkCompactNutri, leach, decomposeDeadMyc } from './flore.js';
 
 export var weather = {
   raining: false, changeAt: 0, startedAt: 0, clouds: [], lastNow: null,
