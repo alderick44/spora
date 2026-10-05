@@ -1,5 +1,6 @@
 <?php
 
+require_once get_theme_file_path( 'inc/treasures.php' );
 require_once get_theme_file_path( 'inc/demandes-champignons.php' );
 
 add_action( 'wp_enqueue_scripts', 'spora_enqueue_styles' );
