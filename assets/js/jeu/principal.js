@@ -1,5 +1,5 @@
 // Jeu du logo (accueil) : point d'entree, charge par amorce.js. Lance le demarrage de chaque module.
-import { initEtat } from './etat.js';
+import { initEtat, debugToggleBtn } from './etat.js';
 import { initTerrain } from './terrain.js';
 import { initSauvegarde } from './sauvegarde.js';
 import { initArbres } from './arbres.js';
@@ -8,7 +8,6 @@ import { initTresors, initTresorsUI } from './tresors.js';
 import { initMessages } from './messages.js';
 import { initDefis } from './defis.js';
 import { initTutoriel } from './tutoriel.js';
-import { initDebug } from './debug.js';
 import { initPhysique } from './physique.js';
 import { initEvenements } from './evenements.js';
 
@@ -27,5 +26,10 @@ initOutils();
 initArbres();
 initTresorsUI();
 initEvenements();
-initDebug();
+// Panneau de debug : son module n'est charge qu'au premier clic sur le bouton.
+if (debugToggleBtn) {
+  debugToggleBtn.addEventListener('click', function () {
+    import('./debug.js').then(function (m) { m.toggleDebug(); });
+  });
+}
 initPhysique();

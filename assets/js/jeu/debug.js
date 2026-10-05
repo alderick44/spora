@@ -94,15 +94,12 @@ function buildDebugPanel() {
   debugPanel.appendChild(frag);
 }
 
-// Demarrage du module : appele une seule fois par principal.js, dans un ordre fixe.
-export function initDebug() {
-  if (debugToggleBtn) {
-    debugToggleBtn.addEventListener('click', function () {
-      buildDebugPanel();
-      var opening = debugPanel.classList.contains('d-none');
-      debugPanel.classList.toggle('d-none', !opening);
-      debugToggleBtn.classList.toggle('is-active', opening);
-      debugToggleBtn.setAttribute('aria-pressed', opening ? 'true' : 'false');
-    });
-  }
+// Ouvre ou ferme le panneau : appele a chaque clic sur son bouton. Ce module n'est charge
+// qu'au premier clic (voir principal.js).
+export function toggleDebug() {
+  buildDebugPanel();
+  var opening = debugPanel.classList.contains('d-none');
+  debugPanel.classList.toggle('d-none', !opening);
+  debugToggleBtn.classList.toggle('is-active', opening);
+  debugToggleBtn.setAttribute('aria-pressed', opening ? 'true' : 'false');
 }
