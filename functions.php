@@ -56,6 +56,16 @@ function spora_enqueue_styles() {
         [ 'spora-normalize'],
         wp_get_theme()->get( 'Version' )
     );
+
+    // CSS du jeu du logo : seulement sur l'accueil, apres style.css (meme ordre de cascade qu'avant).
+    if ( is_front_page() ) {
+        wp_enqueue_style(
+            'spora-jeu',
+            get_theme_file_uri( 'assets/css/jeu.css' ),
+            [ 'spora-style' ],
+            wp_get_theme()->get( 'Version' )
+        );
+    }
 }
 
 add_action( 'after_setup_theme', function() {
