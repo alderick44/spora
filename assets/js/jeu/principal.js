@@ -7,30 +7,30 @@ import {
   FACT_GAP_MS, CH_TREES_GOAL, CH_STRAINS_GOAL, CH_HARVEST_GOAL, CH_MAX_SHOWN, COL_W, CH_STRAIN_BIOMASS,
   CH_ZONE_REACH, CH_COLONY_PCT, CH_COLONY_HOLD_MS, CAPTION_BEFORE, HOLD_FOLLOW_EASE, GUIDE_KEY, TREE_EMBED,
   CAPTION_MYC_DROP, CAPTION_MYC_LEAVES, CAPTION_MYC_TREE_WAIT, CAPTION_MYC_TREE_NONE, CAPTION_MYC_REPOUR,
-  CAPTION_MYC_HARVEST, CAPTION_MYC_GROW, CAPTION_MYC_PLACE, CAPTION_MYC_HAND, BAG_GRAINS, BAG_COST,
-  TREE_COST_MAX_MULT, TREE_COST_STEP, MUSHROOM_PRICE, MYC, STRAIN_MIX, HYPHA_COLOR, CAMERA_EDGE_TOUCH,
-  CAMERA_EDGE, CAMERA_MAX, CAMERA_TOP_DEADZONE, CAMERA_MAX_Y, EATEN_MS, WIND_STRENGTH, GRAVITY, AIR,
-  BRANCH_LITTER_MS, LITTER_MS, SOIL_RISE_FRAMES, FRUIT_W, MUSHROOM_STARVE_MS, BLADE_WIDTH, BOWL_SPAN,
-  BOWL_T, PLANT_LEAN, SLOW_FOLLOW, POUR_ANGLE, DIG_BITE, DIG_SPEED, DIG_SPEED_DOWN, BEDROCK_MARGIN,
-  BLADE_FIELD, BLADE_PULL, BLADE_ATTRACT, DECOMPACT_BULK, EARTH, MIN_LEACH_TO_EAT, MYC_HOLD_MAX_MS,
-  SHOVEL_TIP, SHOVEL_BOTTOM, HAND_RING_R, CH_HARVEST_IDS, HAND_LEAF_MARGIN, HAND_LIMB_TOL, BRANCH_GROW_MS,
-  HAND_BREAK_DIST, HAND_PUSH_MIN_V, HAND_FIST_MIN_V, HAND_FIST_STEP, HAND_FIST_MAX_STRIKES, HAND_FIST_MAX_V,
-  HAND_FIST_R, HAND_FIST_KICK, HAND_FIST_SPREAD, HAND_FIST_LIFT, HAND_FIST_LOOSE, HAND_FIST_MAX_UP,
-  HAND_FIST_DEPTH, HAND_FIST_SIZE, HAND_FIST_SHARDS, HAND_PUSH_MAX_V, HAND_PUSH_R, HAND_PUSH_LEAF,
-  HAND_PUSH_MAX_LOOSE, HAND_PUSH_DEPTH, HAND_PUSH_P, HAND_PUSH_LOOSE, HAND_ZOOM_K, HAND_FLASH_MS, HAND_SKIN,
-  HAND_GRAB_MAX, HAND_PICK_R, CAPTION_BAG_EMPTY, GRAIN, DEMO_TREASURE_X, HINT_FIST_SVG, HINT_SHOVEL_SVG,
-  DIG_HINT_MSG, COMPASS_BOTTOM_PAD, COMPASS_RISE_FRAC, COMPASS_HIDE, COMPASS_ARROW, COMPASS_ICON,
-  COMPASS_MSG, COMPASS_TIP_W, DEMO_END_DELAY, DEMO_KEY, TREASURE_NEAR, DIG_TO_REVEAL, SPECIES, TIP_SWIPE_PX,
+  CAPTION_MYC_HARVEST, CAPTION_MYC_GROW, CAPTION_MYC_PLACE, CAPTION_MYC_HAND, MUSHROOM_PRICE, MYC,
+  STRAIN_MIX, HYPHA_COLOR, CAMERA_EDGE_TOUCH, CAMERA_EDGE, CAMERA_MAX, CAMERA_TOP_DEADZONE, CAMERA_MAX_Y,
+  EATEN_MS, WIND_STRENGTH, GRAVITY, AIR, BRANCH_LITTER_MS, LITTER_MS, SOIL_RISE_FRAMES, FRUIT_W,
+  MUSHROOM_STARVE_MS, BLADE_WIDTH, BOWL_SPAN, BOWL_T, PLANT_LEAN, SLOW_FOLLOW, POUR_ANGLE, DIG_BITE,
+  DIG_SPEED, DIG_SPEED_DOWN, BEDROCK_MARGIN, BLADE_FIELD, BLADE_PULL, BLADE_ATTRACT, DECOMPACT_BULK, EARTH,
+  MIN_LEACH_TO_EAT, MYC_HOLD_MAX_MS, SHOVEL_TIP, SHOVEL_BOTTOM, HAND_RING_R, CH_HARVEST_IDS,
+  HAND_LEAF_MARGIN, HAND_LIMB_TOL, BRANCH_GROW_MS, HAND_BREAK_DIST, HAND_PUSH_MIN_V, HAND_FIST_MIN_V,
+  HAND_FIST_STEP, HAND_FIST_MAX_STRIKES, HAND_FIST_MAX_V, HAND_FIST_R, HAND_FIST_KICK, HAND_FIST_SPREAD,
+  HAND_FIST_LIFT, HAND_FIST_LOOSE, HAND_FIST_MAX_UP, HAND_FIST_DEPTH, HAND_FIST_SIZE, HAND_FIST_SHARDS,
+  HAND_PUSH_MAX_V, HAND_PUSH_R, HAND_PUSH_LEAF, HAND_PUSH_MAX_LOOSE, HAND_PUSH_DEPTH, HAND_PUSH_P,
+  HAND_PUSH_LOOSE, HAND_ZOOM_K, HAND_FLASH_MS, HAND_SKIN, HAND_GRAB_MAX, HAND_PICK_R, BAG_GRAINS,
+  CAPTION_BAG_EMPTY, GRAIN, DEMO_TREASURE_X, HINT_FIST_SVG, HINT_SHOVEL_SVG, DIG_HINT_MSG,
+  COMPASS_BOTTOM_PAD, COMPASS_RISE_FRAC, COMPASS_HIDE, COMPASS_ARROW, COMPASS_ICON, COMPASS_MSG,
+  COMPASS_TIP_W, DEMO_END_DELAY, DEMO_KEY, TREASURE_NEAR, DIG_TO_REVEAL, SPECIES, TIP_SWIPE_PX,
   TIP_REVEAL_HOLD_MS, NUGGET_R, NUGGET_COLORS, GOLD_BITS_N, GOLD_BITS_LIFE, TIP_AWAY_MS, NO_HOVER,
   TIP_IDLE_MS, DIG_TREASURE_MSG, DIG_TIP_MS, HOLD_LIFT, HOLD_MS, HOLD_HINT_MS, CAPTION_NEED_STRAIN,
   CAPTION_NEED_MONEY, CAPTION_MYC_CLOSER, CAPTION_MYC_NO_WOOD, HEADER_HOVER_LEAVE, DEPTH_MULT, SKY_EXTRA,
   DEBUG_FIELDS, getDebugVar, setDebugVar
 } from './config.js';
 import {
-  partie, monde, caption, vue, toolsBar, strainsBar, toolsArrow, container, moneyEl, moneyVal, canvas,
-  fallbackImg, rebuildBtn, fullscreenBtn, speedBtn, debugToggleBtn, treasureCountEl, scrollLeftBtn,
-  scrollRightBtn, scrollUpBtn, scrollDownBtn, temps, ctx, toolBtns, shelfEl, isMobile, shelfMq, updateZoom,
-  debugPanel, speedWrap, speedInput, speedVal, rainInput, droughtInput, stormInput, initEtat
+  partie, monde, caption, vue, toolsBar, strainsBar, toolsArrow, container, canvas, fallbackImg, rebuildBtn,
+  fullscreenBtn, speedBtn, debugToggleBtn, treasureCountEl, scrollLeftBtn, scrollRightBtn, scrollUpBtn,
+  scrollDownBtn, temps, ctx, toolBtns, shelfEl, isMobile, shelfMq, moneyEl, updateZoom, debugPanel,
+  speedWrap, speedInput, speedVal, rainInput, droughtInput, stormInput, initEtat
 } from './etat.js';
 import { draw, poly, resetTiles } from './rendu.js';
 import {
@@ -50,6 +50,7 @@ import {
   updateGrass, stepFlowers, stepInsects, dropHeldInsect, insectAt, catchInsect, dropFertilizer, seedGrass
 } from './flore.js';
 import { inoculate, stepMycelium, sprout } from './mycelium.js';
+import { updateMoneyUI, earn, ensureBag } from './economie.js';
 
 var captionTimer = null;
 var leachTipAt = -1e9;
@@ -564,36 +565,7 @@ export function guideCurrent() {
   for (var i = 0; i < GUIDE.length; i++) if (!GUIDE[i].done()) return GUIDE[i];
   return null;
 }
-export function updateMoneyUI() {
-  if (partie.moneyRevealed && moneyEl) moneyEl.classList.remove('d-none');
-  if (moneyVal) moneyVal.textContent = partie.money;
-}
-function earn(amount) {
-  // En demo l'argent est cache (mycelium gratuit, voir ensureBag) mais s'accumule en
-  // silence : le joueur le retrouve quand le jeu complet se debloque.
-  partie.money += amount;
-  if (!partie.DEMO && window.sporaSfx) sporaSfx.play('coin'); 
-  partie.moneyRevealed = true;
-  updateMoneyUI();
-  savePlayerIfChanged();
-}
-// Assure qu'un sac est pret a verser : offre le tout premier, sinon facture BAG_COST
-// si les fonds le permettent. Retourne false (et ne change rien) si on ne peut pas payer.
-function ensureBag() {
-  if (partie.bagGrainsLeft > 0) return true;
-  if (partie.DEMO || !partie.usedFreeBag) { partie.usedFreeBag = true; partie.bagGrainsLeft = BAG_GRAINS; return true; }
-  if (partie.money < BAG_COST) return false;
-  partie.money -= BAG_COST;
-  partie.bagGrainsLeft = BAG_GRAINS;
-  updateMoneyUI();
-  return true;
-}
 var lastRealNow = null;
-export function nextTreeCost() {
-  var planted = 0;
-  for (var i = 0; i < monde.trees.length; i++) if (monde.trees[i].planted) planted++;
-  return Math.min(planted, TREE_COST_MAX_MULT) * TREE_COST_STEP;
-}
 var slowTimer = null;
 var treasuresFound = 0;                 // tresors deterres depuis la derniere explosion (repart a 0 au rebuild)
 export var strainById = { standard: STRAIN_STD };

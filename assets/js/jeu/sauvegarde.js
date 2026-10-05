@@ -8,9 +8,10 @@ import { resetTiles } from './rendu.js';
 import { surfaceAt, isRocky, isSubmerged, rebuildLakesFromRocky, pileRemove } from './terrain.js';
 import { makeTree, unlockedSlots, addLeaf } from './arbres.js';
 import { infect } from './mycelium.js';
+import { updateMoneyUI } from './economie.js';
 import {
-  FACTS, CHALLENGES, updateChallengeUI, strainOrder, updateMoneyUI, guideReset, resetPatches,
-  refreshStrainBar, rebuild, strainById
+  FACTS, CHALLENGES, updateChallengeUI, strainOrder, guideReset, resetPatches, refreshStrainBar, rebuild,
+  strainById
 } from './principal.js';
 
 var playerSig = null;

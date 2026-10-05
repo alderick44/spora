@@ -18,9 +18,9 @@ import { nearestTreeX, savePlayerIfChanged, saveWorld } from './sauvegarde.js';
 import { weather } from './meteo.js';
 import { isNutriRipe, spawnFlower, spawnNutrientShard, toEarthColor } from './flore.js';
 import { sprout } from './mycelium.js';
+import { nextTreeCost, updateMoneyUI } from './economie.js';
 import {
-  guideFlags, guideCurrent, startLoop, nextTreeCost, setCaption, updateMoneyUI, leafAgeOf, guideSet, hand,
-  handTension
+  guideFlags, guideCurrent, startLoop, setCaption, leafAgeOf, guideSet, hand, handTension
 } from './principal.js';
 
 var lastRainAt = -1e9;
