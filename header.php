@@ -24,6 +24,7 @@
                 class="w-100 logo"
                 src="<?php echo esc_url( get_theme_file_uri('assets/icons/logo-spora.svg') ); ?>"
                 alt="logo sporacultus"
+                fetchpriority="high"
               />
             </a>
           </div>
@@ -33,6 +34,7 @@
                 class="w-100 logo"
                 src="<?php echo esc_url( get_theme_file_uri('assets/icons/logo-spora.svg') ); ?>"
                 alt="logo sporacultus"
+                fetchpriority="high"
               />
             </a>
           </div>
