@@ -20,7 +20,7 @@ import {
 } from './cartes.js';
 import { setCaption } from './messages.js';
 import { updateChallengeUI } from './defis.js';
-import { guideFlags, guideCurrent, guideSet } from './tutoriel.js';
+import { guideFlags, guideCurrent, guideSet, startGuideArrow } from './tutoriel.js';
 import { startLoop } from './physique.js';
 import { siteHeader, getRelativePos } from './evenements.js';
 
@@ -457,7 +457,7 @@ export function reveal(t) {
   }
   t.strainId = strainOrder[nDug - 1] ? strainOrder[nDug - 1].id : null;
   if (!fresh) st = null;
-  if (fresh && toolsArrow && guideCurrent()) toolsArrow.classList.remove('d-none');
+  if (fresh && toolsArrow && guideCurrent()) { toolsArrow.classList.remove('d-none'); startGuideArrow(); }
   if (fresh && st.id === 'pleurote') partie.pleuroteDug = true;
   t.tip = buildTip(shown);
   container.appendChild(t.tip);

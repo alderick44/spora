@@ -27,6 +27,7 @@ import {
 } from './tresors.js';
 import { flushDeathAlert, msgTick, resetPatches, hideMsgs, setCaption } from './messages.js';
 import { compactHeaderForGame, camMinY, camHomeY, releaseHeader, hideDebugPanel } from './evenements.js';
+import { startGuideArrow } from './tutoriel.js';
 
 var chBadgeEl = document.getElementById('logo-explosion-challenges');
 var lastRealNow = null;
@@ -75,7 +76,7 @@ export function explode(px, py) {
   monde.trees = savedTrees && savedTrees.length ? savedTrees : [makeTree(vue.camMargin + vue.W * 0.14), makeStartTree(vue.camMargin + vue.W * 0.93, 10), makeTree(vue.camMargin + vue.W * 1.35)];
   if (savedTrees && savedTrees.length) partie.worldSig = partie.worldSigPrev = terrainSig();
   monde.litter = [];
-  if (toolsArrow && partie.unlockedStrains.length) toolsArrow.classList.remove('d-none');
+  if (toolsArrow && partie.unlockedStrains.length) { toolsArrow.classList.remove('d-none'); startGuideArrow(); }
   startLoop();
 }
 
@@ -460,9 +461,11 @@ function pauseLoop() {
 function resumeLoop() {
   if (!paused) return;
   paused = false;
+  startGuideArrow();
   lastRealNow = null; // sinon le premier delta reel (temps passe en pause) ferait sauter vTime
   if (wasRunningBeforeHide) startLoop();
 }
+export function loopPaused() { return paused; }
 function updateVisibility() {
   if (inViewport && !document.hidden) resumeLoop(); else pauseLoop();
 }

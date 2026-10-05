@@ -8,6 +8,7 @@ import { partie, toolsBar, vue, monde, strainsBar, toolsArrow, caption, containe
 import { surfaceAt } from './terrain.js';
 import { matureTrees, treeScale, underMatureTree } from './arbres.js';
 import { setCaption } from './messages.js';
+import { loopPaused } from './physique.js';
 
 // --- Tutoriel guide : fleche d'invite pilotee par une table d'etapes --------------------------
 // L'etape courante est la premiere de GUIDE dont done() est faux ; la fleche, le halo et les
@@ -121,6 +122,15 @@ export function guideCurrent() {
   return null;
 }
 
+// Relance la boucle de la fleche : a appeler quand la fleche est montree (d-none retire) ou
+// quand le jeu revient a l'ecran. Sans effet si elle tourne deja.
+var arrowStep = null, arrowOn = false;
+export function startGuideArrow() {
+  if (!arrowStep || arrowOn) return;
+  arrowOn = true;
+  requestAnimationFrame(arrowStep);
+}
+
 // Demarrage du module : appele une seule fois par principal.js, dans un ordre fixe.
 export function initTutoriel() {
   try {
@@ -133,9 +143,12 @@ export function initTutoriel() {
     });
     var arrowCx = 0, arrowCy = 0, arrowInit = false, ARROW_MAGNET_MAX = 70, mouseCX = null, mouseCY = null;
     document.addEventListener('mousemove', function (evt) { mouseCX = evt.clientX; mouseCY = evt.clientY; });
-    (function stepGuideArrow() {
+    // La boucle ne tourne que si la fleche est affichee et le jeu a l'ecran : sinon elle
+    // s'arrete, et startGuideArrow() la relance.
+    arrowStep = function stepGuideArrow() {
+      if (toolsArrow.classList.contains('d-none')) { arrowInit = false; arrowOn = false; return; }
+      if (loopPaused()) { arrowOn = false; return; }
       requestAnimationFrame(stepGuideArrow);
-      if (toolsArrow.classList.contains('d-none')) { arrowInit = false; return; }
       // Du mycelium vivant pres d'un arbre mature compte comme verse, meme si le clic etait un peu loin.
       if (!guideFlags.poured) for (var pc = 0; pc < monde.colonised.length; pc++) if (monde.colonised[pc].myc > 0 && underMatureTree(monde.colonised[pc].x)) { guideSet('poured'); break; }
       if (guideFlags.poured && partie.tool === 'hand') guideSet('hand');
@@ -178,6 +191,7 @@ export function initTutoriel() {
       toolsArrow.style.setProperty('--rot', rot.toFixed(1) + 'deg');
       toolsArrow.style.setProperty('--mx', arrowCx.toFixed(2) + 'px');
       toolsArrow.style.setProperty('--my', arrowCy.toFixed(2) + 'px');
-    })();
+    };
+    startGuideArrow();
   }
 }
