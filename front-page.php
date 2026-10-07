@@ -227,7 +227,7 @@ $spora_tip_shelf = true;
               <strong>4,8 sur 5</strong>
               <span>· plus de 75 avis sur Etsy</span>
             </p>
-            <div id="avis-etsy-carrousel" class="carousel slide avis-carrousel mt-5" data-bs-ride="false" role="region" aria-roledescription="carrousel" aria-label="Avis de clients">
+            <div id="avis-etsy-carrousel" class="carousel slide avis-carrousel mt-2" data-bs-ride="false" role="region" aria-roledescription="carrousel" aria-label="Avis de clients">
               <div class="carousel-inner">
                 <?php foreach ($avis_etsy as $i => $avis) : [$texte, $prenom, $date, $produit] = $avis; ?>
                 <figure class="carousel-item avis-carte px-5 mb-0<?php echo $i === 0 ? ' active' : ''; ?>">
