@@ -136,6 +136,11 @@ do_action( 'woocommerce_before_mini_cart' );
     </div>
   <?php else : ?>
     <p class="mini-cart-empty text-muted text-center my-3">Votre panier est vide.</p>
+    <div class="d-grid">
+      <a class="btn btn-primary" href="<?php echo esc_url( home_url( '/shop/' ) ); ?>">
+        Voir la boutique
+      </a>
+    </div>
   <?php endif; ?>
 </div>
 
