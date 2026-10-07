@@ -59,7 +59,7 @@ get_header(); ?>
 
       <h3 class="h5">Service personnalisé</h3>
       <p>Nous offrons un service adapté à vos besoins qui ira au-delà de vos attentes.</p>
-      <a class="btn btn-primary" href="/shop/">Boutique</a>
+      <a class="btn btn-primary" href="/nous-joindre/">Nous joindre</a>
     </div>
   </div>
 </main>

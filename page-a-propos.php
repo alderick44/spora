@@ -7,11 +7,11 @@ get_header(); ?>
   <div class="container">
     <h1><?php the_title(); ?></h1>
 
-    <p>Le projet a pris racine quand je jardinais et que j'ai essayé de cultiver le pleurote en huître. J'ai été fasciné par la vitesse de son développement sur différents substrats. De fil en aiguille, j'ai développé une passion pour les processus de culture de champignons, le strophaire, le pleurote en huître, le pleurote rose, l'hydne hérisson...</p>
+    <p>J'ai toujours aimé cultiver des choses vivantes, mais j'ai découvert un intérêt particulier pour la culture de champignons. La vitesse de croissance de certaines espèces, comme le pleurote en huître, m'a tout de suite impressionné. Ce champignon permet aux curieux d'essayer plein de méthodes de culture sur différents substrats. C'est la possibilité d'expérimenter rapidement plusieurs choses que j'ai beaucoup aimée. De fil en aiguille, j'ai développé une passion pour les processus de culture de champignons, le strophaire, le pleurote en huître, le pleurote rose, l'hydne hérisson...</p>
 
     <p>Je crois que la culture de champignons en extérieur peut être extrêmement écologique, simple et accessible à tous.</p>
 
-    <p>J'aime la liberté de travailler en petite équipe efficace. Le projet, c'est aussi mon père qui aide à la production, ma sœur qui est microbiologiste et qui participe pour ce qui est laboratoire, conseils, achat d'équipement, et même un ami qui embarque dans certains processus.</p>
+    <p>La mycorémédiation, c'est-à-dire l'utilisation des champignons pour aider à nettoyer et régénérer les sols, a aussi joué un rôle dans mon projet. Un contrat réalisé avec le CEME m'a encore plus encouragé à expérimenter avec le mycélium.</p>
 
     <h2 class="mt-5">Nos valeurs</h2>
     <p>Offrir des produits fiables et adaptés à différents niveaux d'expérience. Proposer un accompagnement personnalisé à chaque client. Encourager des pratiques respectueuses de l'environnement et des ressources. Transmettre notre intérêt profond pour la nature et l'autonomie alimentaire.</p>
