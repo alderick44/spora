@@ -153,9 +153,38 @@
       return;
     }
 
-    if (e.target.closest('.single_add_to_cart_button')) {
-      setTimeout(openMiniCart, 0);
-    }
+  });
+
+  // Fiche produit : ajout AJAX (le formulaire WooCommerce recharge la page sinon).
+  document.addEventListener('submit', function (e) {
+    const form = e.target;
+    if (!form.matches || !form.matches('form.cart')) return;
+    const btn = form.querySelector('button.single_add_to_cart_button[name="add-to-cart"]');
+    if (!btn || form.querySelector('[name="variation_id"]')) return;
+
+    e.preventDefault();
+    const data = new FormData();
+    data.append('product_id', btn.value);
+    const qty = form.querySelector('input[name="quantity"]');
+    data.append('quantity', qty ? qty.value : '1');
+
+    const url = window.wc_add_to_cart_params && window.wc_add_to_cart_params.wc_ajax_url
+      ? window.wc_add_to_cart_params.wc_ajax_url.replace('%%endpoint%%', 'add_to_cart')
+      : '/?wc-ajax=add_to_cart';
+
+    btn.disabled = true;
+    fetch(url, { method: 'POST', body: data, credentials: 'same-origin' })
+      .then((r) => r.json())
+      .then((res) => {
+        if (!res || res.error) {
+          form.submit();
+          return;
+        }
+        if (window.jQuery) jQuery(document.body).trigger('wc_fragment_refresh');
+        setTimeout(openMiniCart, 60);
+        btn.disabled = false;
+      })
+      .catch(() => form.submit());
   });
 })();
 
