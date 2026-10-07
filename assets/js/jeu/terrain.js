@@ -1,9 +1,11 @@
 // Terrain : construction du monde a partir du logo, sol, roches, lacs et tas de terre.
 import { shade, hexToRgb } from './utils.js';
 import {
-  CAPTION_BEFORE, WORLD_MULT, DEPTH_MULT, COL_W, EARTH, CELLS_ACROSS, ROCK_COVER_MIN, LAKE_EVAP_PER_S,
+  CAPTION_BEFORE, WORLD_MULT, DEPTH_MULT, COL_W, EARTH, CELLS_ACROSS, CELLS_ACROSS_MOBILE, ROCK_COVER_MIN,
+  LAKE_EVAP_PER_S, SOIL_CELL_MOBILE,
   ROCK_PATCH_MIN, ROCK_PATCH_MAX, ROCK_BASIN_FRAC, ROCK_PATCH_COLS_MIN, ROCK_PATCH_COLS_MAX, ROCK_H_MIN,
-  ROCK_H_MAX, ROCK_BASIN_DEPTH, LOGO_BULK, LOG_BULK, LITTER_BULK, KERNEL, REPOSE
+  ROCK_H_MAX, ROCK_BASIN_DEPTH, LOGO_BULK, LOG_BULK, LITTER_BULK, KERNEL, REPOSE,
+  START_TREE_X, START_TREE_CLEAR
 } from './config.js';
 import {
   partie, caption, logoUrl, canvas, vue, dpr, monde, updateZoom, container, fallbackImg, ctx
@@ -63,7 +65,7 @@ function setupSoil(rect) {
   // Maillage low-poly (sommets partages et decales) sur toute la largeur du MONDE,
   // puis on ne garde que les triangles sous la crete : leurs pointes forment une
   // crete dentelee. Coordonnees x en px monde (0..worldW), pas de decalage camera ici.
-  var cell = Math.max(6, vue.UW / 160);
+  var cell = Math.max(vue.ZOOM === 1 ? 6 : SOIL_CELL_MOBILE, vue.UW / 160);
   var rows = Math.ceil((base * 1.4 + bump + 6) / cell), cols = Math.ceil(vue.worldW / cell);
   var top = vue.U - rows * cell;
   var verts = [];
@@ -144,7 +146,7 @@ export function build() {
   // que celui de la page.
   var fr = fallbackImg.getBoundingClientRect();
   var lx = (fr.left - rect.left) / vue.ZOOM + vue.camMargin, oy = (fr.top - rect.top) / vue.ZOOM + vue.camY, lw = fr.width / vue.ZOOM, lh = fr.height / vue.ZOOM;
-  var CELL = Math.max(5, lw / CELLS_ACROSS);
+  var CELL = Math.max(5, lw / (vue.ZOOM === 1 ? CELLS_ACROSS : CELLS_ACROSS_MOBILE));
   var cols = Math.ceil(lw / CELL), rows = Math.ceil(lh / CELL);
 
   var off = document.createElement('canvas');
@@ -314,8 +316,13 @@ export function rebuildLakesFromRocky() {
 // Quelques plaques de roche-mere affleurante, disseminees au hasard sur la largeur du
 // monde : des taches ou la couche compacte elle-meme ne se creuse jamais (voir son usage
 // dans cutCompact), pas juste une histoire de surface.
+// Position fixe de l'arbre du tutoriel (voir START_TREE_X).
+export function startTreeX() { return vue.camMargin + vue.W * START_TREE_X; }
 function buildRockyPatches() {
   if (restoreWorld()) return;
+  // Clairiere de l'arbre du tutoriel : aucune plaque ne la touche (colonnes r0..r1).
+  var treeCol = Math.round(startTreeX() / COL_W), clear = Math.ceil(START_TREE_CLEAR / COL_W);
+  var r0 = treeCol - clear, r1 = treeCol + clear;
   monde.rocky = new Uint8Array(monde.heights.length);
   monde.lakes = []; monde.lakeOf = new Uint16Array(monde.heights.length);
   var n = ROCK_PATCH_MIN + ((Math.random() * (ROCK_PATCH_MAX - ROCK_PATCH_MIN + 1)) | 0);
@@ -324,7 +331,12 @@ function buildRockyPatches() {
   var nBasin = Math.max(1, Math.min(n - 1, Math.round(n * ROCK_BASIN_FRAC)));
   for (var p = 0; p < n; p++) {
     var w = ROCK_PATCH_COLS_MIN + ((Math.random() * (ROCK_PATCH_COLS_MAX - ROCK_PATCH_COLS_MIN + 1)) | 0);
-    var start = (Math.random() * Math.max(1, monde.rocky.length - w)) | 0;
+    // Depart tire parmi les positions qui laissent la clairiere intacte : a gauche
+    // (0..nL-1) ou a droite (r1+1..) ; plaque sautee si elle ne tient nulle part.
+    var nL = Math.max(0, r0 - w + 1), nR = Math.max(0, monde.rocky.length - w - r1);
+    if (nL + nR === 0) continue;
+    var start = (Math.random() * (nL + nR)) | 0;
+    if (start >= nL) start += r1 + 1 - nL;
     // Bosse (comme le mound du profil general) : un vrai bloc qui depasse du sol, pas
     // une simple tache plate — pointe au milieu de la plaque, s'efface sur les bords.
     var peak = vue.U * (ROCK_H_MIN + Math.random() * (ROCK_H_MAX - ROCK_H_MIN));

@@ -1,11 +1,11 @@
 // Tresors : objets enfouis, boussole, souches de mycelium et fin de la demo.
 import { hexToRgb, mixRgb, rgbStr, clamp } from './utils.js';
 import {
-  STRAIN_STD, MUSHROOM_PRICE, MYC, STRAIN_MIX, HYPHA_COLOR, COL_W, DEMO_TREASURE_X, HINT_FIST_SVG,
+  STRAIN_STD, grayOf, MUSHROOM_PRICE, MYC, STRAIN_MIX, HYPHA_COLOR, COL_W, DEMO_TREASURE_X, HINT_FIST_SVG,
   HINT_SHOVEL_SVG, BEDROCK_MARGIN, DIG_HINT_MSG, COMPASS_BOTTOM_PAD, COMPASS_RISE_FRAC, COMPASS_HIDE,
   COMPASS_ARROW, COMPASS_ICON, COMPASS_MSG, COMPASS_TIP_W, DEMO_END_DELAY, DEMO_KEY, TREASURE_NEAR,
   DIG_TO_REVEAL, SPECIES, TIP_SWIPE_PX, TIP_REVEAL_HOLD_MS, NUGGET_R, NUGGET_COLORS, GOLD_BITS_N,
-  GOLD_BITS_LIFE, GRAVITY, AIR
+  GOLD_BITS_LIFE, GRAVITY, AIR, CAPTION_LOUPE_NEW
 } from './config.js';
 import {
   partie, canvas, monde, vue, container, treasureCountEl, shelfEl, strainsBar, isMobile, toolsArrow, ctx
@@ -14,7 +14,7 @@ import { poly } from './rendu.js';
 import { surfaceAt, pileRemove } from './terrain.js';
 import { foundList, savePlayerIfChanged } from './sauvegarde.js';
 import { updateMoneyUI } from './economie.js';
-import { shovel, shovelPlant, setTool } from './outils.js';
+import { shovel, shovelPlant } from './outils.js';
 import {
   tipImgs, positionTreasureOverlays, hideDigTip, buildTip, tipIdle, tapTip, openTip, tipAway
 } from './cartes.js';
@@ -22,6 +22,8 @@ import { setCaption } from './messages.js';
 import { updateChallengeUI } from './defis.js';
 import { guideFlags, guideCurrent, guideSet, startGuideArrow } from './tutoriel.js';
 import { startLoop } from './physique.js';
+import { makeFarTree } from './arbres.js';
+import { setLoupeNew } from './loupe.js';
 import { siteHeader, getRelativePos } from './evenements.js';
 
 var treasuresFound = 0;                 // tresors deterres depuis la derniere explosion (repart a 0 au rebuild)
@@ -89,14 +91,28 @@ function buriedDefs() {
 // Photos des infobulles : prechargees au lancement du jeu (l'infobulle s'affiche sans trou), pas
 // au chargement de la page, ou elles pesaient ~1 Mo pour un visiteur qui ne joue pas. Demo : la
 // seule souche enterree (voir buriedDefs).
+// L'Image est gardee (pas seulement telechargee) et decodee d'avance : sinon la carte s'ouvre
+// d'abord sans sa photo, le temps du decodage.
 var tipImgsLoaded = {};
+function preloadTipImg(im, urgent) {
+  if (tipImgsLoaded[im.src]) return null;
+  var pre = new Image();
+  tipImgsLoaded[im.src] = pre;
+  if (urgent) pre.fetchPriority = 'high';
+  pre.src = im.src;
+  if (pre.decode) pre.decode().catch(function () {});
+  return pre;
+}
+// La 1re photo de chaque carte passe devant ; les suivantes (fleches) attendent qu'elle soit la.
 function preloadTipImgs() {
   (partie.DEMO ? partie.treasureDefs.slice(0, 1) : partie.treasureDefs).forEach(function (def) {
-    tipImgs(def).forEach(function (im) {
-      if (tipImgsLoaded[im.src]) return;
-      tipImgsLoaded[im.src] = true;
-      new Image().src = im.src;
-    });
+    var imgs = tipImgs(def);
+    if (!imgs.length) return;
+    var rest = function () { imgs.slice(1).forEach(function (im) { preloadTipImg(im); }); };
+    var first = preloadTipImg(imgs[0], true);
+    if (!first) { rest(); return; }
+    first.addEventListener('load', rest);
+    first.addEventListener('error', rest);
   });
 }
 export function setupTreasures() {
@@ -279,6 +295,8 @@ function endDemo() {
   updateChallengeUI();
   updateStrainBar();
   preloadTipImgs(); // les photos des autres tresors, laissees de cote pendant la demo
+  // L'arbre lointain, laisse de cote pendant la demo (voir explode).
+  if (!monde.trees.some(function (t) { return t.x > vue.camMargin + vue.W; })) monde.trees.push(makeFarTree());
   // Les tresors mis de cote pendant la demo (buriedDefs) sont enfouis maintenant.
   buriedDefs().forEach(function (def) {
     if (partie.treasures.some(function (t) { return t.def === def; })) return;
@@ -288,6 +306,9 @@ function endDemo() {
   });
   positionTreasureOverlays();
   updateTreasureUI();
+  // La loupe apparait dans la barre d'outils : signalee (bouton visible et qui pulse) jusqu'au premier essai.
+  setLoupeNew(true);
+  setCaption(CAPTION_LOUPE_NEW);
   startLoop();
 }
 
@@ -312,15 +333,6 @@ function buildStrainBar() {
     b.addEventListener('click', function () { guideSet('strain'); setStrain(st.id); });
     strainsBar.appendChild(b);
   });
-  var grassBtn = document.createElement('button');
-  grassBtn.type = 'button';
-  grassBtn.className = 'logo-explosion-grass';
-  grassBtn.id = 'logo-explosion-grass-btn';
-  grassBtn.setAttribute('aria-label', 'Semer du gazon');
-  grassBtn.setAttribute('title', 'Semer du gazon');
-  grassBtn.textContent = '🌱';
-  grassBtn.addEventListener('click', function () { setTool('grass'); });
-  strainsBar.appendChild(grassBtn);
   refreshStrainBar();
 }
 
@@ -341,21 +353,11 @@ export function refreshStrainBar() {
     dot.style.background = open ? st.dot : '';
     dot.textContent = open ? '' : '?';
   }
-  var grassBtn = document.getElementById('logo-explosion-grass-btn');
-  if (grassBtn && monde.grassCover) {
-    var avg = monde.grassCover.reduce(function (a, b) { return a + b; }, 0) / monde.grassCover.length;
-    var pct = Math.round(avg * 100);
-    var on = partie.tool === 'grass';
-    grassBtn.setAttribute('aria-label', 'Semer du gazon : ' + pct + '%');
-    grassBtn.title = 'Semer du gazon : ' + pct + '%';
-    grassBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
-    grassBtn.classList.toggle('is-active', on || avg > 0.5);
-  }
 }
 
-// Visible seulement avec l'outil mycelium ou gazon (le bouton gazon vit dans cette barre) ET le monde explose.
+// Visible seulement avec l'outil mycelium ET le monde explose.
 export function updateStrainBar() {
-  if (strainsBar) strainsBar.classList.toggle('d-none', !(partie.mode === 'exploded' && (partie.tool === 'mycelium' || partie.tool === 'grass')));
+  if (strainsBar) strainsBar.classList.toggle('d-none', !(partie.mode === 'exploded' && partie.tool === 'mycelium'));
 }
 
 function setStrain(id) {
@@ -381,6 +383,9 @@ function unlockStrain(id) {
 export function clearMycTip() {
   if (monde.mycTip) { monde.mycTip.remove(); monde.mycTip = null; }
   monde.mycTipMushroom = null;
+  // La carte de la loupe suit le meme sort (le cache de loupe.js garde l'element, ses photos restent chargees).
+  if (monde.loupeTip) { monde.loupeTip.classList.remove('is-open'); monde.loupeTip.remove(); monde.loupeTip = null; }
+  monde.loupeAt = null;
 }
 
 // Hauteur (y monde) du tresor non deterre : fixe s'il est enfoui profond, sinon a la surface.
@@ -623,13 +628,13 @@ export function initTresors() {
     if (!st || !st.id || strainById[st.id] || !/^#[0-9a-f]{6}$/i.test(st.tint || '')) return;
     var tint = hexToRgb(st.tint);
     var made = {
-      id: st.id, label: st.label || st.id, tint: st.tint, tintRgb: tint, dot: st.tint,
+      id: st.id, label: st.label || st.id, tint: st.tint, tintRgb: tint, grayRgb: grayOf(tint), dot: st.tint,
       perk: st.perk || '',                                             // texte du trait, affiche dans l'infobulle et le menu
       price: +st.price > 0 ? +st.price : MUSHROOM_PRICE,               // gain par champignon recolte
       growMul: +st.grow > 0 ? +st.grow : 1,                            // x MYC_GROW
       decayMul: +st.decay >= 0 && st.decay != null ? +st.decay : 1,    // x vitesse d'extinction (faim, secheresse)
-      mycRgb: mixRgb(MYC, tint, STRAIN_MIX),                          // blanc du mycelium tire vers la teinte (facettes)
-      hypha: rgbStr(mixRgb(hexToRgb(HYPHA_COLOR), tint, STRAIN_MIX).map(Math.round)) // idem pour les filaments
+      mycRgb: mixRgb(MYC, grayOf(tint), STRAIN_MIX),                          // blanc du mycelium tire vers la teinte (facettes)
+      hypha: rgbStr(mixRgb(hexToRgb(HYPHA_COLOR), grayOf(tint), STRAIN_MIX).map(Math.round)) // idem pour les filaments
     };
     strainById[made.id] = made;
     strainOrder.push(made);

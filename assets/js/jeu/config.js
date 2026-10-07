@@ -11,25 +11,26 @@ export var ZOOM_MAX_W = 768;                   // en dessous de cette largeur (C
 // Legende sous la boite : indique quoi faire puis ce qui se passe, mise a jour aux
 // moments cles (image prete, explosion, premier champignon issu du mycelium, rebuild).
 export var CAPTION_BEFORE = ''; // au doigt, c'est l'anneau du badge "play" qui invite (voir HOLD_MS dans amorce.js)
-var CAPTION_EXPLODED = 'Récoltez à la main, creusez à la pelle ou martelez du poing (maintenez le clic) pour trouver les trésors, ou versez du mycélium.';
-export var CAPTION_MYC = 'Le mycélium décompose le bois mort et rend ses nutriments au sol.';
-export var CAPTION_NEED_MONEY = 'Il faut 20 $ pour un sac de mycélium — récoltez des champignons à la main.';
-export var CAPTION_NEED_STRAIN = 'Pas encore de mycélium : creusez à la pelle ou martelez du poing pour trouver le premier trésor.';
-export var CAPTION_NEED_MONEY_FERT = 'Il faut 3 $ pour du fertilisant — récoltez des champignons à la main.';
-export var CAPTION_NEED_MONEY_GRASS = 'Il faut 2 $ pour des graines — récoltez des champignons à la main.';
-export var CAPTION_MYC_PLACE = 'Versez le mycélium au pied d’un arbre mature : il décompose son bois mort.';
-export var CAPTION_MYC_HAND = 'Il lui faut du bois : prenez la main (✋) dans la barre d’outils.';
+var CAPTION_EXPLODED = 'Creusez pour trouver les trésors.';
+export var CAPTION_MYC = 'Le mycélium décompose le bois mort.';
+export var CAPTION_NEED_MONEY = 'Il faut 20 $ : récoltez des champignons.';
+export var CAPTION_NEED_STRAIN = 'Creusez pour trouver du mycélium.';
+export var CAPTION_NEED_MONEY_FERT = 'Il faut 3 $ : récoltez des champignons.';
+export var CAPTION_NEED_MONEY_GRASS = 'Il faut 2 $ : récoltez des champignons.';
+export var CAPTION_MYC_PLACE = 'Versez le mycélium au pied d’un arbre.';
+export var CAPTION_MYC_HAND = 'Il lui faut du bois : prenez la main (✋).';
 export var CAPTION_MYC_DROP = 'Déposez-le sur le mycélium.';
-export var CAPTION_MYC_LEAVES = 'Arrachez des feuilles ou des branches de l’arbre et déposez-les sur le mycélium.';
-export var CAPTION_MYC_HARVEST = 'Cueillez un champignon : cliquez dessus avec la main (✋).';
-export var CAPTION_MYC_GROW = 'Patientez : les champignons vont bientôt pousser sur le mycélium.';
-export var CAPTION_MYC_TREE_WAIT = 'Attendez que l’arbre grandisse avant d’y verser le mycélium.';
-export var CAPTION_MYC_TREE_NONE = 'Il faut un arbre pour nourrir le mycélium : plantez-en un.';
-export var CAPTION_MYC_REPOUR = 'Le mycélium a disparu : reversez-en près d’un arbre.';
-export var CAPTION_MYC_CLOSER = 'Plus près : versez le mycélium juste au pied de l’arbre, là où tombent les feuilles.';
-export var CAPTION_MYC_FED = 'Bravo ! Le mycélium décompose le bois mort et rend ses nutriments au sol.';
-export var CAPTION_MYC_NO_WOOD = 'Pas de bois à portée : le mycélium va s’éteindre. Visez le pied d’un arbre.';
-export var CAPTION_BAG_EMPTY = 'Sac vide : encore 20 $ pour un nouveau sac.';
+export var CAPTION_MYC_LEAVES = 'Arrachez des feuilles, déposez-les sur le mycélium.';
+export var CAPTION_MYC_HARVEST = 'Cueillez un champignon avec la main (✋).';
+export var CAPTION_MYC_GROW = 'Patientez, les champignons arrivent.';
+export var CAPTION_MYC_TREE_WAIT = 'Attendez que l’arbre grandisse.';
+export var CAPTION_MYC_TREE_NONE = 'Plantez un arbre pour nourrir le mycélium.';
+export var CAPTION_MYC_REPOUR = 'Mycélium disparu : reversez-en près d’un arbre.';
+export var CAPTION_MYC_CLOSER = 'Plus près du pied de l’arbre.';
+export var CAPTION_MYC_FED = 'Bravo ! Le mycélium décompose le bois mort.';
+export var CAPTION_MYC_NO_WOOD = 'Pas de bois ici : visez le pied d’un arbre.';
+export var CAPTION_BAG_EMPTY = 'Sac vide : 20 $ pour un nouveau.';
+export var CAPTION_LOUPE_NEW = 'Nouvel outil : la loupe. Examinez le mycélium et les champignons.';
 // Message affiche dans la scene puis efface au bout de quelques secondes (sauf l'invite
 // d'avant l'explosion, qui reste tant que le visiteur n'a pas touche le logo).
 // Trois canaux de messages, distincts a l'ecran (zones CSS differentes) :
@@ -43,9 +44,9 @@ export var CAPTION_BAG_EMPTY = 'Sac vide : encore 20 $ pour un nouveau sac.';
 // Pour les canaux 2 et 3 : jamais hors mode exploded, ni pendant/juste apres (10 s) une
 // infobulle de tresor, ni par-dessus une legende visible. Si les conditions ne sont pas
 // reunies, le drapeau n'est pas pose : le meme evenement le redeclenchera plus tard.
-export var CAPTION_LEACH = 'La pluie entraîne l\'humus vers le bas : un sol sans vie retient mal ses nutriments.';
+export var CAPTION_LEACH = 'La pluie entraîne les nutriments vers le bas : un sol sans vie les retient moins bien.';
 export var CAPTION_GRASS_LOST = 'Vous avez arraché beaucoup de gazon : replantez-en avec l\'outil de gazon.';
-export var CAPTION_HELD = 'Le mycélium aide à retenir l\'humus contre la pluie.';
+export var CAPTION_HELD = 'Le mycélium retient un temps une partie des nutriments dans ses filaments.';
 export var LEACH_TIP_QUIET_MS = 10000, LEACH_TIP_GAP_MS = 15000;
 export var EXPLAIN_MS = 20000, FACT_MS = 12000, FACT_FIRST_MS = 30000, FACT_GAP_MS = 60000, FACT_AFTER_EXPLAIN_MS = 8000;
 // Alerte de mort du mycelium (chaque fois, avec bouton "Voir"). Les morts groupees sont
@@ -81,6 +82,8 @@ export var GUIDE_KEY = 'spora-guide-v1';
 // Style low-poly : uniquement des triangles a couleur pleine (pas de degrade,
 // pas de flou). La variation de ton d'une facette a l'autre suffit a donner du relief.
 export var CELLS_ACROSS = 110;                 // nb de facettes sur la largeur du logo
+export var CELLS_ACROSS_MOBILE = 75;           // idem sur mobile (monde dezoome) : facettes de ~3 px sinon, trop nombreuses pour rien
+export var SOIL_CELL_MOBILE = 9;               // maille min du lit de terre sur mobile (px logiques ; 6 ailleurs) : ~5 px a l ecran au lieu de ~3
 export var GRAVITY = 0.32;
 export var AIR = 0.992;
 export var WIND_STRENGTH = 0.45;                // multiplicateur des rafales sur les feuilles qui tombent (voir "Vent" dans step())
@@ -377,7 +380,11 @@ export var SMALL_WIND_MULT = 0.3;              // vent sur les feuilles d'un arb
 export var TREE_COST_STEP = 100;              // 1er arbre plante gratuit, puis 1x, 2x, 3x ce palier ; ensuite toujours 3x (pas de plafond de nombre)
 export var TREE_COST_MAX_MULT = 3;
 var START_TREES = 2;                    // arbres de depart (voir la creation du monde), non payes
-export var TREE_MIN_SPACING = 90;              // distance minimale (px monde) entre deux arbres plantes
+// Arbre du tutoriel : toujours au meme endroit (fraction de la largeur de la boite, a droite
+// du tas du logo mais bien dans l'ecran), dans une clairiere ou aucune plaque rocheuse ni lac
+// n'est jamais genere (demi-largeur en px monde, voir buildRockyPatches).
+export var START_TREE_X = 0.72, START_TREE_CLEAR = 120;
+export var TREE_MIN_SPACING = 90;             // distance minimale (px monde) entre deux arbres plantes
 export var TREE_STARVE_MS = 60000;             // sans avoir mange depuis ce delai (t.lastAte), l'arbre commence a deperir
 export var TREE_SHRINK_MS = 8000;              // rythme auquel un arbre affame perd un nutriment mange (t.eaten--)
 // La base de l'arbre (t.by) suit le niveau du sol SOUS elle avec un delai plutot que de
@@ -413,7 +420,7 @@ export var STRAIN_MIX = 0.5;                   // part de la couleur de la souch
 // depart identique a avant) et ne descend QUE vers le bas pour reveler de la profondeur,
 // ou la couche compacte se creuse vraiment (voir compactY / cutCompact plus bas).
 export var WORLD_MULT = 1.5;                   // largeur du monde = WORLD_MULT x largeur de la boite
-export var DEPTH_MULT = 1.5;                   // profondeur ajoutee sous la boite = DEPTH_MULT x hauteur de la boite
+export var DEPTH_MULT = 0.75;                  // profondeur ajoutee sous la boite = DEPTH_MULT x hauteur de la boite
 export var CAMERA_EDGE = 0.28;                 // fraction de la largeur/hauteur de la boite ou le defilement s'active, depuis chaque bord
 export var CAMERA_MAX = 3.2;                   // vitesse max de defilement horizontal (px monde / frame)
 export var CAMERA_MAX_Y = 2.4;                 // vitesse max de defilement vertical (px monde / frame)
@@ -434,8 +441,10 @@ export var CAMERA_EDGE_TOUCH = 0.16;           // meme zone, au doigt : plus etr
 // prix de recolte, multiplicateur de MYC_GROW, multiplicateur des extinctions (faim, secheresse).
 // Le prix du strophaire suit MUSHROOM_PRICE (reglage du panneau de debug).
 var STRAIN_STD_TINT = hexToRgb('#b8735a');
-export var STRAIN_STD = { id: 'standard', label: 'Strophaire', perk: 'lente mais très résistante', tint: '#b8735a', tintRgb: STRAIN_STD_TINT, dot: '#b8735a',
-  mycRgb: mixRgb(MYC, STRAIN_STD_TINT, STRAIN_MIX), hypha: rgbStr(mixRgb(hexToRgb(HYPHA_COLOR), STRAIN_STD_TINT, STRAIN_MIX).map(Math.round)),
+// Mycelium et grains verses restent des teintes de gris proches du blanc : seule la pastille du menu garde la couleur vive.
+export function grayOf(rgb) { var l = Math.round(0.299 * rgb[0] + 0.587 * rgb[1] + 0.114 * rgb[2]); return [l, l, l]; }
+export var STRAIN_STD = { id: 'standard', label: 'Strophaire', perk: 'lente mais très résistante', tint: '#b8735a', tintRgb: STRAIN_STD_TINT, grayRgb: grayOf(STRAIN_STD_TINT), dot: '#b8735a',
+  mycRgb: mixRgb(MYC, grayOf(STRAIN_STD_TINT), STRAIN_MIX), hypha: rgbStr(mixRgb(hexToRgb(HYPHA_COLOR), grayOf(STRAIN_STD_TINT), STRAIN_MIX).map(Math.round)),
   price: 0, growMul: 0.6, decayMul: 0.15 };
 
 // --- Lit de terre ------------------------------------------------------------------
@@ -544,6 +553,13 @@ export var HAND_FIST_R = 26;                   // rayon du poing (px, monde)
 export var HAND_RING_R = 38;                   // rayon de l'anneau (px CSS, donc / ZOOM en monde)
 export var HAND_FLASH_MS = 300;                // duree de l'eclat dore
 export var HAND_ZOOM_K = 1.45;                 // poing grossi quand le jeu est dezoome, sinon minuscule sous le doigt
+// Loupe : outil d'observation, ne touche a rien. La lentille grossit ce qu'elle couvre ; son
+// centre vise un sujet (champignon, mycelium...) dont elle ouvre la fiche. Elle prend aussi
+// HAND_ZOOM_K quand le jeu est dezoome.
+export var LOUPE_R = 34;                       // rayon de la lentille (px logiques)
+export var LOUPE_ZOOM = 1.6;                   // grossissement dans la lentille (1 = aucun)
+export var LOUPE_LIFT = 70;                    // au doigt, la lentille flotte de ce nombre de px CSS au-dessus du doigt
+export var LOUPE_HIT = 10;                     // tolerance de visee du centre de la lentille (px logiques)
 export var HAND_FIST_MIN_V = 1;              // vitesse minimale (px/frame) pour compter comme geste
 export var HAND_FIST_MAX_V = 14;               // vitesse retenue au plus pour la projection
 export var HAND_FIST_STEP = 14;               // distance parcourue (px) entre deux coups
@@ -748,8 +764,8 @@ export var HINT_SHOVEL_SVG = '<svg viewBox="122 152 154 30">' +
   '<polygon fill="#d8dee0" points="124,166 140,172 160,176 178,175 182,163 160,166 140,164"/>' +
   '<polygon fill="#e4e9ea" points="124,166 140,164 140,172"/>' +
   '</g></svg>';
-export var DIG_HINT_MSG = 'Creusez à la pelle ou martelez du poing (maintenez le clic).';
-export var DIG_TREASURE_MSG = 'Creusez à la pelle ou martelez du poing (maintenez le clic) pour découvrir le trésor.';
+export var DIG_HINT_MSG = 'Creusez à la pelle ou au poing.';
+export var DIG_TREASURE_MSG = 'Creusez ici pour découvrir le trésor.';
 export var COMPASS_MSG ='Trésor enfoui par là : creusez à la pelle ou martelez du poing.';
 export var COMPASS_HIDE = 90;    // px ecran : quand le badge est a moins de ca du tresor, il disparait
 export var COMPASS_RISE_FRAC = 0.25;  // le badge peut monter au plus de cette fraction de H depuis le bas
@@ -792,7 +808,7 @@ export var DEBUG_FIELDS = [
   ['Monde (reconstruire pour appliquer)', 'COL_W', 'Resolution colonnes', 2, 20, 1],
   ['Monde (reconstruire pour appliquer)', 'BEDROCK_MARGIN', 'Marge roche-mere', 0, 200, 5],
   ['Monde (reconstruire pour appliquer)', 'WORLD_MULT', 'Largeur du monde', 1, 8, 0.5],
-  ['Monde (reconstruire pour appliquer)', 'DEPTH_MULT', 'Profondeur du monde', 0.5, 6, 0.5],
+  ['Monde (reconstruire pour appliquer)', 'DEPTH_MULT', 'Profondeur du monde', 0.5, 6, 0.25],
   ['Monde (reconstruire pour appliquer)', 'SOIL_RISE_FRAMES', 'Frames montee du sol', 1, 120, 1],
   ['Camera', 'CAMERA_EDGE', 'Zone de defilement', 0, 1, 0.01],
   ['Camera', 'CAMERA_MAX', 'Vitesse defilement H', 0, 15, 0.1],

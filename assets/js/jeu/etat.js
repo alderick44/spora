@@ -50,7 +50,8 @@ export var isMobile = window.innerWidth < 768;
 var MOBILE_ZOOM = 0.55;                 // le reglage : plus petit = plus de monde visible, objets plus petits
 var zoomParam = /[?&]zoom=([0-9.]+)/.exec(window.location.search);
 export function updateZoom() {
-  vue.ZOOM = container.getBoundingClientRect().width < ZOOM_MAX_W ? MOBILE_ZOOM : 1;
+  vue.baseZoom = container.getBoundingClientRect().width < ZOOM_MAX_W ? MOBILE_ZOOM : 1; // le pincement (evenements.js) change ZOOM, pas ca
+  vue.ZOOM = vue.baseZoom;
   vue.RS = dpr * vue.ZOOM;
 }
 
@@ -74,7 +75,7 @@ export var partie = {
   chPlanted: 0,
   chPending: [],
   chHoldSince: [0, 0, 0],
-  tool: 'hand',                  // 'hand' | 'mycelium' | 'tree' | 'fertilizer' | 'grass'
+  tool: 'hand',                  // 'hand' | 'mycelium' | 'tree' | 'fertilizer' | 'grass' | 'loupe'
   money: 0,
   moneyRevealed: false,
   usedFreeBag: false,
@@ -106,6 +107,7 @@ export var partie = {
 
 // Fenetre visible, camera et pointeur.
 export var vue = {
+  baseZoom: 1,             // zoom de depart (1 ou MOBILE_ZOOM) ; ZOOM bouge au pincement, jamais sous baseZoom
   ZOOM: 1,                 // RS : echelle de rendu du canvas (dpr x ZOOM)
   RS: dpr,
   camGoal: null,
@@ -174,6 +176,10 @@ export var monde = {
   // de def.x/species, juste une infobulle qui suit ce champignon-la). Voir sprout().
   mycTip: null,
   mycTipMushroom: null,
+  // Carte de la loupe (une seule, voir loupe.js) et le point monde examine {x, y, r} (r = rayon
+  // de la lentille) ou elle s'ancre. Ici et pas dans loupe.js : cartes.js les lit sans cycle d'import.
+  loupeTip: null,
+  loupeAt: null,
   shards: [],
   heights: [],
   mushrooms: [],

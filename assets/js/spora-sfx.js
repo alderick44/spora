@@ -197,10 +197,10 @@
 
   // Ambiance : vent et feuilles, en boucle, page d'accueil seulement. Les rafales sont
   // des rampes de gain/filtre replanifiees au hasard, donc jamais deux fois pareil.
-  var wind = null, gameSeen = true;
-  function windTarget() { return muted || !gameSeen ? 0 : 1; }
+  var wind = null, gameSeen = true, gameOn = false;
+  function windTarget() { return muted || !gameSeen || !gameOn ? 0 : 1; }
   function startWind() {
-    if (wind || !document.body.classList.contains('home')) return;
+    if (wind || !gameOn || !document.body.classList.contains('home')) return;
     if (!ensure()) return;
     var len = ctx.sampleRate * 4, buf = ctx.createBuffer(1, len, ctx.sampleRate), d = buf.getChannelData(0);
     var lastV = 0; // bruit brun (integre) : doux et grave, sans le sifflement du bruit blanc
@@ -235,6 +235,17 @@
       gameSeen = es[0].isIntersecting;
       if (wind) wind.out.gain.setTargetAtTime(windTarget(), ctx.currentTime, 0.4);
     }, { threshold: 0.15 }).observe(gameEl);
+  }
+  // Ni avant le lancement du jeu, ni apres la reconstruction du logo : le canvas est alors en d-none.
+  var gameCanvas = document.getElementById('logo-explosion-canvas');
+  if (gameCanvas) {
+    var syncGameOn = function () {
+      gameOn = !gameCanvas.classList.contains('d-none');
+      if (wind) wind.out.gain.setTargetAtTime(windTarget(), ctx.currentTime, 0.4);
+      else startWind();
+    };
+    syncGameOn();
+    new MutationObserver(syncGameOn).observe(gameCanvas, { attributes: true, attributeFilter: ['class'] });
   }
   document.addEventListener('visibilitychange', function () {
     if (!ctx) return;

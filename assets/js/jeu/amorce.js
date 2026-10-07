@@ -31,9 +31,23 @@ function amorcer() {
     }
     return chargement;
   }
-  // Lance le jeu depuis un point de l'ecran. Jeu pas encore charge : il part des qu'il l'est.
+  // Lance le jeu depuis un point de l'ecran. Jeu pas encore charge (connexion lente) : il part
+  // des qu'il l'est, et l'anneau du badge tourne en attendant (.is-loading dans jeu.css).
+  var enAttente = false;
+  function finAttente() {
+    enAttente = false;
+    if (holdWrap) holdWrap.classList.remove('is-loading');
+  }
   function lancer(clientX, clientY) {
-    chargerJeu().then(function (m) { m.lancer(clientX, clientY); });
+    if (enAttente) return; // deja demande : un seul depart, quand le jeu sera charge
+    if (!jeu) {
+      enAttente = true;
+      if (holdWrap) holdWrap.classList.add('is-loading');
+    }
+    chargerJeu().then(
+      function (m) { finAttente(); m.lancer(clientX, clientY); },
+      finAttente // reseau coupe : l'anneau s'arrete, le prochain geste reessaie
+    );
   }
 
   var GESTES = ['pointerdown', 'pointermove', 'keydown'];

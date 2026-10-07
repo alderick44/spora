@@ -276,6 +276,7 @@ body.home .logo-explosion-inner.is-fullscreen{
 .logo-explosion-play-ring-fill{
     stroke-dasharray: 100;
     stroke-dashoffset: 100;
+    opacity: 0; /* vide, il laissait depasser un petit trait rouge en haut du badge */
     transition: stroke-dashoffset .2s ease-out;
 }
 /* Tap trop court : le badge sursaute et le mot "Maintenez" apparait dessous (.is-hint,
@@ -314,8 +315,28 @@ body.home .logo-explosion-inner.is-fullscreen{
     transition: opacity .175s ease, scale .18s ease-out;
 }
 #logo-explosion-fallback-wrap.is-holding .logo-explosion-play-ring-fill{
+    opacity: 1;
     stroke-dashoffset: 0;
     transition: stroke-dashoffset var(--hold-ms, 800ms) linear;
+}
+/* Jeu pas encore charge au moment du lancement (connexion lente) : le badge reste affiche,
+   meme sous la souris, et un arc de l'anneau tourne jusqu'au depart (.is-loading, pose par
+   jeu/amorce.js). */
+#logo-explosion-fallback-wrap.is-loading .logo-explosion-play-badge{
+    opacity: 1;
+    animation: none;
+}
+#logo-explosion-fallback-wrap.is-loading .logo-explosion-play-ring{
+    animation: logo-explosion-ring-spin .9s linear infinite;
+}
+#logo-explosion-fallback-wrap.is-loading .logo-explosion-play-ring-fill{
+    opacity: 1;
+    stroke-dashoffset: 70;
+    transition: none;
+}
+@keyframes logo-explosion-ring-spin{
+    from { transform: rotate(-90deg); }
+    to { transform: rotate(270deg); }
 }
 @media (hover: none){
     /* Au doigt : badge plus gros (le doigt le cache sinon) et piste de l'anneau deja
@@ -1076,9 +1097,61 @@ body.home .logo-explosion-scroll-up{
 .logo-explosion-shelf .logo-explosion-tip-body{
     padding-right: 38px;
 }
-.logo-explosion-shelf .logo-explosion-tip-media{
-    flex: 0 0 42%;
-    min-height: 130px;
+/* Carte a plat : la photo est le fond de la carte (4 / 3), le titre en haut, le texte et le
+   bouton en bas, sur des degrades sombres pour rester lisibles. Le tap sur la photo la passe
+   en grand (.is-zoom, plus bas), qui garde la mise en page photo au-dessus du texte. */
+.logo-explosion-shelf .logo-explosion-tip.has-img:not(.is-zoom){
+    aspect-ratio: 4 / 3;
+    width: 100%; /* la largeur ne suit jamais la hauteur coupee par fitShelfCard */
+    border-radius: 14px;
+}
+/* Photo et voile gardent toujours la hauteur complete (4 / 3) ; la carte (overflow hidden) est
+   coupee plus court par fitShelfCard (height en ligne) pour ne pas depasser du bas de l'ecran,
+   et se devoile en descendant la page. */
+.logo-explosion-shelf .logo-explosion-tip.has-img:not(.is-zoom) .logo-explosion-tip-media{
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    aspect-ratio: 4 / 3;
+}
+/* Pas de grand format ici (tapTip l'ignore) : ni icone d'agrandissement ni curseur loupe. */
+.logo-explosion-shelf .logo-explosion-tip-media::after{
+    display: none;
+}
+.logo-explosion-shelf .logo-explosion-tip.has-img img{
+    cursor: default;
+}
+.logo-explosion-shelf .logo-explosion-tip.has-img:not(.is-zoom) .logo-explosion-tip-body{
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0; /* suit la partie visible de la carte : le bouton reste toujours a l'ecran */
+    display: flex;
+    flex-direction: column;
+    padding: 12px 44px 12px 14px;
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .7);
+    background: linear-gradient(to bottom, rgba(20, 14, 8, .65), transparent 40%, transparent 45%, rgba(20, 14, 8, .8));
+    /* Laisse passer les taps vers la photo (agrandir) et les fleches dessous. */
+    pointer-events: none;
+}
+.logo-explosion-shelf .logo-explosion-tip.has-img:not(.is-zoom) .logo-explosion-tip-more{
+    margin-top: auto;
+}
+.logo-explosion-shelf .logo-explosion-tip.has-img:not(.is-zoom) .logo-explosion-tip-body p{
+    margin-bottom: 8px;
+}
+.logo-explosion-shelf .logo-explosion-tip.has-img:not(.is-zoom) .logo-explosion-tip-body a{
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 999px;
+    background: var(--color-red);
+    color: #fff;
+    text-decoration: none;
+    text-shadow: none;
+    pointer-events: auto;
 }
 .logo-explosion-shelf .logo-explosion-tip.has-img img{
     position: absolute;
@@ -1152,9 +1225,18 @@ body.home .logo-explosion-scroll-up{
     16%, 62% { opacity: 1; transform: translate(-50%, -100%) scale(1); }
     100% { opacity: 0; transform: translate(-50%, calc(-100% + var(--drop, 200px))) scale(.8); }
 }
+/* La carte arrive en douceur (fondu + legere montee) quand elle est posee dans la boite, au lieu
+   de surgir d'un coup. filter et non opacity : opacity est forcee en !important plus haut. */
+.logo-explosion-shelf .logo-explosion-tip.has-img{
+    animation: logo-explosion-shelf-in .55s cubic-bezier(.2, .8, .2, 1) backwards;
+}
+@keyframes logo-explosion-shelf-in{
+    0% { filter: opacity(0); transform: translateY(18px) scale(.96); }
+    100% { filter: opacity(1); transform: none; }
+}
 /* La carte rangee s'illumine (or des tresors) quand la pastille arrive. */
-.logo-explosion-shelf .logo-explosion-tip.is-fresh{
-    animation: logo-explosion-shelf-fresh 1.2s 1.6s;
+.logo-explosion-shelf .logo-explosion-tip.has-img.is-fresh{
+    animation: logo-explosion-shelf-in .55s cubic-bezier(.2, .8, .2, 1) backwards, logo-explosion-shelf-fresh 1.2s 1.6s;
 }
 @keyframes logo-explosion-shelf-fresh{
     0% { box-shadow: 0 0 0 0 rgba(232, 185, 74, .9), 0 6px 18px rgba(58, 42, 24, .18); }
@@ -1162,7 +1244,8 @@ body.home .logo-explosion-scroll-up{
 }
 @media (prefers-reduced-motion: reduce){
     .logo-explosion-shelf-cue{ --drop: 0px !important; } /* pose en ligne par shelfCue */
-    .logo-explosion-shelf .logo-explosion-tip.is-fresh{ animation: none; }
+    .logo-explosion-shelf .logo-explosion-tip.has-img,
+    .logo-explosion-shelf .logo-explosion-tip.has-img.is-fresh{ animation: none; }
 }
 .logo-explosion-tip-body p{
     margin: 2px 0 4px;
@@ -1190,6 +1273,14 @@ body.home .logo-explosion-scroll-up{
 .logo-explosion-tip:not(.is-zoom) .logo-explosion-tip-credit{
     display: none;
 }
+/* Carte rangee (mobile) : pas de grand format, donc le credit s'affiche a plat, sous le bouton
+   (le corps de la carte garde de la place en bas quand il y a un credit). */
+.logo-explosion-shelf .logo-explosion-tip:not(.is-zoom) .logo-explosion-tip-credit{
+    display: block;
+}
+.logo-explosion-shelf .logo-explosion-tip.has-img:not(.is-zoom):has(.logo-explosion-tip-credit:not(.d-none)) .logo-explosion-tip-body{
+    padding-bottom: 28px;
+}
 .logo-explosion-tip-credit a{
     color: inherit;
     text-decoration: none;
@@ -1197,6 +1288,111 @@ body.home .logo-explosion-scroll-up{
 .logo-explosion-tip-body .logo-explosion-tip-strain{
     color: #8a6418;
     font-weight: 600;
+}
+/* Nom latin sous le titre d'une fiche de la loupe (voir loupe.js). */
+.logo-explosion-tip-latin{
+    display: block;
+    margin: 1px 0 3px;
+    color: #8a7a63;
+    font-size: .75rem;
+    font-style: italic;
+}
+/* Carte de la loupe : filet laiton, comme la monture de la lentille quand elle vise un sujet. */
+.logo-explosion-tip.is-loupe{
+    border-top-color: #d4a64a;
+}
+/* Fond sous la photo : une photo decoupee (fond transparent) ne flotte pas sur le creme de la carte. */
+.logo-explosion-tip.is-loupe .logo-explosion-tip-media{
+    background: #efe6d6;
+}
+/* « En savoir plus » d'une fiche (voir addPlus dans loupe.js) : bouton en forme de lien, bloc replie. */
+.logo-explosion-tip-plus-btn{
+    display: block;
+    margin: 2px 0 6px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: #8a5a12;
+    font: inherit;
+    font-weight: 600;
+    text-decoration: underline;
+    cursor: pointer;
+}
+.logo-explosion-tip-plus{
+    display: none;
+    margin-bottom: 6px;
+    padding-top: 6px;
+    border-top: 1px solid #e6dcc8;
+}
+.logo-explosion-tip.is-plus .logo-explosion-tip-plus{
+    display: block;
+}
+.logo-explosion-tip-plus p{
+    margin: 0 0 6px;
+}
+.logo-explosion-tip-plus small{
+    display: block;
+    color: #8a7a63;
+    font-size: .72rem;
+}
+/* Fiche sans photo : un peu plus large, le texte est long. */
+.logo-explosion-tip.is-loupe:not(.has-img){
+    width: 300px;
+}
+/* Grand ecran : photo a gauche, texte a droite. En colonne, une fiche au texte long depassait
+   le bas de la boite et la fin du texte etait coupee. Clic sur la photo : la fiche s'elargit. */
+@media (hover: hover) and (min-width: 768px){
+    .logo-explosion-tip.is-loupe.has-img{
+        flex-direction: row;
+        width: 470px;
+        max-width: calc(100vw - 24px);
+    }
+    .logo-explosion-tip.is-loupe.has-img .logo-explosion-tip-media{
+        flex: 0 0 190px;
+        min-height: 170px;
+    }
+    .logo-explosion-tip.is-loupe.has-img img{
+        position: absolute;
+        inset: 0;
+        height: 100%;
+        aspect-ratio: auto;
+        border-radius: 4px 0 0 4px;
+    }
+    .logo-explosion-tip.is-loupe.has-img .logo-explosion-tip-body{
+        flex: 1 1 auto;
+        min-width: 0;
+        padding: 10px 28px 10px 12px;
+    }
+    .logo-explosion-tip.is-loupe.has-img.is-zoom{
+        width: 660px;
+    }
+    /* « En savoir plus » ouvert : la fiche s'elargit pour que le texte reste court en hauteur. */
+    .logo-explosion-tip.is-loupe.has-img.is-plus{
+        width: 600px;
+    }
+    .logo-explosion-tip.is-loupe.has-img.is-zoom .logo-explosion-tip-media{
+        flex-basis: 360px;
+        min-height: 270px;
+    }
+    /* Filet de securite : un texte encore trop long defile dans la fiche au lieu d'etre coupe. */
+    .logo-explosion-tip.is-loupe .logo-explosion-tip-more > div{
+        max-height: 46vh;
+        overflow-y: auto;
+    }
+}
+/* Etiquette sous la lentille : nom du sujet vise. Pas d'animation, jamais cliquable. */
+.logo-explosion-loupe-label{
+    position: absolute;
+    z-index: 2;
+    padding: 3px 8px;
+    border-radius: 10px;
+    background: rgba(43, 29, 16, .85);
+    color: #fffaf2;
+    font-size: 12px;
+    line-height: 1.3;
+    white-space: nowrap;
+    pointer-events: none;
+    transform: translateX(-50%);
 }
 @media (max-width: 767.98px){
     .logo-explosion-tip{
@@ -1251,6 +1447,24 @@ body.home .logo-explosion-scroll-up{
 .logo-explosion-tools .logo-explosion-tool:not(.is-active):hover,
 .logo-explosion-tools .logo-explosion-tool:not(.is-active):focus-visible{
     opacity: 1;
+}
+/* Nouvel outil (la loupe, des la fin de la demo) : reste visible meme barre repliee, avec une
+   pulsation douce, jusqu'a ce qu'on la prenne (voir setTool). Memes valeurs que l'etat deplie. */
+.logo-explosion-tools .logo-explosion-tool.is-new:not(.is-active){
+    max-height: 40px;
+    margin-top: 6px;
+    border-width: 2px;
+    border-color: #d4a64a;
+    opacity: 1;
+    pointer-events: auto;
+    animation: logo-explosion-tool-new 1.6s ease-in-out infinite;
+}
+@keyframes logo-explosion-tool-new{
+    0%, 100% { box-shadow: 0 0 0 0 rgba(212, 166, 74, .6); }
+    50% { box-shadow: 0 0 0 7px rgba(212, 166, 74, 0); }
+}
+@media (prefers-reduced-motion: reduce){
+    .logo-explosion-tools .logo-explosion-tool.is-new:not(.is-active){ animation: none; }
 }
 
 /* Menu des souches de mycelium : rangee de pastilles juste a droite de la barre d'outils
@@ -1309,30 +1523,6 @@ body.home .logo-explosion-strains{
 .logo-explosion-strain.is-locked .logo-explosion-strain-dot{
     background: rgba(255, 255, 255, .12);
     border-style: dashed;
-}
-.logo-explosion-grass{
-    display: grid;
-    place-items: center;
-    width: 34px;
-    height: 34px;
-    padding: 0;
-    border: 2px solid transparent;
-    border-radius: 50%;
-    background: rgba(58, 42, 24, .35);
-    color: #fff;
-    opacity: .8;
-    font-size: 1.4rem;
-    cursor: pointer;
-    transition: opacity .2s, border-color .2s;
-}
-.logo-explosion-grass:hover,
-.logo-explosion-grass:focus-visible{
-    opacity: 1;
-}
-.logo-explosion-grass.is-active{
-    opacity: 1;
-    border-color: #4ade80;
-    background: rgba(58, 42, 24, .6);
 }
 /* Compteur de tresors, en haut a droite a gauche du bouton reconstruire ; devient un lien
    vers la boutique quand tout est trouve. */
@@ -1656,13 +1846,75 @@ body.home .logo-explosion-strains{
     body.home .logo-explosion-hero{
         padding-top: 0;
     }
-    /* Fleche "monter" : dans la bande du header replie, centree en hauteur (position mesuree
-       par jeu/evenements.js), au lieu de la ligne sous le header pensee pour le desktop.
-       z-index au-dessus du .z-3 du header, sinon son flou la brouille. Menu mobile ouvert
-       (header deplie) : elle reste sous le header. */
-    body.home:has(.header.is-compact) .logo-explosion-scroll-up{
-        top: calc(var(--game-arrow-top, 8px) + 25px); /* + 25px : regle a l'oeil sur telephone */
-        z-index: 4;
+    /* Barre d'outils : meme place, mais elle se deroule vers la droite au lieu de vers le
+       bas. Largeur et marge gauche remplacent la hauteur et la marge haute des regles de base. */
+    .logo-explosion-tools{
+        flex-direction: row;
+        align-items: center;
+    }
+    .logo-explosion-tools .logo-explosion-tool,
+    .logo-explosion-tools .logo-explosion-money{
+        transition: opacity .2s, border-color .2s, max-width .25s ease, margin-left .25s ease, padding .25s ease;
+    }
+    .logo-explosion-tools .logo-explosion-tool:not(.is-active),
+    .logo-explosion-tools .logo-explosion-money{
+        max-height: none;
+        max-width: 0;
+        min-width: 0;
+        margin-left: 0;
+        padding-left: 0;
+        padding-right: 0;
+    }
+    .logo-explosion-tools:hover .logo-explosion-tool:not(.is-active),
+    .logo-explosion-tools:has(:focus-visible) .logo-explosion-tool:not(.is-active),
+    .logo-explosion-tools .logo-explosion-tool.is-new:not(.is-active){
+        max-width: 40px;
+        margin-top: 0;
+        margin-left: 6px;
+    }
+    .logo-explosion-tools:hover .logo-explosion-money,
+    .logo-explosion-tools:has(:focus-visible) .logo-explosion-money{
+        max-width: 96px;
+        min-width: 40px;
+        margin-top: 0;
+        margin-left: 6px;
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+    /* Souches (2e niveau, visible avec l'outil mycelium) : la ligne de la barre d'outils est
+       prise, elles passent en rangee sur une 2e ligne juste dessous. Pas en colonne : elle
+       descendait jusque sur la fleche de defilement gauche (a mi-hauteur du bord). */
+    .logo-explosion-strains{
+        left: 16px;
+        top: calc(44px + 46px);
+    }
+    body.home .logo-explosion-strains{
+        top: calc(var(--home-header-h) + 8px + 36px + 46px);
+    }
+    /* La carte d'explication descend sous cette 2e ligne. */
+    body.home .logo-explosion-explain{
+        top: calc(var(--home-header-h) + 8px + 36px + 46px + 40px + 14px);
+    }
+    /* Legende a bordure doree (instructions du jeu) : tout en haut, au lieu du bas ou elle
+       couvrait le sol et les champignons. Plus etroite et plus petite pour tenir entre la
+       pastille des defis (a gauche) et le bouton de remise a zero (a droite). */
+    .logo-explosion-caption{
+        top: 8px;
+        bottom: auto;
+        max-width: calc(100% - 120px);
+        padding: 6px 12px;
+        font-size: .82rem;
+        transform: translate(-50%, -8px);
+    }
+    /* Accueil : juste sous la fleche "monter" (40px de haut, centree dans le header puis
+       descendue de 25px, voir plus haut), d'ou la demi-hauteur du header + 50px. */
+    body.home .logo-explosion-caption{
+        top: calc(var(--home-header-h) * 0.5 + 50px);
+    }
+    /* Barre d'outils deroulee (meme hauteur, vers la droite) : la legende s'efface pour ne
+       pas cacher les outils. */
+    .logo-explosion-inner:has(.logo-explosion-tools:hover) .logo-explosion-caption{
+        opacity: 0;
     }
 }
 .logo-explosion-challenges-badge:hover,
@@ -1759,8 +2011,10 @@ body.home .logo-explosion-strains{
 /* Mode demo (accueil) : ce qui est coupe par rapport au jeu complet. Retirer une ligne pour la garder. */
 .logo-explosion-inner.is-demo .logo-explosion-challenges-badge,
 .logo-explosion-inner.is-demo .logo-explosion-money,
+.logo-explosion-inner.is-demo .logo-explosion-tool[data-tool="loupe"],
 .logo-explosion-inner.is-demo .logo-explosion-tool[data-tool="tree"],
 .logo-explosion-inner.is-demo .logo-explosion-tool[data-tool="fertilizer"],
+.logo-explosion-inner.is-demo .logo-explosion-tool[data-tool="grass"],
 .logo-explosion-inner.is-demo .logo-explosion-strains,
 .logo-explosion-inner.is-demo .logo-explosion-speed-btn,
 .logo-explosion-inner.is-demo .logo-explosion-scroll-left,

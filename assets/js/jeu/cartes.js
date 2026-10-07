@@ -19,7 +19,7 @@ export function buildTip(def) {
   close.addEventListener('click', function (evt) {
     evt.stopPropagation();
     // Carte rangee sous le jeu : elle y reste meme fermee, seule la croix la retire (retour dans le jeu, invisible).
-    if (shelfEl && tip.parentNode === shelfEl) container.appendChild(tip);
+    if (shelfEl && tip.parentNode === shelfEl) { tip.style.height = ''; container.appendChild(tip); }
     openTip(null);
   });
   tip.appendChild(close);
@@ -32,6 +32,7 @@ export function buildTip(def) {
     media.className = 'logo-explosion-tip-media';
     var im = document.createElement('img');
     im.alt = '';
+    im.decoding = 'async'; // le decodage de la photo ne bloque pas une image du jeu
     media.appendChild(im);
     credit = document.createElement('small');
     credit.className = 'logo-explosion-tip-credit';
@@ -63,6 +64,7 @@ export function buildTip(def) {
           evt.stopPropagation();
           idx = (idx + dir + imgs.length) % imgs.length;
           showImg();
+          revealShelfCard(tip);
         });
         media.appendChild(nav);
       });
@@ -76,6 +78,13 @@ export function buildTip(def) {
   var title = document.createElement('strong');
   title.textContent = def.title || '';
   body.appendChild(title);
+  // Nom latin (fiches de la loupe) : sous le titre, avant le bloc replie.
+  if (def.latin) {
+    var latin = document.createElement('em');
+    latin.className = 'logo-explosion-tip-latin';
+    latin.textContent = def.latin;
+    body.appendChild(latin);
+  }
   // Carte a image : le texte et le lien sont replies sous le titre, et se deplient au survol
   // ou au clic (.is-details, voir style.css). Sans image, tout reste visible.
   var more = body;
@@ -135,11 +144,41 @@ export function tipIdle() {
 // avec, voir .is-zoom ; sur ecran tactile elle prend alors toute la boite) ; ailleurs, deplie /
 // replie le texte.
 export function tapTip(t, onImg) {
+  if (onImg && shelfEl && t.tip.parentNode === shelfEl) { revealShelfCard(t.tip); return; } // carte rangee : plus de grand format, elle se devoile en defilant
   t.tip.classList.toggle(onImg ? 'is-zoom' : 'is-details');
+  fitShelfCard();
+}
+
+// Carte rangee sous le jeu : sa hauteur s'arrete au bas de l'ecran (photo et texte gardent leur
+// taille, la carte est juste coupee) et grandit a mesure qu'on descend la page, jusqu'a sa hauteur complete.
+var SHELF_MARGIN = 12;
+export function fitShelfCard() {
+  var tip = shelfEl && shelfEl.querySelector('.logo-explosion-tip');
+  if (!tip) return;
+  var media = tip.querySelector('.logo-explosion-tip-media');
+  if (tip.classList.contains('is-zoom') || !media) { tip.style.height = ''; return; }
+  var full = media.offsetHeight + tip.clientTop;
+  var avail = window.innerHeight - tip.getBoundingClientRect().top - SHELF_MARGIN;
+  tip.style.height = Math.max(120, Math.min(full, avail)) + 'px';
+}
+// Carte rangee, tap sur la photo ou changement de photo : la page descend juste assez pour
+// montrer la carte entiere (fitShelfCard la devoile au fil du defilement), sans la passer sous le header.
+function revealShelfCard(tip) {
+  if (!shelfEl || tip.parentNode !== shelfEl) return;
+  var media = tip.querySelector('.logo-explosion-tip-media');
+  if (!media) return;
+  var top = tip.getBoundingClientRect().top;
+  var need = top + media.offsetHeight + tip.clientTop + SHELF_MARGIN - window.innerHeight;
+  var room = top - (siteHeader ? siteHeader.getBoundingClientRect().bottom : 0) - SHELF_MARGIN;
+  if (need > 0 && room > 0) window.scrollBy({ top: Math.min(need, room), behavior: 'smooth' });
+}
+if (shelfEl) {
+  window.addEventListener('scroll', fitShelfCard, { passive: true });
+  window.addEventListener('resize', fitShelfCard);
 }
 
 // Une seule infobulle ouverte a la fois : les tresors (et la bulle mycelium, active
-// valant la chaine 'myc') sont proches, elles se chevaucheraient.
+// valant la chaine 'myc', et la carte de la loupe, 'loupe') sont proches, elles se chevaucheraient.
 export function openTip(active, tapped) {
   var wasOpen = !!(active && active.tip && active.tip.classList.contains('is-open'));
   partie.treasures.forEach(function (t) {
@@ -153,14 +192,16 @@ export function openTip(active, tapped) {
   if (shelfEl) {
     var shelved = shelfMq && shelfMq.matches;
     if (!shelved || (active && active !== 'myc' && active.tip && active.tip.parentNode !== shelfEl)) {
-      while (shelfEl.firstChild) container.appendChild(shelfEl.firstChild);
+      while (shelfEl.firstChild) { shelfEl.firstChild.style.height = ''; container.appendChild(shelfEl.firstChild); }
       if (shelved) shelfEl.appendChild(active.tip);
     }
+    fitShelfCard();
     if (shelved && active && active.tip && (tapped || !wasOpen)) shelfCue(active);
   }
   if (monde.mycTip) monde.mycTip.classList.toggle('is-open', active === 'myc');
+  if (monde.loupeTip) monde.loupeTip.classList.toggle('is-open', active === 'loupe');
   if (!!active !== partie.tipOpen) { partie.tipOpen = !!active; partie.tipChangeAt = performance.now(); } // voir leachTip
-  if (active && active !== 'myc') tipIdle(); else clearTimeout(tipIdleTimer);
+  if (active && active !== 'myc' && active !== 'loupe') tipIdle(); else clearTimeout(tipIdleTimer);
 }
 
 // Carte rangee sous le jeu (shelfEl), souvent hors ecran : la ou la bulle serait apparue, une
@@ -177,6 +218,7 @@ function shelfCue(t) {
   var photo = t.tip.querySelector('img'), name = t.tip.querySelector('strong');
   if (photo) {
     var thumb = document.createElement('img');
+    thumb.decoding = 'async';
     thumb.src = photo.src;
     thumb.alt = '';
     cue.appendChild(thumb);
@@ -201,24 +243,28 @@ function shelfCue(t) {
   t.tip.classList.add('is-fresh');
 }
 
+// Pose une infobulle : sa fleche vise aimX (px CSS, ecran) et son bas voudrait etre a wantTop.
+// Partagee par les tresors deterres, la bulle mycelium et la carte de la loupe.
+function placeTip(tipEl, aimX, wantTop) {
+  var half = tipEl.offsetWidth / 2;
+  var left = Math.max(half + 8, Math.min(vue.W * vue.ZOOM - half - 8, aimX));
+  tipEl.style.left = left + 'px';
+  // Sujet sorti trop haut (terre decompactee) ou carte agrandie : la bulle reste dans l'ecran,
+  // sans fleche, et sous le header qui flotte par-dessus le haut de la boite (accueil). Bornee a
+  // 150px comme --game-ui-top : menu mobile ouvert, le header est tres haut.
+  var hb = siteHeader ? siteHeader.getBoundingClientRect().bottom - container.getBoundingClientRect().top : 0;
+  var minTop = tipEl.offsetHeight + 8 + Math.max(0, Math.min(hb, 150)), top = Math.max(wantTop, minTop);
+  tipEl.classList.toggle('is-clamped', top !== wantTop);
+  tipEl.style.top = top + 'px';
+  tipEl.style.setProperty('--arrow-dx', (aimX - left) + 'px');
+}
 // Position d'une infobulle juste au-dessus du chapeau d'un champignon (monde -> ecran,
 // - camX/- camY) ; partagee par les tresors deterres et la bulle mycelium.
 function positionTipOverMushroom(tipEl, m) {
   var g = easeOutBack(Math.max(0, Math.min(1, m.t)));
   // Overlay HTML : positions en px CSS, donc * ZOOM (la taille de la bulle, elle, reste en px CSS).
   var capTop = (surfaceAt(m.x) - vue.camY + 6 - m.size * g * 1.45) * vue.ZOOM;
-  var half = tipEl.offsetWidth / 2;
-  var mScreenX = (m.x - vue.camX) * vue.ZOOM;
-  var left = Math.max(half + 8, Math.min(vue.W * vue.ZOOM - half - 8, mScreenX));
-  tipEl.style.left = left + 'px';
-  // Champignon sorti trop haut (terre decompactee) ou carte agrandie : la bulle reste dans l'ecran,
-  // sans fleche, et sous le header qui flotte par-dessus le haut de la boite (accueil). Bornee a
-  // 150px comme --game-ui-top : menu mobile ouvert, le header est tres haut.
-  var hb = siteHeader ? siteHeader.getBoundingClientRect().bottom - container.getBoundingClientRect().top : 0;
-  var minTop = tipEl.offsetHeight + 8 + Math.max(0, Math.min(hb, 150)), top = Math.max(capTop - 6, minTop);
-  tipEl.classList.toggle('is-clamped', top !== capTop - 6);
-  tipEl.style.top = top + 'px';
-  tipEl.style.setProperty('--arrow-dx', (mScreenX - left) + 'px');
+  placeTip(tipEl, (m.x - vue.camX) * vue.ZOOM, capTop - 6);
 }
 
 // Ces overlays sont du HTML positionne en absolu dans la boite : leurs coordonnees
@@ -317,6 +363,11 @@ export function positionTreasureOverlays() {
     } else { t.tip.style.opacity = ''; t.farSince = 0; }
   }
   if (monde.mycTip && monde.mycTipMushroom) positionTipOverMushroom(monde.mycTip, monde.mycTipMushroom);
+  // Carte de la loupe : au-dessus du point examine, en laissant la lentille visible dessous.
+  var lat = monde.loupeAt;
+  if (monde.loupeTip && lat && monde.loupeTip.classList.contains('is-open')) {
+    placeTip(monde.loupeTip, (lat.x - vue.camX) * vue.ZOOM, (lat.y - vue.camY - lat.r) * vue.ZOOM - 8);
+  }
   positionDigTip();
   updateCompass();
 }

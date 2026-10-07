@@ -5,7 +5,7 @@ import {
   CAPTION_MYC_CLOSER, CAPTION_MYC_NO_WOOD, HEADER_HOVER_LEAVE, DEPTH_MULT, SKY_EXTRA
 } from './config.js';
 import {
-  container, vue, partie, updateZoom, canvas, monde, rebuildBtn, debugToggleBtn, debugPanel, fullscreenBtn,
+  container, vue, partie, updateZoom, dpr, canvas, monde, rebuildBtn, debugToggleBtn, debugPanel, fullscreenBtn,
   toolBtns, speedInput, temps, speedVal, speedBtn, rainInput, droughtInput, stormInput, scrollLeftBtn,
   scrollRightBtn, scrollUpBtn, scrollDownBtn
 } from './etat.js';
@@ -25,6 +25,7 @@ import { treasureGlintAt, showDigTip, openTip, tipAway, hideDigTip, tapTip } fro
 import { setCaption } from './messages.js';
 import { guideSet, guideFlags } from './tutoriel.js';
 import { explode, startLoop, resetToLogo } from './physique.js';
+import { loupe, enterLoupe, moveLoupe, leaveLoupe, examine } from './loupe.js';
 
 // --- Evenements --------------------------------------------------------------------
 export function getRelativePos(evt) {
@@ -90,6 +91,14 @@ function endPress(evt, allowTap) {
     }
     if (evt.pointerType !== 'mouse') leaveBag();
     vue.pointerDown = null;
+    startLoop();
+    return;
+  }
+  if (partie.tool === 'loupe') {
+    // On examine meme apres un glisser : au doigt, on amene la lentille en glissant puis on leve.
+    if (allowTap && loupe.on) examine();
+    vue.pointerDown = null;
+    if (evt.pointerType !== 'mouse') leaveLoupe(); // au doigt la loupe n'existe que pendant l'appui (la carte reste)
     startLoop();
     return;
   }
@@ -218,10 +227,54 @@ export function lancer(clientX, clientY) {
   if (build()) explode(pos.x + vue.camX, pos.y + vue.camY);
 }
 
+// Pincement a deux doigts : zoome (de baseZoom a PINCH_ZOOM_MAX x baseZoom) en gardant sous les
+// doigts le point du monde saisi au depart ; deplacer les deux doigts ensemble fait aussi defiler.
+// blocked : tant qu'un doigt reste pose apres le pincement, il ne declenche plus d'outil.
+var PINCH_ZOOM_MAX = 6;
+var pinch = { pts: {}, n: 0, on: false, blocked: false, d0: 1, z0: 1, wx: 0, wy: 0 };
+function pinchCentre() {
+  var ids = Object.keys(pinch.pts), a = pinch.pts[ids[0]], b = pinch.pts[ids[1]];
+  return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2, d: Math.max(1, Math.hypot(a.x - b.x, a.y - b.y)) };
+}
+function pinchStart() {
+  var c = pinchCentre(), rect = container.getBoundingClientRect();
+  pinch.on = true; pinch.d0 = c.d; pinch.z0 = vue.ZOOM;
+  pinch.wx = (c.x - rect.left) / vue.ZOOM + vue.camX; pinch.wy = (c.y - rect.top) / vue.ZOOM + vue.camY;
+  vue.camGoal = null; vue.hoverScreenX = null; vue.hoverScreenY = null;
+}
+function pinchMove() {
+  var c = pinchCentre(), rect = container.getBoundingClientRect();
+  var z = clamp(pinch.z0 * c.d / pinch.d0, vue.baseZoom, vue.baseZoom * PINCH_ZOOM_MAX);
+  if (z !== vue.ZOOM) {
+    vue.ZOOM = z; vue.RS = dpr * z;
+    vue.W = rect.width / z; vue.H = rect.height / z;
+    resetTiles(); sizeCanvas();
+  }
+  vue.camX = clamp(pinch.wx - (c.x - rect.left) / z, 0, Math.max(0, vue.worldW - vue.W));
+  vue.camY = clamp(pinch.wy - (c.y - rect.top) / z, camMinY(), Math.max(camMinY(), vue.worldH - vue.H));
+  startLoop();
+}
+function pinchTrack(evt, down) {
+  if (evt.pointerType !== 'touch') return;
+  if (down) {
+    pinch.pts[evt.pointerId] = { x: evt.clientX, y: evt.clientY };
+    pinch.n = Object.keys(pinch.pts).length;
+    if (pinch.n === 2) { endPress(evt, false); pinch.blocked = true; pinchStart(); }
+    else if (pinch.n > 2) pinch.blocked = true;
+  } else {
+    delete pinch.pts[evt.pointerId];
+    pinch.n = Object.keys(pinch.pts).length;
+    if (pinch.n < 2) pinch.on = false;
+    if (pinch.n === 0) pinch.blocked = false;
+  }
+}
+
 // Demarrage du module : appele une seule fois par principal.js, dans un ordre fixe.
 export function initEvenements() {
   canvas.addEventListener('pointerdown', function (evt) {
     if (partie.mode !== 'exploded') return;
+    pinchTrack(evt, true);
+    if (pinch.blocked) return;
     vue.edgeTouch = evt.pointerType !== 'mouse';
     var screenPos = getRelativePos(evt);
     var pos = { x: screenPos.x + vue.camX, y: screenPos.y + vue.camY };
@@ -233,7 +286,8 @@ export function initEvenements() {
     var hintT = treasureGlintAt(evt);
     if (hintT) showDigTip(hintT);
     // Un clic sur la pelle plantee la prend quel que soit l'outil : la main se selectionne toute seule.
-    if (partie.tool !== 'hand' && !shovel.on && shovelHit(pos.x, pos.y, evt.pointerType !== 'mouse')) setTool('hand');
+    // Sauf avec la loupe : elle n'agit sur rien, la pelle plantee n'est qu'un decor pour elle.
+    if (partie.tool !== 'hand' && partie.tool !== 'loupe' && !shovel.on && shovelHit(pos.x, pos.y, evt.pointerType !== 'mouse')) setTool('hand');
     if (partie.tool === 'hand') {
       // La pelle plantee est prioritaire, mais seulement si le clic tombe sur elle (voir aussi plus haut : ce clic selectionne la main).
       if (!shovel.on && shovelHit(pos.x, pos.y, evt.pointerType !== 'mouse')) {
@@ -284,12 +338,24 @@ export function initEvenements() {
       startLoop();
       return;
     }
+    if (partie.tool === 'loupe') {
+      // Observation pure : rien n'est saisi, creuse ni plante ; la fiche s'ouvre au relachement (endPress).
+      if (!loupe.on) enterLoupe(screenPos, evt.pointerType !== 'mouse');
+      moveLoupe(screenPos, evt.pointerType !== 'mouse');
+      startLoop();
+      return;
+    }
     if (partie.tool === 'tree') return; // se plante au relachement (tap), pas d'outil traine au curseur
     if (partie.tool === 'fertilizer') { openTip(null); dropFertilizer(pos.x); return; }
     if (partie.tool === 'grass') { openTip(null); seedGrass(pos.x); return; }
   });
   canvas.addEventListener('pointermove', function (evt) {
     if (partie.mode !== 'exploded') return;
+    if (evt.pointerType === 'touch' && pinch.pts[evt.pointerId]) {
+      pinch.pts[evt.pointerId] = { x: evt.clientX, y: evt.clientY };
+      if (pinch.on) { pinchMove(); return; }
+    }
+    if (pinch.blocked) return;
     vue.edgeTouch = evt.pointerType !== 'mouse';
     var screenPos = getRelativePos(evt);
     var pos = { x: screenPos.x + vue.camX, y: screenPos.y + vue.camY };
@@ -302,6 +368,10 @@ export function initEvenements() {
         if (!shovel.released) { shovel.gx = pos.x; shovel.gy = pos.y; }
       } else if (!hand.on && (evt.pointerType === 'mouse' || vue.pointerDown)) { enterHand(pos); hand.touch = evt.pointerType !== 'mouse'; }
       hand.x = pos.x; hand.y = pos.y;
+    } else if (partie.tool === 'loupe') {
+      // Souris : la lentille suit le survol ; doigt : seulement pendant l'appui (comme la main).
+      if (!loupe.on && (evt.pointerType === 'mouse' || vue.pointerDown)) enterLoupe(screenPos, evt.pointerType !== 'mouse');
+      if (loupe.on) moveLoupe(screenPos, evt.pointerType !== 'mouse');
     } else if (partie.tool === 'fertilizer' && vue.pointerDown) {
       dropFertilizer(pos.x);
     } else if (partie.tool === 'grass' && vue.pointerDown) {
@@ -310,10 +380,13 @@ export function initEvenements() {
     if (vue.treasureGrab && vue.pointerDown && vue.dragMoved) { moveTreasure(vue.treasureGrab.t, pos.x + vue.treasureGrab.dx); }
     if (monde.heldInsect && vue.pointerDown) { vue.heldSX = screenPos.x; vue.heldSY = screenPos.y; }
     if (evt.pointerType === 'mouse') {
-      canvas.style.cursor = (!shovel.on && shovelHit(pos.x, pos.y, false)) ? 'grab'
+      canvas.style.cursor = (partie.tool !== 'loupe' && !shovel.on && shovelHit(pos.x, pos.y, false)) ? 'grab'
         : (partie.tool === 'hand' && insectAt(pos.x, pos.y)) ? 'pointer' : '';
     }
-    if (evt.pointerType === 'mouse' && !vue.pointerDown) {
+    if (evt.pointerType === 'mouse' && !vue.pointerDown && partie.tool === 'loupe') {
+      // La loupe n'ouvre que sa propre carte (au clic) : ni survol de tresor ni bulle "creusez..." qui la fermeraient.
+      if (partie.digTipHover) hideDigTip();
+    } else if (evt.pointerType === 'mouse' && !vue.pointerDown) {
       // Survoler un tresor deja deterre rouvre son infobulle sans avoir a cliquer.
       var hoverT = treasureNear(pos.x, pos.y);
       // Pas de survol tant qu'un saviez-vous est affiche : il ne reviendrait pas (le clic ouvre quand meme).
@@ -329,8 +402,8 @@ export function initEvenements() {
     if (vue.edgeTouch && vue.pointerDown && vue.dragMoved) { vue.hoverScreenX = screenPos.x; vue.hoverScreenY = screenPos.y; }
     startLoop();
   });
-  canvas.addEventListener('pointerup', function (evt) { endPress(evt, true); });
-  canvas.addEventListener('pointercancel', function (evt) { endPress(evt, false); });
+  canvas.addEventListener('pointerup', function (evt) { pinchTrack(evt, false); endPress(evt, true); });
+  canvas.addEventListener('pointercancel', function (evt) { pinchTrack(evt, false); endPress(evt, false); });
   window.addEventListener('blur', dropHeldInsect);
   canvas.addEventListener('pointerleave', function (evt) {
     if (evt.pointerType === 'mouse') tipAway(true); // vers la carte : son pointerenter annule
@@ -338,7 +411,9 @@ export function initEvenements() {
       leaveShovel();
       leaveBag();
       leaveHand();
+      leaveLoupe();
       vue.hoverScreenX = null; vue.hoverScreenY = null;
+      if (partie.tool === 'loupe') startLoop(); // sans cela la lentille resterait peinte jusqu'a la prochaine image
     }
   });
   if (rebuildBtn) rebuildBtn.addEventListener('click', resetAllAndRebuild); // la fleche remet tout a zero (sauvegarde incluse), avec l'animation
@@ -353,10 +428,7 @@ export function initEvenements() {
     var syncUiTop = function () {
       var boxTop = container.getBoundingClientRect().top + window.scrollY;
       var hb = siteHeader.getBoundingClientRect().height - boxTop;
-      container.style.setProperty('--game-ui-top', Math.round(Math.max(0, Math.min(hb, 150))) + 'px');
-      // Fleche "monter" (40px de haut) centree dans la bande du header replie, sur mobile.
-      container.style.setProperty('--game-arrow-top', Math.round(Math.max(0, hb - (hb + boxTop) / 2 - 20)) + 'px');
-    };
+      container.style.setProperty('--game-ui-top', Math.round(Math.max(0, Math.min(hb, 150))) + 'px');    };
     syncUiTop();
     window.addEventListener('resize', syncUiTop);
     window.addEventListener('load', syncUiTop); // le logo du header charge : sa hauteur change
@@ -371,8 +443,7 @@ export function initEvenements() {
       requestAnimationFrame(syncTick);
     }).observe(siteHeader, { attributes: true, attributeFilter: ['class'] });
     window.addEventListener('resize', syncDemoEndTop);
-    window.addEventListener('scroll', syncDemoEndTop, { passive: true });
-  }
+    window.addEventListener('scroll', syncDemoEndTop, { passive: true });  }
   container.addEventListener('pointerdown', function () {
     if (partie.mode === 'exploded') compactHeaderForGame();
   });

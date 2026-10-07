@@ -6,7 +6,7 @@ import {
   LAKE_DROP_VOL, LEACH_MAX_STEPS_PER_FRAME, LEACH_INTERVAL_MS, LEAF_RAIN_MAX_DROP, WOOD_RAIN_MULT,
   LEAF_RAIN_STEP, RAIN_FADE_MS
 } from './config.js';
-import { temps, vue, droughtIndicator, stormIndicator, monde, ctx } from './etat.js';
+import { temps, vue, droughtIndicator, stormIndicator, monde, ctx, partie } from './etat.js';
 import { poly } from './rendu.js';
 import { surfaceAt, updateLakes } from './terrain.js';
 import { sinkCompactNutri, leach, decomposeDeadMyc } from './flore.js';
@@ -89,7 +89,16 @@ function endStorm(now) {
 }
 
 export function updateWeather(now) {
-  if (weather.lastNow === null) weather.lastNow = now;
+  // Demo : aucune meteo (ni pluie, ni tempete, ni secheresse). L'horloge repart de zero, par
+  // une periode seche, a "Continuer a jouer".
+  if (partie.DEMO) { weather.lastNow = null; return; }
+  if (weather.lastNow === null) {
+    weather.lastNow = now;
+    // Debut de partie (changeAt remis a 0 par setupSoil) : une periode seche d'abord, sinon
+    // l'averse partait des l'explosion. Meme delai de grace pour la secheresse.
+    weather.changeAt = now + weatherDryMs();
+    weather.droughtChangeAt = now + droughtGapMs();
+  }
   var dt = Math.max(0, now - weather.lastNow);
   weather.lastNow = now;
   if (temps.rainLevel <= 0) {

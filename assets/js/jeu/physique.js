@@ -11,10 +11,10 @@ import {
   moneyEl, container
 } from './etat.js';
 import { draw, resetTiles } from './rendu.js';
-import { surfaceAt, pileRemove, restColumn, pileAdd } from './terrain.js';
+import { surfaceAt, pileRemove, restColumn, pileAdd, startTreeX } from './terrain.js';
 import { makeSavedTrees, terrainSig } from './sauvegarde.js';
 import { weather, updateWeather, updateRainDrops, updateDroughtIndicator } from './meteo.js';
-import { makeTree, makeStartTree, stepTrees } from './arbres.js';
+import { makeTree, makeStartTree, makeFarTree, stepTrees } from './arbres.js';
 import { updateGrass, stepFlowers, stepInsects } from './flore.js';
 import { inoculate, stepMycelium } from './mycelium.js';
 import { updateMoneyUI } from './economie.js';
@@ -28,6 +28,7 @@ import {
 import { flushDeathAlert, msgTick, resetPatches, hideMsgs, setCaption } from './messages.js';
 import { compactHeaderForGame, camMinY, camHomeY, releaseHeader, hideDebugPanel } from './evenements.js';
 import { startGuideArrow } from './tutoriel.js';
+import { leaveLoupe } from './loupe.js';
 
 var chBadgeEl = document.getElementById('logo-explosion-challenges');
 var lastRealNow = null;
@@ -73,7 +74,11 @@ export function explode(px, py) {
   var savedTrees = null;
   try { if (partie.restoredTrees) savedTrees = makeSavedTrees(partie.restoredTrees); } catch (e) { savedTrees = null; }
   partie.restoredTrees = null;
-  monde.trees = savedTrees && savedTrees.length ? savedTrees : [makeTree(vue.camMargin + vue.W * 0.14), makeStartTree(vue.camMargin + vue.W * 0.93, 10), makeTree(vue.camMargin + vue.W * 1.35)];
+  if (savedTrees && savedTrees.length) monde.trees = savedTrees;
+  else {
+    monde.trees = [makeTree(vue.camMargin + vue.W * 0.14), makeStartTree(startTreeX(), 10)];
+    if (!partie.DEMO) monde.trees.push(makeFarTree());
+  }
   if (savedTrees && savedTrees.length) partie.worldSig = partie.worldSigPrev = terrainSig();
   monde.litter = [];
   if (toolsArrow && partie.unlockedStrains.length) { toolsArrow.classList.remove('d-none'); startGuideArrow(); }
@@ -348,6 +353,7 @@ export function rebuild() {
   weather.drought = false;
   updateDroughtIndicator();
   leaveBag();
+  leaveLoupe();
   for (var i = 0; i < monde.shards.length; i++) {
     var s = monde.shards[i];
     s.sx = s.x; s.sy = s.y; s.srot = s.rot; s.smix = s.mix;
@@ -432,6 +438,7 @@ export function resetToLogo() {
   vue.hoverScreenX = null; vue.hoverScreenY = null;
   leaveBag();
   leaveHand();
+  leaveLoupe();
   weather.raining = false; weather.clouds = []; weather.lastNow = null;
   weather.drought = false;
   updateDroughtIndicator();

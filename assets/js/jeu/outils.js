@@ -9,7 +9,7 @@ import {
   HAND_FIST_R, HAND_FIST_KICK, HAND_FIST_SPREAD, HAND_FIST_LIFT, HAND_FIST_LOOSE, HAND_FIST_MAX_UP,
   HAND_FIST_DEPTH, HAND_FIST_SIZE, HAND_FIST_SHARDS, HAND_PUSH_MAX_V, HAND_PUSH_R, HAND_PUSH_LEAF,
   HAND_PUSH_MAX_LOOSE, HAND_PUSH_DEPTH, HAND_PUSH_P, HAND_PUSH_LOOSE, HAND_ZOOM_K, HAND_FLASH_MS, HAND_SKIN,
-  HAND_GRAB_MAX, HAND_PICK_R, BAG_GRAINS, CAPTION_BAG_EMPTY, GRAIN, STRAIN_MIX
+  HAND_GRAB_MAX, HAND_PICK_R, BAG_GRAINS, CAPTION_BAG_EMPTY, GRAIN, STRAIN_MIX, SOIL_CELL_MOBILE, NO_HOVER
 } from './config.js';
 import { vue, monde, container, partie, temps, ctx, canvas, toolBtns } from './etat.js';
 import { poly } from './rendu.js';
@@ -25,8 +25,9 @@ import {
 import { openTip } from './cartes.js';
 import { setCaption } from './messages.js';
 import { chUnlocked, challengeDone } from './defis.js';
-import { guideSet } from './tutoriel.js';
+import { guideSet, guideCurrent } from './tutoriel.js';
 import { startLoop } from './physique.js';
+import { leaveLoupe, closeLoupeCard } from './loupe.js';
 
 export var shovel = {
   on: false, held: false, pouring: false, hideWhenEmpty: false, released: false,
@@ -101,8 +102,10 @@ function plantFrame() {
 }
 function plantPt(f, s, k) { return [f.x + f.ux * s + f.nx * k, f.sy + f.uy * s + f.ny * k]; }
 // Zone de saisie genereuse (surtout au doigt) autour du manche et de la partie visible de la lame.
+// Mobile : la pelle plantee n'existe pas tant que le tutoriel n'est pas fini (le doigt la prendrait par erreur).
+function shovelHidden() { return NO_HOVER && !!guideCurrent(); }
 export function shovelHit(x, y, touch) {
-  if (shovel.on || partie.mode !== 'exploded') return false;
+  if (shovel.on || partie.mode !== 'exploded' || shovelHidden()) return false;
   var f = plantFrame(), r = touch ? Math.max(30, vue.U * 0.06) : Math.max(14, vue.U * 0.03);
   var top = f.bl * 0.45 + f.sock + f.shaft + f.bw / 58 * 12;
   var a = plantPt(f, -f.bl * 0.1, 0), b = plantPt(f, top, 0);
@@ -286,7 +289,7 @@ function spawnDecompactShard(a, nutri) {
 // Coeur commun (pelle et poing, voir fistStrike) : une facette de terre meuble neuve en
 // (x,y) a la vitesse (vx,vy), taille multipliee par sizeK. Retourne son aire.
 function makeDecompactShard(x, y, vx, vy, nutri, sizeK) {
-  var size = Math.max(6, vue.UW / 160) * 1.3 * sizeK;
+  var size = Math.max(vue.ZOOM === 1 ? 6 : SOIL_CELL_MOBILE, vue.UW / 160) * 1.3 * sizeK; // meme maille que le lit (setupSoil)
   var pts = [[-size * 0.55, size * 0.32], [size * 0.55, size * 0.32], [(Math.random() - 0.5) * size * 0.3, -size * 0.55]];
   // Assombrie selon la profondeur sous le niveau d'origine, comme addSoilShard : la
   // terre qui sort du compact reste de la terre normale, pas la terre sombre d'avant.
@@ -444,7 +447,7 @@ function drawShovelShape(ax, ay, dir, ox, oy) {
 
 // Pelle plantee : meme dessin, lame vers le bas (rognee a la surface), manche qui depasse.
 function drawPlantedShovel() {
-  if (partie.mode !== "exploded") return;
+  if (partie.mode !== "exploded" || shovelHidden()) return;
   var f = plantFrame(), tip = plantPt(f, -f.bw * 0.5, 0); // pointe a moitie enterree
   ctx.save();
   ctx.beginPath();
@@ -870,7 +873,7 @@ export function drawHand() {
     // Epaisseurs en px CSS (/ ZOOM) : l'anneau garde la meme taille a l'ecran quel que soit le zoom.
     var fl = clamp(1 - (performance.now() - hand.flash) / HAND_FLASH_MS, 0, 1);
     ctx.beginPath();
-    ctx.arc(hand.x, hand.y, (HAND_RING_R * (1 - 0.1 * f) + 6 * fl) / vue.ZOOM, 0, Math.PI * 2);
+    ctx.arc(hand.x, hand.y, (HAND_RING_R * 1.5 * (1 - 0.1 * f) + 6 * fl) / vue.ZOOM, 0, Math.PI * 2); // 1.5 : dessin seulement, la portee reste HAND_RING_R
     ctx.lineWidth = 5 / vue.ZOOM; ctx.strokeStyle = 'rgba(43,29,16,0.35)'; ctx.stroke();
     ctx.lineWidth = 2.5 / vue.ZOOM; ctx.strokeStyle = fl > 0 ? 'rgba(243,201,74,' + (0.6 + 0.4 * fl) + ')' : 'rgba(255,248,230,0.85)'; ctx.stroke();
   }
@@ -970,7 +973,7 @@ export function updateBag() {
   for (var i = 0; i < n; i++) {
     var r = 1.8 + Math.random() * 1.6, a = Math.random() * Math.PI * 2;
     var color = hexToRgb(GRAIN[(Math.random() * GRAIN.length) | 0]);
-    if (cs) color = mixRgb(color, cs.tintRgb, STRAIN_MIX);
+    if (cs) color = mixRgb(color, cs.grayRgb, STRAIN_MIX);
     monde.shards.push({
       pts: [0, 1, 2].map(function (j) {
         var t = a + j * 2.1 + (Math.random() - 0.5) * 0.5;
@@ -1032,15 +1035,16 @@ export function setTool(name) {
   leaveShovel();
   leaveBag();
   leaveHand();
+  leaveLoupe();
+  closeLoupeCard(); // la carte de la loupe ne survit pas a l'outil
   partie.tool = name;
   updateStrainBar();
   container.classList.toggle('is-planting', name === 'tree');
   if (name === 'mycelium' && partie.unlockedStrains.length) guideSet('myc'); // sans souche debloquee, prendre l'outil ne compte pas (le tutoriel resterait sur la barre)
   for (var i = 0; i < toolBtns.length; i++) {
-    // Le gazon n'a pas de bouton dans la barre d'outils : le bouton mycelium (dont la barre
-    // contient le bouton gazon) reste actif, sinon tous les boutons sont replies et la barre disparait.
-    var on = toolBtns[i].getAttribute('data-tool') === (name === 'grass' ? 'mycelium' : name);
+    var on = toolBtns[i].getAttribute('data-tool') === name;
     toolBtns[i].classList.toggle('is-active', on);
+    if (on) toolBtns[i].classList.remove('is-new'); // essayee : la loupe n'a plus besoin d'etre signalee
     toolBtns[i].setAttribute('aria-pressed', on ? 'true' : 'false');
   }
   startLoop();

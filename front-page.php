@@ -74,6 +74,12 @@ $spora_tip_shelf = true;
                 <circle cx="12" cy="17" r=".6" fill="currentColor"/>
               </svg>
             </button>
+            <button type="button" class="logo-explosion-tool" data-tool="loupe" aria-pressed="false" aria-label="Loupe : examiner" title="Loupe : examiner">
+              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="10.5" cy="10.5" r="6.5"/>
+                <path d="M15.5 15.5L21 21"/>
+              </svg>
+            </button>
             <button type="button" class="logo-explosion-tool" data-tool="tree" aria-pressed="false" aria-label="Planter un arbre" title="Planter un arbre">
               <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M12 3l5 7h-3l4 6h-4v5h-4v-5H6l4-6H7z"/>
@@ -87,13 +93,21 @@ $spora_tip_shelf = true;
                 <circle cx="18" cy="20" r=".6" fill="currentColor"/>
               </svg>
             </button>
+            <button type="button" class="logo-explosion-tool" data-tool="grass" aria-pressed="false" aria-label="Semer du gazon" title="Semer du gazon">
+              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 21h18"/>
+                <path d="M12 21V8"/>
+                <path d="M8 21c0-4-1-7-4-9"/>
+                <path d="M16 21c0-4 1-7 4-9"/>
+              </svg>
+            </button>
             <div id="logo-explosion-money"class="logo-explosion-money d-none" aria-live="polite"><span id="logo-explosion-money-val">0</span>&nbsp;$</div>
           </div>
           <div id="logo-explosion-challenges" class="logo-explosion-challenges-badge d-none" tabindex="0" role="button" aria-label="Défis">
             <span class="logo-explosion-challenges-count"></span>
             <div class="logo-explosion-challenges-pop" role="tooltip"></div>
           </div>
-          <div id="logo-explosion-strains" class="logo-explosion-strains d-none" role="group" aria-label="Souche de mycélium et gazon"></div>
+          <div id="logo-explosion-strains" class="logo-explosion-strains d-none" role="group" aria-label="Souche de mycélium"></div>
           <div id="logo-explosion-treasures" class="logo-explosion-treasures d-none" aria-live="polite"></div>
           <div id="logo-explosion-speed-wrap" class="logo-explosion-speed d-none">
             <label for="logo-explosion-speed">Vitesse <span id="logo-explosion-speed-val">1×</span></label>
@@ -206,7 +220,7 @@ $spora_tip_shelf = true;
                   width="1600" height="1060" loading="lazy" decoding="async"
                   alt="Pleurotes en huître qui poussent dans un tas de feuilles"
                   class="img-fluid rounded-2"/>
-                <p class="text-muted small mt-2 mb-0">Photo prise en juin 2022</p>
+                <p class="text-muted small mt-2 mb-0"><em>Pleurotus ostreatus</em> (pleurote en huître) · Photo prise en juin 2022</p>
               </div>
               <div class="col-12 col-lg-6">
                 <div class="d-flex flex-column justify-content-between h-100 p-3 p-lg-0">

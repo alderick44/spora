@@ -143,10 +143,14 @@ export function makeTree(x) {
   return t;
 }
 
+// Arbre lointain a droite, hors de la vue de depart : absent pendant la demo (on ne peut pas
+// defiler jusqu'a lui), plante a "Continuer a jouer" (endDemo).
+export function makeFarTree() { return makeTree(vue.camMargin + vue.W * 1.35); }
+
 // Arbre de depart deja bien nourri (presque mature), avec un feuillage fourni.
 export function makeStartTree(x, eaten) {
-  // Cherche vers la gauche (on reste au bord de l'ecran, loin du tas du logo) une zone
-  // sans roche ni eau sur 4 colonnes de chaque cote.
+  // x est une clairiere sans roche a la generation (voir buildRockyPatches) ; la recherche
+  // vers la gauche ne sert que sur un terrain restaure d'une ancienne sauvegarde.
   var maxX = (monde.heights.length - 1) * COL_W, nx = null, cx, d, ok;
   for (cx = x; cx >= x - vue.UW * 0.2 && nx === null; cx -= COL_W) {
     ok = true;

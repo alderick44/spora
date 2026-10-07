@@ -13,6 +13,7 @@ import { drawLakes, surfaceAt } from './terrain.js';
 import { drawRain } from './meteo.js';
 import { drawRoots, drawTree, drawMycHalo, shadeRgb } from './arbres.js';
 import { drawShovel, drawBag, drawHand } from './outils.js';
+import { drawLoupe } from './loupe.js';
 import { drawNuggets, drawGoldBits, strainOrder } from './tresors.js';
 import { positionTreasureOverlays } from './cartes.js';
 
@@ -158,10 +159,13 @@ function rebuildTile(t) {
 // Passe 0 : detection des changements, cuisson, repeinte et copie des tuiles (contexte
 // deja en coord. monde). Renvoie les facettes a dessiner en direct.
 function cacheSoil(rise) {
-  if (partie.mode !== 'exploded' || monde.soilRiseT < 1) {
+  if (partie.mode !== 'exploded') {
     if (tileList.length) resetTiles();
     return monde.shards;
   }
+  // Montee du lit : ses facettes sont cuites tout de suite, a leur place finale (sans rise),
+  // et les tuiles sont copiees decalees de rise. Rien d'autre ne cuit pendant la montee.
+  var rising = monde.soilRiseT < 1;
   var i, j, t, s, live = liveSoil, keep = [];
   bakeFrame++;
   var vx0 = vue.camX, vx1 = vue.camX + vue.W, vy0 = vue.camY, vy1 = vue.camY + vue.H;
@@ -207,9 +211,9 @@ function cacheSoil(rise) {
     var k = ((r | 0) << 16) | ((g | 0) << 8) | (bl | 0);
     var c = Math.cos(s.rot), sn = Math.sin(s.rot);
     if (s.settled && !s.soil && !s.leaf) { c *= LOOSE_DRAW_SCALE; sn *= LOOSE_DRAW_SCALE; }
-    var a0 = s.x + p[0][0] * c - p[0][1] * sn, a1 = sy + (p[0][0] * sn + p[0][1] * c);
-    var a2 = s.x + p[1][0] * c - p[1][1] * sn, a3 = sy + (p[1][0] * sn + p[1][1] * c);
-    var a4 = s.x + p[2][0] * c - p[2][1] * sn, a5 = sy + (p[2][0] * sn + p[2][1] * c);
+    var a0 = s.x + p[0][0] * c - p[0][1] * sn, a1 = s.y + (p[0][0] * sn + p[0][1] * c);
+    var a2 = s.x + p[1][0] * c - p[1][1] * sn, a3 = s.y + (p[1][0] * sn + p[1][1] * c);
+    var a4 = s.x + p[2][0] * c - p[2][1] * sn, a5 = s.y + (p[2][0] * sn + p[2][1] * c);
     var v = s.bkV;
     if (!v) { v = s.bkV = [0, 0, 0, 0, 0, 0]; s.bkN = 0; s.bkC = -1; }
     if (k !== s.bkC || Math.abs(a0 - v[0]) > BAKE_EPS || Math.abs(a1 - v[1]) > BAKE_EPS ||
@@ -218,7 +222,7 @@ function cacheSoil(rise) {
       if (baked) { unbakeShard(s); baked = false; }
       s.bkC = k; v[0] = a0; v[1] = a1; v[2] = a2; v[3] = a3; v[4] = a4; v[5] = a5;
       s.bkN = 0;
-    } else if (!baked && ++s.bkN >= BAKE_FRAMES) { baked = bakeShard(s); if (!baked) s.bkN = 0; }
+    } else if (!baked && (rising ? s.soil && s.settled : ++s.bkN >= BAKE_FRAMES)) { baked = bakeShard(s); if (!baked) s.bkN = 0; }
     if (!baked) live.push(s);
   }
   // Repeinte avant copie, puis copie calee au px device (hors transformation monde).
@@ -226,7 +230,7 @@ function cacheSoil(rise) {
     t = tileList[i];
     if (t.dirty || t.seen !== t.n) rebuildTile(t);
   }
-  var ox = Math.round(-vue.camX * vue.RS), oy = Math.round(-vue.camY * vue.RS), cw = canvas.width, ch = canvas.height;
+  var ox = Math.round(-vue.camX * vue.RS), oy = Math.round((rise - vue.camY) * vue.RS), cw = canvas.width, ch = canvas.height;
   ctx.save();
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   for (i = 0; i < tileList.length; i++) {
@@ -325,6 +329,9 @@ export function draw() {
   drawHand();
   drawRain();
   ctx.restore();
+  // Apres tout le monde (pluie comprise, que la lentille doit grossir) : la loupe se dessine en
+  // coord. ECRAN, repere remis par draw() avant le translate camera.
+  drawLoupe();
   positionTreasureOverlays();
 }
 

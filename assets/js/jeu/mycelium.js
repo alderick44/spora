@@ -157,19 +157,14 @@ export function stepMycelium(now) {
   return busy;
 }
 
-// Grille de voisinage refaite a chaque passage : la pelle deplace les facettes.
+// Grille de voisinage refaite a chaque passage (la pelle deplace les facettes), mais
+// seulement autour des facettes qui peuvent se propager : rien a faire, pas de grille.
 function spreadMycelium(now) {
-  var D = 14, radius = vue.U * MYC_RADIUS, grid = new Map(), i, s, b;
-  for (i = 0; i < monde.shards.length; i++) {
-    s = monde.shards[i];
-    if (!s.settled) continue;
-    var key = ((s.x / D) | 0) * 1024 + ((s.y / D) | 0);
-    var cell = grid.get(key);
-    if (cell) cell.push(s); else grid.set(key, [s]);
-  }
-  var buckets = {}, fw = vue.U * FRUIT_W;
+  var D = 14, radius = vue.U * MYC_RADIUS, i, s, b, c;
+  var buckets = {}, fw = vue.U * FRUIT_W, spreaders = [];
+  var x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
   for (i = 0; i < monde.colonised.length; i++) {
-    var c = monde.colonised[i];
+    c = monde.colonised[i];
     if (!c.settled || c.myc < MYC_READY) continue;
     if (c.myc > 0.9 && c.y - surfaceAt(c.x) < 18) {
       b = Math.floor(c.x / fw);
@@ -180,6 +175,25 @@ function spreadMycelium(now) {
     // vraiment a portee), pas juste "pas encore mort" : sinon une facette peut conquerir
     // toute la terre autour d'elle avant de s'eteindre, loin de tout bois.
     if (now - c.lastFed >= MYC_ACTIVE_FEED_MS) continue;
+    spreaders.push(c);
+    if (c.x < x0) x0 = c.x;
+    if (c.x > x1) x1 = c.x;
+    if (c.y < y0) y0 = c.y;
+    if (c.y > y1) y1 = c.y;
+  }
+  var grid = new Map();
+  if (spreaders.length) {
+    x0 -= D; x1 += D; y0 -= D; y1 += D;
+    for (i = 0; i < monde.shards.length; i++) {
+      s = monde.shards[i];
+      if (!s.settled || s.myc || s.x < x0 || s.x > x1 || s.y < y0 || s.y > y1) continue;
+      var key = ((s.x / D) | 0) * 1024 + ((s.y / D) | 0);
+      var cell = grid.get(key);
+      if (cell) cell.push(s); else grid.set(key, [s]);
+    }
+  }
+  for (i = 0; i < spreaders.length; i++) {
+    c = spreaders[i];
     var gx = (c.x / D) | 0, gy = (c.y / D) | 0, free = [];
     for (var ax = -1; ax <= 1; ax++) {
       for (var ay = -1; ay <= 1; ay++) {

@@ -14,6 +14,8 @@ import { FACTS, resetPatches } from './messages.js';
 import { CHALLENGES, updateChallengeUI } from './defis.js';
 import { guideReset } from './tutoriel.js';
 import { rebuild } from './physique.js';
+import { setTool } from './outils.js';
+import { setLoupeNew } from './loupe.js';
 
 var playerSig = null;
 function knownTitle(t) { return typeof t === 'string' && partie.treasureDefs.some(function (d) { return d.title === t; }); }
@@ -159,7 +161,7 @@ export function saveWorld() {
       r[c] = monde.rocky[c] ? 1 : 0;
     }
     var m = saveMycelium(), p = playerState();
-    localStorage.setItem(WORLD_KEY, JSON.stringify({ v: WORLD_VERSION, zoom: vue.ZOOM, cols: n, heights: h, compactY: cy, rocky: r, myc: m.myc, strains: m.strains, trees: saveTrees(), player: p }));
+    localStorage.setItem(WORLD_KEY, JSON.stringify({ v: WORLD_VERSION, zoom: vue.baseZoom, cols: n, heights: h, compactY: cy, rocky: r, myc: m.myc, strains: m.strains, trees: saveTrees(), player: p }));
     worldKeyHeld = true;
     partie.worldSig = terrainSig();
     worldEaten = eatenSum();
@@ -181,6 +183,9 @@ export function resetAllAndRebuild() {
   try { localStorage.removeItem(DEMO_KEY); } catch (e) { /* rien a effacer */ }
   partie.DEMO = DEMO_PAGE;
   container.classList.toggle('is-demo', partie.DEMO);
+  // La demo cache la loupe : si elle etait l'outil, retour a la main ; plus de pulsation non plus.
+  if (partie.DEMO && partie.tool === 'loupe') setTool('hand');
+  if (partie.DEMO) setLoupeNew(false);
   try { localStorage.removeItem(WORLD_KEY); } catch (e) { /* rien a effacer */ }
   guideReset();
   worldKeyHeld = false;
@@ -234,7 +239,7 @@ export function restoreWorld() {
   try {
     var d = JSON.parse(localStorage.getItem(WORLD_KEY));
     // Positions en px logiques : valables seulement pour le meme zoom (sans champ = ancienne sauvegarde, zoom 1).
-    if (!d || d.v !== WORLD_VERSION || d.cols !== n || (d.zoom === undefined ? 1 : d.zoom) !== vue.ZOOM) return false;
+    if (!d || d.v !== WORLD_VERSION || d.cols !== n || (d.zoom === undefined ? 1 : d.zoom) !== vue.baseZoom) return false;
     var arrs = [d.heights, d.compactY, d.rocky];
     for (var a = 0; a < 3; a++) {
       if (!Array.isArray(arrs[a]) || arrs[a].length !== n) return false;
