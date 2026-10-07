@@ -7,7 +7,7 @@ Description:
 Requires at least: 6.7
 Tested up to: 6.9
 Requires PHP: 7.2
-Version: 1.11.116
+Version: 1.11.132
 License: GNU General Public License v2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: twentytwentyfive
@@ -517,3 +517,67 @@ body.home .header label{
     overflow: hidden;
 }
 
+
+/* Bande d'avis Etsy (accueil) */
+.avis-etoiles{
+    display: inline-flex;
+    gap: 2px;
+    color: var(--color-red);
+}
+.avis-carrousel{
+    max-width: 30rem;
+    margin-left: auto;
+    margin-right: auto;
+}
+/* Hauteur fixe pour que la page ne saute pas d'un avis a l'autre (le plus long en 4-5 lignes) */
+.avis-carrousel .carousel-item{
+    min-height: 12rem;
+}
+@media (max-width: 575.98px){
+    .avis-carrousel .carousel-item{
+        min-height: 16rem;
+    }
+}
+/* Contenu centre verticalement dans la hauteur minimale, pour rester a la hauteur des fleches */
+.avis-carrousel .carousel-item.active,
+.avis-carrousel .carousel-item-next,
+.avis-carrousel .carousel-item-prev{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.avis-produit{
+    opacity: .7;
+}
+.avis-carrousel .carousel-indicators{
+    position: static;
+    margin: .5rem 0 0;
+}
+.avis-carrousel .carousel-indicators [data-bs-target]{
+    background-color: var(--color-red);
+}
+.avis-source{
+    font-size: .75rem;
+    color: var(--bs-dark);
+    opacity: .6;
+}
+.avis-original summary{
+    display: inline;
+    list-style: none;
+    cursor: pointer;
+    text-decoration: underline;
+    opacity: .75;
+}
+.avis-original summary::-webkit-details-marker{
+    display: none;
+}
+.avis-carrousel .carousel-control-prev,
+.avis-carrousel .carousel-control-next{
+    width: 2.5rem;
+    color: var(--color-red);
+    opacity: 1;
+    bottom: 2rem; /* exclut la rangee de points pour centrer sur le texte */
+}
+.avis-carte blockquote{
+    font-style: italic;
+}

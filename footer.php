@@ -45,7 +45,8 @@
               alt="logo sporacultus"
             />
           </div>
-          <div class="mt-5">
+          <p class="mt-5 mb-0 small">★ 4,8 sur 5 · <a href="https://www.etsy.com/shop/Sporacultus#reviews" data-bs-toggle="modal" data-bs-target="#modal-avis-etsy">avis sur Etsy</a></p>
+          <div class="mt-3">
             <p>© 2026 Sporacultus. Tous droits réservés.</p>
           </div>
         </div>
@@ -68,6 +69,22 @@
       </div>
       <div class="pt-5 bg-dark"></div>
     </footer>
+    <div class="modal fade" id="modal-avis-etsy" tabindex="-1" aria-labelledby="modal-avis-etsy-titre" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2 class="modal-title h5" id="modal-avis-etsy-titre">Revenez sur notre site pour vos commandes</h2>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+          </div>
+          <div class="modal-body">
+            Revenez sur notre site quand vous serez prêt à commander. C'est là que vous aurez le meilleur service.
+          </div>
+          <div class="modal-footer">
+            <a class="btn btn-primary" href="https://www.etsy.com/shop/Sporacultus#reviews" target="_blank" rel="noopener noreferrer">Voir les avis sur Etsy</a>
+          </div>
+        </div>
+      </div>
+    </div>
     <script src="<?php echo esc_url( get_theme_file_uri( 'assets/js/bootstrap.bundle.min.js' ) ); ?>?ver=5.3.8"></script>
 </body>
 </html>
