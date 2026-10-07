@@ -209,12 +209,12 @@ $spora_tip_shelf = true;
           </div>
         </section>
         <?php
-        $etsy_url = 'https://www.etsy.com/shop/Sporacultus?ref=seller-platform-mcnav#reviews';
+        $etsy_url = 'https://www.etsy.com/shop/Sporacultus#reviews';
         // Avis cités tels quels : ['texte', 'prénom', 'date', 'produit', original anglais (optionnel, affiche « voir l'original »)]
         $avis_etsy = [
           ['Magnifique, culture très agressive, la colonisation s’est réalisée rapidement et intensivement.', 'Lucas', '24 juillet 2024', 'Culture liquide, seringue de 12 ml'],
-          ['Je recommande sans hésiter! Ce vendeur s’est surpassé pour m’offrir une expérience formidable, et la qualité des produits est incroyable!', 'Nevin', '30 juillet 2025', 'Sac de culture tout-en-un (coco et son), 1,2 kg', 'Will definitely order again! This seller went above and beyond to make this a great experience for me and the quality of the products are amazing!'],
-          ['J’ai tout reçu comme décrit, livraison ultra rapide, service à la clientèle sympathique et produits de grande qualité. Très satisfait de cet achat, merci du Canada.', 'Raye', '9 août 2025', 'Sac de grain de seigle stérilisé', 'I received everything as described, super quick delivery, friendly customer service, and everything seems high quality. Very happy with this purchase, thank you from Canada.'],
+          ['Je commanderai à nouveau sans hésiter! Ce vendeur s’est surpassé pour m’offrir une expérience formidable, et la qualité des produits est incroyable!', 'Nevin', '30 juillet 2025', 'Sac de culture tout-en-un (coco et son), 1,2 kg', 'Will definitely order again! This seller went above and beyond to make this a great experience for me and the quality of the products are amazing!'],
+          ['J’ai tout reçu comme décrit, livraison ultra rapide, service à la clientèle sympathique et le tout semble de grande qualité. Très satisfait de cet achat, merci du Canada.', 'Raye', '9 août 2025', 'Sac de grain de seigle stérilisé', 'I received everything as described, super quick delivery, friendly customer service, and everything seems high quality. Very happy with this purchase, thank you from Canada.'],
           ['Merci mille fois excellent service et produit', 'André', '5 juin 2024', 'Grain de champignon en vrac, 10 kg'],
         ];
         $etoile = '<svg class="avis-etoile" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/></svg>';
@@ -255,23 +255,6 @@ $spora_tip_shelf = true;
               </button>
             </div>
             <a class="btn btn-primary btn-sm mt-3" href="<?php echo esc_url($etsy_url); ?>" data-bs-toggle="modal" data-bs-target="#modal-avis-etsy">Voir les avis sur Etsy →</a>
-            <p class="avis-source mt-2 mb-0">Avis de clients, publiés sur Etsy</p>
-          </div>
-          <div class="modal fade" id="modal-avis-etsy" tabindex="-1" aria-labelledby="modal-avis-etsy-titre" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h2 class="modal-title h5" id="modal-avis-etsy-titre">Nos avis sur Etsy, la boutique officielle ici</h2>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
-                </div>
-                <div class="modal-body">
-                  Revenez sur notre site quand vous serez prêt à commander : c'est là que vous aurez le meilleur service.
-                </div>
-                <div class="modal-footer">
-                  <a class="btn btn-primary" href="<?php echo esc_url($etsy_url); ?>" target="_blank" rel="noopener noreferrer">Voir les avis sur Etsy</a>
-                </div>
-              </div>
-            </div>
           </div>
         </section>
         <section class="py-5 my-5">
