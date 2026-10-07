@@ -45,7 +45,8 @@
               alt="logo sporacultus"
             />
           </div>
-          <div class="mt-5">
+          <p class="mt-5 mb-0 small">★ 4,8 sur 5 · <a href="https://www.etsy.com/shop/Sporacultus?ref=seller-platform-mcnav#reviews" target="_blank" rel="noopener noreferrer">avis sur Etsy</a></p>
+          <div class="mt-3">
             <p>© 2026 Sporacultus. Tous droits réservés.</p>
           </div>
         </div>

@@ -208,6 +208,72 @@ $spora_tip_shelf = true;
             </div>
           </div>
         </section>
+        <?php
+        $etsy_url = 'https://www.etsy.com/shop/Sporacultus?ref=seller-platform-mcnav#reviews';
+        // Avis cités tels quels : ['texte', 'prénom', 'date', 'produit', original anglais (optionnel, affiche « voir l'original »)]
+        $avis_etsy = [
+          ['Magnifique, culture très agressive, la colonisation s’est réalisée rapidement et intensivement.', 'Lucas', '24 juillet 2024', 'Culture liquide, seringue de 12 ml'],
+          ['Je recommande sans hésiter! Ce vendeur s’est surpassé pour m’offrir une expérience formidable, et la qualité des produits est incroyable!', 'Nevin', '30 juillet 2025', 'Sac de culture tout-en-un (coco et son), 1,2 kg', 'Will definitely order again! This seller went above and beyond to make this a great experience for me and the quality of the products are amazing!'],
+          ['J’ai tout reçu comme décrit, livraison ultra rapide, service à la clientèle sympathique et produits de grande qualité. Très satisfait de cet achat, merci du Canada.', 'Raye', '9 août 2025', 'Sac de grain de seigle stérilisé', 'I received everything as described, super quick delivery, friendly customer service, and everything seems high quality. Very happy with this purchase, thank you from Canada.'],
+          ['Merci mille fois excellent service et produit', 'André', '5 juin 2024', 'Grain de champignon en vrac, 10 kg'],
+        ];
+        $etoile = '<svg class="avis-etoile" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/></svg>';
+        ?>
+        <section class="py-4 my-4 avis-etsy">
+          <div class="text-center">
+            <h2 class="h3">Ce que nos clients en disent</h2>
+            <p class="mt-2 mb-1 d-flex justify-content-center align-items-center gap-2 flex-wrap">
+              <span class="avis-etoiles" role="img" aria-label="4,8 sur 5"><?php echo str_repeat($etoile, 5); ?></span>
+              <strong>4,8 sur 5</strong>
+              <span>· plus de 75 avis sur Etsy</span>
+            </p>
+            <div id="avis-etsy-carrousel" class="carousel slide avis-carrousel mt-5" data-bs-ride="false" role="region" aria-roledescription="carrousel" aria-label="Avis de clients">
+              <div class="carousel-inner">
+                <?php foreach ($avis_etsy as $i => $avis) : [$texte, $prenom, $date, $produit] = $avis; ?>
+                <figure class="carousel-item avis-carte px-5 mb-0<?php echo $i === 0 ? ' active' : ''; ?>">
+                  <blockquote class="mb-1">« <?php echo esc_html($texte); ?> »</blockquote>
+                  <figcaption class="small"><strong><?php echo esc_html($prenom); ?></strong> · <?php echo esc_html($date); ?><span class="avis-produit d-block"><?php echo esc_html($produit); ?></span></figcaption>
+                  <?php if (!empty($avis[4])) : ?>
+                  <details class="avis-original small mt-2">
+                    <summary>Traduit de l’anglais · voir l’original</summary>
+                    <span lang="en">« <?php echo esc_html($avis[4]); ?> »</span>
+                  </details>
+                  <?php endif; ?>
+                </figure>
+                <?php endforeach; ?>
+              </div>
+              <div class="carousel-indicators">
+                <?php foreach ($avis_etsy as $i => $avis) : ?>
+                <button type="button" data-bs-target="#avis-etsy-carrousel" data-bs-slide-to="<?php echo (int) $i; ?>"<?php echo $i === 0 ? ' class="active" aria-current="true"' : ''; ?> aria-label="Avis <?php echo $i + 1; ?>"></button>
+                <?php endforeach; ?>
+              </div>
+              <button class="carousel-control-prev" type="button" data-bs-target="#avis-etsy-carrousel" data-bs-slide="prev" aria-label="Avis précédent">
+                <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" d="M15 5l-7 7 7 7"/></svg>
+              </button>
+              <button class="carousel-control-next" type="button" data-bs-target="#avis-etsy-carrousel" data-bs-slide="next" aria-label="Avis suivant">
+                <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+              </button>
+            </div>
+            <a class="btn btn-primary btn-sm mt-3" href="<?php echo esc_url($etsy_url); ?>" data-bs-toggle="modal" data-bs-target="#modal-avis-etsy">Voir les avis sur Etsy →</a>
+            <p class="avis-source mt-2 mb-0">Avis de clients, publiés sur Etsy</p>
+          </div>
+          <div class="modal fade" id="modal-avis-etsy" tabindex="-1" aria-labelledby="modal-avis-etsy-titre" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h2 class="modal-title h5" id="modal-avis-etsy-titre">Nos avis sur Etsy, la boutique officielle ici</h2>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                </div>
+                <div class="modal-body">
+                  Revenez sur notre site quand vous serez prêt à commander : c'est là que vous aurez le meilleur service.
+                </div>
+                <div class="modal-footer">
+                  <a class="btn btn-primary" href="<?php echo esc_url($etsy_url); ?>" target="_blank" rel="noopener noreferrer">Voir les avis sur Etsy</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
         <section class="py-5 my-5">
           <div class="text-center d-flex flex-column align-items-center">
             <h2 class="h1">Précommandez votre mycélium en vrac!</h2>
