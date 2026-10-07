@@ -192,7 +192,7 @@ get_header( 'shop' );
 							<h5 class="p-3">Le jardinier</h5>
 						</div>
 						<div class="col-7 mx-auto mx-xxl-0">
-							<img class="w-100 object-fit-contain bundles-img rounded-2" src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/mycelium-en-vrac-fructification.webp' ); ?>" alt="Fructification de pleurote au sol à partir de copeaux de bois">
+							<img class="bundles-img rounded-2" src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/mycelium-en-vrac-fructification.webp' ); ?>" alt="Fructification de pleurote au sol à partir de copeaux de bois">
 						</div>
 						<div class="col-12">
 							<p class="py-4 my-0" id="texte-gauche">Le jardinier regroupe tout le nécessaire pour lancer une culture de champignons directement au jardin. Il comprend du mycélium en vrac, des granules de bois francs, du son de blé et les instructions de préparation.
@@ -212,7 +212,7 @@ get_header( 'shop' );
 							</button>
 						</div>
 						<div class="col-5 col-sm-6 mx-auto pe-1 ps-0">
-							<img class="w-100 object-fit-contain bundles-img rounded-2" src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/hwfp-crop.webp' ); ?>" alt="Granules de bois dure">
+							<img class="bundles-img rounded-2" src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/hwfp-crop.webp' ); ?>" alt="Granules de bois dure">
 						</div>
 						<div class="col-5 col-sm-6 mx-auto pe-xxl-5 pe-0 ps-0"> <!-- Bundle #1 --> 
 							<button class="mb-5 btn btn-primary btn-panier d-none d-xxl-inline">
@@ -228,7 +228,7 @@ get_header( 'shop' );
 								$product = $prev;
 								?>
 							</button>
-							<img class="w-100 object-fit-contain bundles-img rounded-2" src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/mycelium-en-vrac.webp' ); ?>" alt="Sac de mycelium en vrac">
+							<img class="bundles-img rounded-2" src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/pleurote-feuilles-2022-800.webp' ); ?>" alt="Pleurotes en huître qui poussent dans un tas de feuilles">
 						</div>
 					</div>
 				</div>
@@ -238,8 +238,8 @@ get_header( 'shop' );
 						<div class="col-12">
 							<h5 class="p-3 text-xxl-end">L’apprenti myciculteur</h5>
 						</div>
-						<div class="col-7 ms-xxl-auto mx-auto me-xxl-0">
-							<img class="w-100 object-fit-contain bundles-img rounded-2" src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/pleurote-exterieur-automne.JPG' ); ?>" alt="Bloc de fructification à l'extérieur">
+						<div class="col-7 ms-xxl-auto mx-auto me-xxl-0 text-xxl-end">
+							<img class="bundles-img rounded-2" src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/pleurote-exterieur-automne.JPG' ); ?>" alt="Bloc de fructification à l'extérieur">
 						</div>
 						<div class="col-12">
 							<p class="py-4 my-0 d-flex align-items-center text-xxl-end" id="texte-droite">L’apprenti myciculteur est un ensemble d’initiation complet pour apprendre les bases de la myciculture à la maison.
@@ -271,10 +271,10 @@ get_header( 'shop' );
 								$product = $prev;
 								?>
 							</button>
-							<img class="w-100 object-fit-contain bundles-img rounded-2" src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/cls.webp' ); ?>" alt="Mycelium sur grain dans une hotte à flux laminaire">
+							<img class="bundles-img rounded-2" src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/cls.webp' ); ?>" alt="Mycelium sur grain dans une hotte à flux laminaire">
 						</div>
 						<div class="col-5 col-sm-6 mx-auto ps-1 pe-0 text-xxl-end">
-							<img class="w-100 object-fit-contain bundles-img rounded-2" src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/GSL-pack.webp' ); ?>" alt="Pack de 5 sacs mycelium sur grain">
+							<img class="bundles-img rounded-2" src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/GSL-pack.webp' ); ?>" alt="Pack de 5 sacs mycelium sur grain">
 						</div>
 					</div>
 				</div>
