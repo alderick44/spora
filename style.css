@@ -7,7 +7,7 @@ Description:
 Requires at least: 6.7
 Tested up to: 6.9
 Requires PHP: 7.2
-Version: 1.11.132
+Version: 1.11.139
 License: GNU General Public License v2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: twentytwentyfive
@@ -203,6 +203,10 @@ body.home .header label{
   height: 0;
 }
 .basket-thumb{
+    /* block : une image brisée redevient du texte en ligne, perd ses 48px
+       et gonfle le panier à 3000 × 1500 (taille par défaut de sizes="auto") */
+    display: block;
+    overflow: hidden;
     width: 48px;
     height: 48px;
 }
@@ -246,6 +250,31 @@ body.home .header label{
     --bs-btn-disabled-color: var(--bs-secondary-color);
     font-size: .75rem;
     line-height: 1;
+}
+/* « ← Boutique » : en couleur, sinon le lien se fait ignorer */
+.mini-cart-continue{
+    --bs-btn-color: var(--color-red);
+    --bs-btn-hover-color: var(--color-red-dark);
+    --bs-btn-active-color: var(--color-red-dark);
+    font-weight: 600;
+    text-decoration: none;
+    /* ferré à gauche dans la grille des boutons, au lieu de pleine largeur centré */
+    justify-self: start;
+    padding-left: 0;
+}
+/* Écran tactile : flèches et × plus gros pour le pouce */
+@media (pointer: coarse){
+    .mini-cart-qty-btn{
+        font-size: 1.6rem;
+    }
+    .basket-dropdown .woocommerce-mini-cart a.remove_from_cart_button{
+        font-size: 1.75rem;
+        line-height: 1;
+    }
+    /* Le × qui ferme le panier reste le plus gros des deux ; !important pour battre .fs-1 */
+    .basket-dropdown .mini-cart-close:not(.mini-cart-continue){
+        font-size: 2.25rem !important;
+    }
 }
 /* Pendant la requête : on bloque les clics et on atténue le panier */
 .widget_shopping_cart_content.is-updating{
