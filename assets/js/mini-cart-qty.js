@@ -138,9 +138,18 @@
   }
 
 
+  const trimSlash = (p) => p.replace(/\/+$/, '');
+
   document.addEventListener('click', function (e) {
-    const closeBtn = e.target.closest('.mini-cart-close');
+    const closeBtn = e.target.closest('.mini-cart-close, .mini-cart-continue');
     if (closeBtn) {
+      // « ← Boutique » : on laisse le lien mener à la boutique,
+      // sauf si on y est déjà (là, on ferme juste le panier).
+      if (closeBtn.matches('.mini-cart-continue')) {
+        if (trimSlash(closeBtn.pathname) !== trimSlash(window.location.pathname)) return;
+        e.preventDefault();
+      }
+
       const wrap = closeBtn.closest('.basket-dropdown-wrap');
       const toggleBtn = wrap && wrap.querySelector('button[data-bs-toggle="dropdown"]');
       if (!toggleBtn) return;
@@ -153,6 +162,19 @@
       return;
     }
 
+  });
+
+  // Fiche produit : « ← Boutique » refait le chemin inverse si on arrive de la boutique
+  // (on retombe au même endroit dans la page), sinon le lien y mène.
+  document.addEventListener('click', function (e) {
+    const back = e.target.closest('.product-back');
+    if (!back || !document.referrer) return;
+    let ref;
+    try { ref = new URL(document.referrer); } catch (err) { return; }
+    if (ref.origin !== window.location.origin) return;
+    if (trimSlash(ref.pathname) !== trimSlash(back.pathname)) return;
+    e.preventDefault();
+    window.history.back();
   });
 
   // Fiche produit : ajout AJAX (le formulaire WooCommerce recharge la page sinon).

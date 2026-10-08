@@ -130,8 +130,12 @@ do_action( 'woocommerce_before_mini_cart' );
       <a class="btn btn-primary" href="<?php echo esc_url( wc_get_checkout_url() ); ?>">
         Passer à la caisse
       </a>
-      <a class="button wc-forward btn btn-primary" href="<?php echo esc_url( wc_get_cart_url() ); ?>">
+      <a class="wc-forward btn btn-primary" href="<?php echo esc_url( wc_get_cart_url() ); ?>">
         <?php esc_html_e( 'View cart', 'woocommerce' ); ?>
+      </a>
+      <?php // Mène à la boutique ; si on y est déjà, mini-cart-qty.js ferme juste le panier ?>
+      <a class="btn btn-link mini-cart-continue" href="<?php echo esc_url( home_url( '/shop/' ) ); ?>">
+        <span aria-hidden="true">←</span> Boutique
       </a>
     </div>
   <?php else : ?>
