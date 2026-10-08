@@ -34,7 +34,11 @@ get_header( 'shop' ); ?>
 		<?php while ( have_posts() ) : ?>
 			<?php the_post(); ?>
 			<main>
-				<div class="container">
+				<div class="container position-relative">
+					<?php // Refait le chemin inverse si on arrive de la boutique (mini-cart-qty.js), sinon y mène ?>
+					<a class="btn btn-link product-back" href="<?php echo esc_url( home_url( '/shop/' ) ); ?>">
+						<span aria-hidden="true">←</span> Boutique
+					</a>
 					<h1 class="text-center p-5"><?php echo the_title()?></h1>
 					<div class="row mb-4 g-1">
 							<div class="col-12 col-md-7">
